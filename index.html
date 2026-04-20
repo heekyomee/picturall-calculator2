@@ -417,8 +417,8 @@
         const sO = (iw / BASE_WIDTH).toFixed(6);
 
         document.getElementById("baseScaleResult").innerHTML = `
-            <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로 꽉 채우기</span><span class="val">${sW}</span></div>
-            <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로 꽉 채우기</span><span class="val">${sH}</span></div>
+            <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로 채우기</span><span class="val">${sW}</span></div>
+            <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로 채우기</span><span class="val">${sH}</span></div>
             <div class="scale-item" onclick="applyScale('${sO}', this)"><span class="scale-label">정사이즈 (1:1)</span><span class="val">${sO}</span></div>`;
 
         elVisualizer.style.aspectRatio = `${lw}/${lh}`;
