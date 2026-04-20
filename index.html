@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Picturall Pro 계산기</title>
+    <title>히경이의 Picturall 계산기</title>
     <style>
         :root {
             --primary: #2563eb;       
@@ -16,6 +16,8 @@
             --border-color: #ddd;  
             --radius-md: 7px; 
             --radius-sm: 5px; 
+            /* 추가: Preview 박스와 동일한 부드러운 파란색 변수 */
+            --preview-blue: rgba(97, 142, 250, 0.9);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,13 +64,24 @@
         input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
         input:disabled { background-color: #f8f9fa; color: #888; border-color: #eee; }
 
+        /* --- [숫자 조절(위아래) 스핀 버튼 숨기기] --- */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
         /* 비주얼라이저 */
         .visualizer-wrapper {
             width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
             position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 36px;
         } 
         .visualizer-source {
-            position: absolute; background-color: rgba(97, 142, 250, 0.9);
+            /* 여기서 쓰인 색상을 --preview-blue 변수로 대체 */
+            position: absolute; background-color: var(--preview-blue);
             display: flex; justify-content: center; align-items: center; cursor: move;
         }
         .visualizer-source span { color: white; font-weight: 600; font-size: 0.8rem; pointer-events: none; } 
@@ -102,7 +115,7 @@
             display: flex; 
             align-items: center; 
             gap: 6px; 
-            margin-top: 6px; /* 음수(-4px)로 딱 붙어있던 것을 다시 6px로 늘려 간격 확보 */
+            margin-top: 6px; 
             padding-left: 2px; 
             margin-bottom: 20px;
         } 
@@ -126,8 +139,10 @@
             border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; transition: 0.2s;
             display: flex; justify-content: center; align-items: center; color: #555;
         } 
-        .snap-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
-        .snap-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .snap-btn:hover { background: var(--primary-light); border-color: var(--preview-blue); color: var(--preview-blue); }
+        
+        /* 활성화된 스냅 버튼 색상을 Preview 박스 색상(--preview-blue)으로 변경 */
+        .snap-btn.active { background: var(--preview-blue); color: white; border-color: var(--preview-blue); }
         .snap-btn.active .dot { width: 5px; height: 5px; background: white; border-radius: 50%; } 
 
         /* --- [오른쪽 열] 스케일 리스트 --- */
@@ -157,6 +172,52 @@
         } 
         .readonly-box:hover { border-color: var(--primary); }
         .readonly-box span { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
+        
+        /* --- [중앙 Px, Py: 심플한 Stepper (증감 버튼) 디자인] --- */
+        .stepper-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #f8fafc; 
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            height: 39px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .stepper-wrapper:focus-within {
+            background-color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        .stepper-wrapper button {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            width: 32px;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .stepper-wrapper button:hover {
+            background-color: #e2e8f0;
+            color: var(--primary);
+        }
+        .stepper-wrapper input {
+            flex: 1;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .stepper-wrapper:focus-within input {
+            color: var(--primary);
+        }
         
         .copied { color: #10b981 !important; font-family: inherit !important; font-size: 0.94rem !important; }
         .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; margin-right: 5px;} 
@@ -252,8 +313,22 @@
                 </div>
                 
                 <div class="form-row">
-                    <div class="form-group"><label>중앙 Px (가로)</label><input id="pixelX" type="number"></div>
-                    <div class="form-group"><label>중앙 Py (세로)</label><input id="pixelY" type="number"></div>
+                    <div class="form-group">
+                        <label>중앙 Px (가로)</label>
+                        <div class="stepper-wrapper">
+                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', -1)">−</button>
+                            <input id="pixelX" type="number">
+                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>중앙 Py (세로)</label>
+                        <div class="stepper-wrapper">
+                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', -1)">−</button>
+                            <input id="pixelY" type="number">
+                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', 1)">+</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -289,7 +364,6 @@
 
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     
-    // LED 프리셋 적용
     function applyPreset() {
         if (presetSelect.value) {
             const [w, h] = presetSelect.value.split(",");
@@ -301,10 +375,18 @@
         handleResolutionChange();
     }
 
-    // 영상 소스 프리셋 버튼 동작 함수
     window.applySourcePreset = function(width, height) {
         iwInput.value = width; ihInput.value = height;
         handleResolutionChange();
+    };
+
+    // 중앙 픽셀 ±1 미세 조절 함수
+    window.adjustPixel = function(id, delta) {
+        const input = document.getElementById(id);
+        input.value = Number(input.value) + delta;
+        // 마우스로 위치를 조절한 것이므로 스냅 버튼 불 끄기
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        updateAll();
     };
 
     window.copyValue = function(text, element) {
@@ -337,20 +419,23 @@
             <div class="scale-item" onclick="applyScale('${sO}', this)"><span class="scale-label">정사이즈 (1:1)</span><span class="val">${sO}</span></div>`;
 
         elVisualizer.style.aspectRatio = `${lw}/${lh}`;
-        
-        // Preview 영역에 표시되는 해상도 텍스트 업데이트
         sourceResLabel.innerText = `${iw}x${ih}`;
         
-        // 프리셋 변경 시 파란 박스가 중앙 정렬되도록 "세로를 꽉 채울 때" 값으로 스케일과 위치 초기화
-        scaleInput.value = sH;
-        pixelXInput.value = Math.round(lw / 2);
-        pixelYInput.value = Math.round(lh / 2);
-        
-        // 스냅 버튼 활성화 상태를 '중앙'으로 변경
-        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
-        document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
-
-        updateAll();
+        if (!scaleInput.value) {
+            scaleInput.value = sH;
+            pixelXInput.value = Math.round(lw / 2);
+            pixelYInput.value = Math.round(lh / 2);
+            document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+            document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
+            updateAll();
+        } else {
+            const activeSnap = document.querySelector(".snap-btn.active");
+            if (activeSnap) {
+                activeSnap.click(); 
+            } else {
+                updateAll();
+            }
+        }
     }
 
     function updateAll() {
@@ -363,7 +448,6 @@
         document.getElementById("posX_result").innerText = nX.toFixed(6);
         document.getElementById("posY_result").innerText = nY.toFixed(6);
 
-        // Preview 내부의 파란색 박스 크기와 위치 계산
         const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (ih / iw);
         const wP = (bW / lw) * 100, hP = (bH / lh) * 100;
         
@@ -372,7 +456,6 @@
         elSourceBox.style.left = `${(px/lw)*100 - wP/2}%`; 
         elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
         
-        // 입력 중에도 실시간으로 Preview의 텍스트가 바뀌게 처리
         sourceResLabel.innerText = `${iw}x${ih}`;
     }
 
@@ -391,16 +474,39 @@
     }));
 
     let isDrag = false;
-    elSourceBox.addEventListener("mousedown", (e) => { isDrag = true; e.preventDefault(); });
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initPixelX = 0;
+    let initPixelY = 0;
+
+    elSourceBox.addEventListener("mousedown", (e) => { 
+        isDrag = true; 
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        initPixelX = Number(pixelXInput.value);
+        initPixelY = Number(pixelYInput.value);
+        e.preventDefault(); 
+    });
+    
     window.addEventListener("mouseup", () => isDrag = false);
+    
     window.addEventListener("mousemove", (e) => {
         if(!isDrag) return;
         const rect = elVisualizer.getBoundingClientRect();
-        // 비주얼라이저 바깥으로 드래그 가능하도록 범위 확장
-        const xNormalized = Math.max(-5, Math.min((e.clientX - rect.left) / rect.width, 5)); 
-        const yNormalized = Math.max(-5, Math.min((e.clientY - rect.top) / rect.height, 5)); 
-        pixelXInput.value = Math.round(xNormalized * Number(lwInput.value));
-        pixelYInput.value = Math.round(yNormalized * Number(lhInput.value));
+        const lw = Number(lwInput.value) || 1;
+        const lh = Number(lhInput.value) || 1;
+
+        const scaleX = lw / rect.width;
+        const scaleY = lh / rect.height;
+
+        const deltaX = e.clientX - dragStartX;
+        const deltaY = e.clientY - dragStartY;
+
+        pixelXInput.value = Math.round(initPixelX + (deltaX * scaleX));
+        pixelYInput.value = Math.round(initPixelY + (deltaY * scaleY));
+
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        
         updateAll();
     });
 
