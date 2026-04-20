@@ -257,7 +257,6 @@
     </div>
 
     <div class="bottom-grid">
-        
         <div class="col-left">
             <div>
                 <div class="inner-title">영상 소스 해상도</div>
@@ -266,7 +265,6 @@
                     <div class="form-group"><label>세로 (px)</label><input id="ih" type="number" value="2160"></div>
                 </div>
                 <div class="ratio-info">비율 <div style="width:4px;height:4px;background:#ccc;border-radius:50%"></div> <span class="value" id="ratioValue">16:9</span></div>
-                
                 <div class="preset-btn-row">
                     <button class="preset-btn" onclick="applySourcePreset(3840, 2160)">3840 X 2160</button>
                     <button class="preset-btn" onclick="applySourcePreset(1920, 1080)">1920 X 1080</button>
@@ -461,7 +459,7 @@
         elSourceBox.style.left = `${(px/lw)*100 - wP/2}%`; 
         elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
         
-        sourceResLabel.innerText = `${iw}x${ih}`;
+        sourceResLabel.innerText = `${iw} X ${ih}`;
     }
 
     document.querySelectorAll(".snap-btn").forEach(btn => btn.addEventListener("click", function() {
