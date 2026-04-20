@@ -96,7 +96,7 @@
         .ratio-dot { width: 3px; height: 3px; background: #b0b5bd; border-radius: 50%; }
         .ratio-value { font-weight: 500; color: #6f7580; }
 
-        /* --- 결과 블록 공통 스타일 (스케일 및 최종 포지션 창) --- */
+        /* --- 결과 블록 공통 스타일 --- */
         .result-block {
             background: #f4f7fb;
             padding: 12px 16px;
@@ -163,15 +163,15 @@
         .bottom-row {
             display: flex;
             gap: 16px;
-            align-items: stretch; /* 양쪽 박스 높이 맞춤 */
+            align-items: stretch;
         }
         .bottom-col-left {
-            flex: 1; /* 스냅 영역 넓이 비율 */
+            flex: 1;
             display: flex;
             flex-direction: column;
         }
         .bottom-col-right {
-            flex: 1.2; /* 결과 영역이 숫자가 길어서 약간 더 넓게 설정 */
+            flex: 1.2;
             display: flex;
             flex-direction: column;
         }
@@ -181,7 +181,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            flex-grow: 1; /* 부모 높이에 맞춰 꽉 채움 */
+            flex-grow: 1;
         }
         .grid-btn {
             background-color: #ffffff;
@@ -209,11 +209,11 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 세로 중앙 정렬 */
+            justify-content: center;
             margin-bottom: 0;
         }
         .bottom-col-right .result-row {
-            padding: 12px 0; /* 세로 여백을 주어 버튼 그리드와 높이 균형 맞춤 */
+            padding: 12px 0;
         }
 
         /* 입력 필드 강조 */
@@ -223,7 +223,7 @@
 <body>
 
 <div class="container">
-    <h2>Picturall Pro 계산기</h2>
+    <h2>Picturall Pro</h2>
 
     <div class="section">
         <div class="section-title">LED 월(Wall) 해상도</div>
@@ -374,7 +374,7 @@
     
     [scaleInput, scaleHeightInput].forEach(el => el.addEventListener("input", updateVisualsAndNormalizedFromPixel));
 
-    // 최대공약수 계산 (비율용)
+    // 최대공약수 계산
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
 
     function updateRatio() {
@@ -395,26 +395,22 @@
         handleResolutionChange();
     }
 
-    // 일반 값 복사 함수 (최종 결과창 등에 사용)
+    // 일반 값 복사 함수
     window.copyValue = function(text, element) {
         navigator.clipboard.writeText(text);
-        
         const valDiv = element.querySelector('.result-value');
         const origText = valDiv.innerText;
         element.classList.add("copied");
         valDiv.innerText = "복사 완료!";
-        
         setTimeout(() => {
             element.classList.remove("copied");
             valDiv.innerText = origText;
         }, 1000);
     };
 
-    // 스케일 값 적용 및 복사 함수 (상단 스케일 결과창에 사용)
+    // 스케일 값 적용 및 복사 함수
     window.applyScaleAndCopy = function(val, element) {
         navigator.clipboard.writeText(val);
-        
-        // 클릭한 결과값을 아래 Scale 입력칸에 자동 입력
         scaleInput.value = val;
         
         const valDiv = element.querySelector('.result-value');
@@ -422,7 +418,6 @@
         element.classList.add("copied");
         valDiv.innerText = "적용 및 복사됨!";
         
-        // 화면 재계산
         updateVisualsAndNormalizedFromPixel();
         
         setTimeout(() => {
@@ -440,12 +435,10 @@
         const lw = Number(lwInput.value) || 1;
         const lh = Number(lhInput.value) || 1;
 
-        // 1. 기존 베이스 스케일 계산
         const scaleWidth = lw / BASE_WIDTH;
         const scaleHeightCalc = scaleWidth * lh / (lw * ih / iw);
         const scaleOriginal = iw / BASE_WIDTH;
 
-        // 2. 스케일 결과 패널 렌더링
         document.getElementById("baseScaleResult").innerHTML = `
             <div class="result-row" onclick="applyScaleAndCopy('${scaleWidth.toFixed(6)}', this)">
                 <div class="result-label">가로를 꽉 채울 때</div>
@@ -461,11 +454,9 @@
             </div>
         `;
 
-        // 3. 비주얼라이저 비율 세팅
         elVisualizer.style.aspectRatio = `${lw} / ${lh}`;
         elSourceResLabel.textContent = `${iw}x${ih}`;
 
-        // 4. 중앙 위치로 초기화
         pixelXInput.value = Math.round(lw / 2);
         pixelYInput.value = Math.round(lh / 2);
         
@@ -475,7 +466,7 @@
         updateVisualsAndNormalizedFromPixel();
     }
 
-    // 픽셀/스케일 데이터 기반 UI 및 정규화 업데이트
+    // 🌟 핵심 로직 수정: 픽셀/스케일 데이터 기반 UI 및 정규화 업데이트 🌟
     function updateVisualsAndNormalizedFromPixel() {
         const lw = Number(lwInput.value) || 1;
         const lh = Number(lhInput.value) || 1;
@@ -487,19 +478,21 @@
         const S = Number(scaleInput.value) || 0;
         const Sh = Number(scaleHeightInput.value) || 0;
 
-        // Picturall 정규화 공식 계산 ([-1, 1] 범위)
-        const normalizedX = (px / lw) * 2.0 - 1.0;
-        const normalizedY = 1.0 - (py / lh) * 2.0;
-
-        // Picturall의 물리적 픽셀 크기 변환 공식 (BASE_WIDTH 11520 기준)
+        // 1. 영상 박스의 실제 픽셀 크기 계산
         const boxPxWidth = S * BASE_WIDTH;
         const boxPxHeight = S * Sh * BASE_WIDTH * (ih / iw);
 
-        // LED Wall 대비 화면 비율(%)
+        // 2. Picturall 정규화 공식 (수정됨: 월의 비율이 아닌 BASE_WIDTH(11520) 기준 픽셀 오프셋 계산)
+        const offsetPxX = px - (lw / 2); 
+        const offsetPxY = (lh / 2) - py; // 위로 갈수록 + 값이므로 lh/2 에서 빼줌
+
+        const normalizedX = offsetPxX / BASE_WIDTH;
+        const normalizedY = offsetPxY / BASE_WIDTH;
+
+        // 3. 비주얼라이저 박스 크기 및 위치 업데이트 (화면 비율에 맞춤)
         const widthPercent = (boxPxWidth / lw) * 100;
         const heightPercent = (boxPxHeight / lh) * 100;
 
-        // 1. 비주얼라이저 박스 크기 및 위치 업데이트
         elSourceBox.style.width = `${widthPercent}%`;
         elSourceBox.style.height = `${heightPercent}%`;
         
@@ -508,10 +501,7 @@
         elSourceBox.style.left = `${leftPercent}%`;
         elSourceBox.style.top = `${topPercent}%`;
         
-        // 2. 가이드 박스 내 라벨 업데이트 (Pos X, Pos Y로 변경됨)
         elPixelLabel.textContent = `Pos X: ${normalizedX.toFixed(6)} | Pos Y: ${normalizedY.toFixed(6)}`;
-
-        // 3. 최종 결과창 업데이트
         elPosX.textContent = normalizedX.toFixed(6);
         elPosY.textContent = normalizedY.toFixed(6);
     }
@@ -533,18 +523,15 @@
             const S = Number(scaleInput.value);
             const Sh = Number(scaleHeightInput.value);
 
-            // 입력된 Scale을 기반으로 이미지의 픽셀 크기 계산
             const boxPxWidth = S * BASE_WIDTH;
             const boxPxHeight = S * Sh * BASE_WIDTH * (ih / iw);
 
             let targetPx, targetPy;
 
-            // X축 스냅
             if (this.dataset.x === 'left') targetPx = boxPxWidth / 2;
             else if (this.dataset.x === 'right') targetPx = lw - (boxPxWidth / 2);
             else targetPx = lw / 2;
 
-            // Y축 스냅
             if (this.dataset.y === 'top') targetPy = boxPxHeight / 2;
             else if (this.dataset.y === 'bottom') targetPy = lh - (boxPxHeight / 2);
             else targetPy = lh / 2;
@@ -577,14 +564,12 @@
         let newLeft = boxLeft + (e.clientX - startX);
         let newTop = boxTop + (e.clientY - startY);
 
-        // 경계 제한
         newLeft = Math.max(0, Math.min(newLeft, containerW - elSourceBox.offsetWidth));
         newTop = Math.max(0, Math.min(newTop, containerH - elSourceBox.offsetHeight));
 
         elSourceBox.style.left = `${newLeft}px`;
         elSourceBox.style.top = `${newTop}px`;
 
-        // 중앙 픽셀 계산 (Visualizer 좌표계를 Wall 픽셀 좌표계로 변환)
         const newPx = ((newLeft + elSourceBox.offsetWidth/2) / containerW) * lw;
         const newPy = ((newTop + elSourceBox.offsetHeight/2) / containerH) * lh;
 
