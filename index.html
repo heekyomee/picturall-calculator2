@@ -393,14 +393,14 @@
         navigator.clipboard.writeText(text);
         const target = element.querySelector('span') || element;
         const orig = target.innerText; 
-        target.classList.add("copied"); target.innerText = "COPIED!";
+        target.classList.add("copied"); target.innerText = "Copied";
         setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
     };
 
     window.applyScale = function(val, element) {
         scaleInput.value = val; updateAll();
         const target = element.querySelector('.val');
-        const orig = target.innerText; target.classList.add("copied"); target.innerText = "COPIED!";
+        const orig = target.innerText; target.classList.add("copied"); target.innerText = "Copied";
         setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
     };
 
