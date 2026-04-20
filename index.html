@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picturall Pro 계산기</title>
+    <style>
+        /* --- 기본 테마 --- */
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f5f6f8;
+            font-size: 15px;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 480px;
+            max-width: 100%;
+            background: #ffffff;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 22px;
+            font-weight: 600;
+            color: #2f5fd0;
+        }
+
+        .section { margin-bottom: 22px; }
+        .section-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label {
+            font-size: 0.8em;
+            color: #777;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 9px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            box-sizing: border-box;
+            background: #fff;
+            color: #333;
+        }
+
+        input:disabled { background: #f0f2f5; color: #999; }
+        input:focus, select:focus {
+            border-color: #4a7cff;
+            box-shadow: 0 0 0 2px rgba(74,124,255,0.15);
+            outline: none;
+        }
+
+        .input-row { display: flex; gap: 12px; }
+        .input-group { flex: 1; }
+        .divider { height: 1px; background: #e4e8f0; margin: 24px 0; }
+
+        /* --- 해상도 입력부 스타일 --- */
+        .image-section {
+            background: #f2f6ff;
+            border: 1px solid #d6e2ff;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .image-section .section-title { color: #2f5fd0; }
+        .image-section input { border-color: #9db8ff; }
+
+        .ratio-line {
+            margin-top: 8px;
+            font-size: 0.78em;
+            color: #8a8f98;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ratio-dot { width: 3px; height: 3px; background: #b0b5bd; border-radius: 50%; }
+        .ratio-value { font-weight: 500; color: #6f7580; }
+
+        /* --- 결과 블록 공통 스타일 (스케일 및 최종 포지션 창) --- */
+        .result-block {
+            background: #f4f7fb;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #d1d8e6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .result-row:last-child { border-bottom: none; }
+        .result-row:hover { background: #eef3ff; }
+        .result-label { color: #555; }
+        .result-value { font-weight: 700; color: #333; font-family: 'Courier New', Courier, monospace; letter-spacing: 0.5px; }
+        .copied { color: #4a7cff; font-weight: bold; }
+        .help-text { font-size: 0.75em; color: #999; text-align: right; margin-top: 4px; }
+
+        /* --- 시각 가이드 --- */
+        .visualizer-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border: 2px dashed #adb5bd;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            cursor: crosshair;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .visualizer-source {
+            position: absolute;
+            background-color: rgba(74, 124, 255, 0.75);
+            border: 1px solid #2f5fd0;
+            box-sizing: border-box;
+            cursor: move;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+        .source-text { color: #ffffff; font-size: 0.8em; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .visualizer-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            color: #444;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.85);
+            padding: 3px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- 하단 병렬 레이아웃 (스냅 & 결과) --- */
+        .bottom-row {
+            display: flex;
+            gap: 16px;
+            align-items: stretch; /* 양쪽 박스 높이 맞춤 */
+        }
+        .bottom-col-left {
+            flex: 1; /* 스냅 영역 넓이 비율 */
+            display: flex;
+            flex-direction: column;
+        }
+        .bottom-col-right {
+            flex: 1.2; /* 결과 영역이 숫자가 길어서 약간 더 넓게 설정 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 그리드 및 상세 컨트롤 --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            flex-grow: 1; /* 부모 높이에 맞춰 꽉 채움 */
+        }
+        .grid-btn {
+            background-color: #ffffff;
+            color: #555;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 38px;
+        }
+        .grid-btn:hover { background-color: #f0f4ff; border-color: #4a7cff; }
+        .grid-btn.active {
+            background-color: #4a7cff;
+            color: #ffffff;
+            border-color: #2f5fd0;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(74,124,255,0.3);
+        }
+
+        .bottom-col-right .result-block {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 세로 중앙 정렬 */
+            margin-bottom: 0;
+        }
+        .bottom-col-right .result-row {
+            padding: 12px 0; /* 세로 여백을 주어 버튼 그리드와 높이 균형 맞춤 */
+        }
+
+        /* 입력 필드 강조 */
+        .ctrl-input { background: #fdfdfd; font-weight: bold; color: #4a7cff; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Picturall Pro 계산기</h2>
+
+    <div class="section">
+        <div class="section-title">LED 월(Wall) 해상도</div>
+        <select id="ledPreset" style="margin-bottom: 10px;">
+            <option value="9216,3672" selected>남산 (9216 × 3672)</option>
+            <option value="7680,2160">8K 가로형 (7680 × 2160)</option>
+            <option value="3840,2160">4K UHD (3840 × 2160)</option>
+            <option value="">직접 입력</option>
+        </select>
+        <div class="input-row">
+            <div class="input-group">
+                <label>가로 (W)</label>
+                <input id="lw" type="number">
+            </div>
+            <div class="input-group">
+                <label>세로 (H)</label>
+                <input id="lh" type="number">
+            </div>
+        </div>
+    </div>
+
+    <div class="section image-section">
+        <div class="section-title">영상 소스 해상도</div>
+        <div class="input-row">
+            <div class="input-group">
+                <label>가로 (px)</label>
+                <input id="iw" type="number" value="3840">
+            </div>
+            <div class="input-group">
+                <label>세로 (px)</label>
+                <input id="ih" type="number" value="2160">
+            </div>
+        </div>
+        <div class="ratio-line">
+            <span>비율</span><span class="ratio-dot"></span><span class="ratio-value" id="ratioValue">-</span>
+        </div>
+    </div>
+
+    <div class="result-block" id="baseScaleResult">
+        </div>
+    <div class="help-text">💡 항목을 클릭하면 아래 Scale 값에 자동 적용됩니다.</div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+        <div class="section-title">포지션 및 커스텀 스케일</div>
+        
+        <div class="visualizer-container" id="visualizer">
+            <div class="visualizer-source" id="sourceBox" draggable="true">
+                <span class="source-text" id="sourceResLabel">3840x2160</span>
+            </div>
+            <span class="visualizer-label" id="pixelLabel">Pos X: 0.000000 | Pos Y: 0.000000</span>
+        </div>
+
+        <div class="input-row" style="margin-bottom: 12px;">
+            <div class="input-group">
+                <label>Scale</label>
+                <input type="number" id="scaleValue" class="ctrl-input" value="0.5" step="0.000001">
+            </div>
+            <div class="input-group">
+                <label>Scale height</label>
+                <input type="number" id="scaleHeight" class="ctrl-input" value="1.0" step="0.000001">
+            </div>
+        </div>
+        <div class="input-row" style="margin-bottom: 16px;">
+            <div class="input-group">
+                <label>중앙 Px (가로 픽셀)</label>
+                <input type="number" id="pixelX" class="ctrl-input">
+            </div>
+            <div class="input-group">
+                <label>중앙 Py (세로 픽셀)</label>
+                <input type="number" id="pixelY" class="ctrl-input">
+            </div>
+        </div>
+
+        <div class="bottom-row">
+            <div class="bottom-col-left">
+                <label>자동 스냅 (Snap)</label>
+                <div class="grid-container" id="buttonGrid">
+                    <button class="grid-btn" data-x="left" data-y="top">↖</button>
+                    <button class="grid-btn" data-x="center" data-y="top">↑</button>
+                    <button class="grid-btn" data-x="right" data-y="top">↗</button>
+                    <button class="grid-btn" data-x="left" data-y="center">←</button>
+                    <button class="grid-btn active" data-x="center" data-y="center">ㆍ</button>
+                    <button class="grid-btn" data-x="right" data-y="center">→</button>
+                    <button class="grid-btn" data-x="left" data-y="bottom">↙</button>
+                    <button class="grid-btn" data-x="center" data-y="bottom">↓</button>
+                    <button class="grid-btn" data-x="right" data-y="bottom">↘</button>
+                </div>
+            </div>
+
+            <div class="bottom-col-right">
+                <label>최종 정규화 결과</label>
+                <div class="result-block">
+                    <div class="result-row" onclick="copyValue(this.querySelector('.result-value').innerText, this)">
+                        <div class="result-label">Pos X</div>
+                        <div class="result-value" id="posX_result">0.000000</div>
+                    </div>
+                    <div class="result-row" onclick="copyValue(this.querySelector('.result-value').innerText, this)">
+                        <div class="result-label">Pos Y</div>
+                        <div class="result-value" id="posY_result">0.000000</div>
+                    </div>
+                </div>
+                <div class="help-text">💡 항목을 클릭하면 값이 복사됩니다.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 시스템 상수 ---
+    const BASE_WIDTH = 11520;
+    
+    // --- DOM 요소 연결 ---
+    const iwInput = document.getElementById("iw");
+    const ihInput = document.getElementById("ih");
+    const lwInput = document.getElementById("lw");
+    const lhInput = document.getElementById("lh");
+    const ratioValue = document.getElementById("ratioValue");
+    const presetSelect = document.getElementById("ledPreset");
+    
+    const scaleInput = document.getElementById("scaleValue");
+    const scaleHeightInput = document.getElementById("scaleHeight");
+    const pixelXInput = document.getElementById("pixelX");
+    const pixelYInput = document.getElementById("pixelY");
+    
+    const elVisualizer = document.getElementById("visualizer");
+    const elSourceBox = document.getElementById("sourceBox");
+    const elSourceResLabel = document.getElementById("sourceResLabel");
+    const elPixelLabel = document.getElementById("pixelLabel");
+    const elButtons = document.querySelectorAll(".grid-btn");
+    
+    const elPosX = document.getElementById("posX_result");
+    const elPosY = document.getElementById("posY_result");
+
+    // 드래그 상태
+    let isDragging = false;
+    let startX, startY, boxLeft, boxTop;
+
+    // --- 이벤트 리스너 등록 ---
+    [iwInput, ihInput, lwInput, lhInput].forEach(el => el.addEventListener("input", handleResolutionChange));
+    presetSelect.addEventListener("change", applyPreset);
+    
+    [pixelXInput, pixelYInput].forEach(el => el.addEventListener("input", () => {
+        clearActiveButtons();
+        updateVisualsAndNormalizedFromPixel();
+    }));
+    
+    [scaleInput, scaleHeightInput].forEach(el => el.addEventListener("input", updateVisualsAndNormalizedFromPixel));
+
+    // 최대공약수 계산 (비율용)
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+    function updateRatio() {
+        const iw = Number(iwInput.value), ih = Number(ihInput.value);
+        if (!iw || !ih) { ratioValue.textContent = "-"; return; }
+        const g = gcd(iw, ih);
+        ratioValue.textContent = `${iw / g}:${ih / g}`;
+    }
+
+    function applyPreset() {
+        if (presetSelect.value) {
+            const [w, h] = presetSelect.value.split(",");
+            lwInput.value = w; lhInput.value = h;
+            lwInput.disabled = true; lhInput.disabled = true;
+        } else {
+            lwInput.disabled = false; lhInput.disabled = false;
+        }
+        handleResolutionChange();
+    }
+
+    // 일반 값 복사 함수 (최종 결과창 등에 사용)
+    window.copyValue = function(text, element) {
+        navigator.clipboard.writeText(text);
+        
+        const valDiv = element.querySelector('.result-value');
+        const origText = valDiv.innerText;
+        element.classList.add("copied");
+        valDiv.innerText = "복사 완료!";
+        
+        setTimeout(() => {
+            element.classList.remove("copied");
+            valDiv.innerText = origText;
+        }, 1000);
+    };
+
+    // 스케일 값 적용 및 복사 함수 (상단 스케일 결과창에 사용)
+    window.applyScaleAndCopy = function(val, element) {
+        navigator.clipboard.writeText(val);
+        
+        // 클릭한 결과값을 아래 Scale 입력칸에 자동 입력
+        scaleInput.value = val;
+        
+        const valDiv = element.querySelector('.result-value');
+        const origText = valDiv.innerText;
+        element.classList.add("copied");
+        valDiv.innerText = "적용 및 복사됨!";
+        
+        // 화면 재계산
+        updateVisualsAndNormalizedFromPixel();
+        
+        setTimeout(() => {
+            element.classList.remove("copied");
+            valDiv.innerText = origText;
+        }, 1000);
+    };
+
+    // 해상도 변경 시 처리
+    function handleResolutionChange() {
+        updateRatio();
+        
+        const iw = Number(iwInput.value) || 1;
+        const ih = Number(ihInput.value) || 1;
+        const lw = Number(lwInput.value) || 1;
+        const lh = Number(lhInput.value) || 1;
+
+        // 1. 기존 베이스 스케일 계산
+        const scaleWidth = lw / BASE_WIDTH;
+        const scaleHeightCalc = scaleWidth * lh / (lw * ih / iw);
+        const scaleOriginal = iw / BASE_WIDTH;
+
+        // 2. 스케일 결과 패널 렌더링
+        document.getElementById("baseScaleResult").innerHTML = `
+            <div class="result-row" onclick="applyScaleAndCopy('${scaleWidth.toFixed(6)}', this)">
+                <div class="result-label">가로를 꽉 채울 때</div>
+                <div class="result-value">${scaleWidth.toFixed(6)}</div>
+            </div>
+            <div class="result-row" onclick="applyScaleAndCopy('${scaleHeightCalc.toFixed(6)}', this)">
+                <div class="result-label">세로를 꽉 채울 때</div>
+                <div class="result-value">${scaleHeightCalc.toFixed(6)}</div>
+            </div>
+            <div class="result-row" onclick="applyScaleAndCopy('${scaleOriginal.toFixed(6)}', this)">
+                <div class="result-label">정사이즈 (1:1)</div>
+                <div class="result-value">${scaleOriginal.toFixed(6)}</div>
+            </div>
+        `;
+
+        // 3. 비주얼라이저 비율 세팅
+        elVisualizer.style.aspectRatio = `${lw} / ${lh}`;
+        elSourceResLabel.textContent = `${iw}x${ih}`;
+
+        // 4. 중앙 위치로 초기화
+        pixelXInput.value = Math.round(lw / 2);
+        pixelYInput.value = Math.round(lh / 2);
+        
+        clearActiveButtons();
+        document.querySelector('[data-x="center"][data-y="center"]').classList.add('active');
+
+        updateVisualsAndNormalizedFromPixel();
+    }
+
+    // 픽셀/스케일 데이터 기반 UI 및 정규화 업데이트
+    function updateVisualsAndNormalizedFromPixel() {
+        const lw = Number(lwInput.value) || 1;
+        const lh = Number(lhInput.value) || 1;
+        const iw = Number(iwInput.value) || 1;
+        const ih = Number(ihInput.value) || 1;
+        
+        const px = Number(pixelXInput.value) || 0;
+        const py = Number(pixelYInput.value) || 0;
+        const S = Number(scaleInput.value) || 0;
+        const Sh = Number(scaleHeightInput.value) || 0;
+
+        // Picturall 정규화 공식 계산 ([-1, 1] 범위)
+        const normalizedX = (px / lw) * 2.0 - 1.0;
+        const normalizedY = 1.0 - (py / lh) * 2.0;
+
+        // Picturall의 물리적 픽셀 크기 변환 공식 (BASE_WIDTH 11520 기준)
+        const boxPxWidth = S * BASE_WIDTH;
+        const boxPxHeight = S * Sh * BASE_WIDTH * (ih / iw);
+
+        // LED Wall 대비 화면 비율(%)
+        const widthPercent = (boxPxWidth / lw) * 100;
+        const heightPercent = (boxPxHeight / lh) * 100;
+
+        // 1. 비주얼라이저 박스 크기 및 위치 업데이트
+        elSourceBox.style.width = `${widthPercent}%`;
+        elSourceBox.style.height = `${heightPercent}%`;
+        
+        const leftPercent = (px / lw) * 100 - (widthPercent / 2);
+        const topPercent = (py / lh) * 100 - (heightPercent / 2);
+        elSourceBox.style.left = `${leftPercent}%`;
+        elSourceBox.style.top = `${topPercent}%`;
+        
+        // 2. 가이드 박스 내 라벨 업데이트 (Pos X, Pos Y로 변경됨)
+        elPixelLabel.textContent = `Pos X: ${normalizedX.toFixed(6)} | Pos Y: ${normalizedY.toFixed(6)}`;
+
+        // 3. 최종 결과창 업데이트
+        elPosX.textContent = normalizedX.toFixed(6);
+        elPosY.textContent = normalizedY.toFixed(6);
+    }
+
+    // --- 9방향 스냅 로직 ---
+    function clearActiveButtons() {
+        elButtons.forEach(btn => btn.classList.remove('active'));
+    }
+
+    elButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            clearActiveButtons();
+            this.classList.add('active');
+
+            const lw = Number(lwInput.value);
+            const lh = Number(lhInput.value);
+            const iw = Number(iwInput.value);
+            const ih = Number(ihInput.value);
+            const S = Number(scaleInput.value);
+            const Sh = Number(scaleHeightInput.value);
+
+            // 입력된 Scale을 기반으로 이미지의 픽셀 크기 계산
+            const boxPxWidth = S * BASE_WIDTH;
+            const boxPxHeight = S * Sh * BASE_WIDTH * (ih / iw);
+
+            let targetPx, targetPy;
+
+            // X축 스냅
+            if (this.dataset.x === 'left') targetPx = boxPxWidth / 2;
+            else if (this.dataset.x === 'right') targetPx = lw - (boxPxWidth / 2);
+            else targetPx = lw / 2;
+
+            // Y축 스냅
+            if (this.dataset.y === 'top') targetPy = boxPxHeight / 2;
+            else if (this.dataset.y === 'bottom') targetPy = lh - (boxPxHeight / 2);
+            else targetPy = lh / 2;
+
+            pixelXInput.value = Math.round(targetPx);
+            pixelYInput.value = Math.round(targetPy);
+
+            updateVisualsAndNormalizedFromPixel();
+        });
+    });
+
+    // --- 드래그 로직 ---
+    elSourceBox.addEventListener('mousedown', e => {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        boxLeft = elSourceBox.offsetLeft;
+        boxTop = elSourceBox.offsetTop;
+        clearActiveButtons();
+    });
+
+    document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const lw = Number(lwInput.value);
+        const lh = Number(lhInput.value);
+        const containerW = elVisualizer.offsetWidth;
+        const containerH = elVisualizer.offsetHeight;
+        
+        let newLeft = boxLeft + (e.clientX - startX);
+        let newTop = boxTop + (e.clientY - startY);
+
+        // 경계 제한
+        newLeft = Math.max(0, Math.min(newLeft, containerW - elSourceBox.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, containerH - elSourceBox.offsetHeight));
+
+        elSourceBox.style.left = `${newLeft}px`;
+        elSourceBox.style.top = `${newTop}px`;
+
+        // 중앙 픽셀 계산 (Visualizer 좌표계를 Wall 픽셀 좌표계로 변환)
+        const newPx = ((newLeft + elSourceBox.offsetWidth/2) / containerW) * lw;
+        const newPy = ((newTop + elSourceBox.offsetHeight/2) / containerH) * lh;
+
+        pixelXInput.value = Math.round(newPx);
+        pixelYInput.value = Math.round(newPy);
+        
+        updateVisualsAndNormalizedFromPixel();
+    });
+
+    document.addEventListener('mouseup', () => isDragging = false);
+
+    // --- 초기 실행 ---
+    applyPreset();
+</script>
+
+</body>
+</html>
