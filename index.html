@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>히경이의 Picturall 계산기</title>
+    <title>Picturall Calculator</title>
+    
+    <link rel="icon" type="image/png" href="file:///C:/Users/heekyeong.kim/Desktop/favicon.png">
+
+
+
     <style>
         :root {
             --primary: #2563eb;       
@@ -414,15 +419,15 @@
         const sO = (iw / BASE_WIDTH).toFixed(6);
 
         document.getElementById("baseScaleResult").innerHTML = `
-            <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로를 꽉 채울 때</span><span class="val">${sW}</span></div>
-            <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로를 꽉 채울 때</span><span class="val">${sH}</span></div>
+            <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로 꽉 채우기</span><span class="val">${sW}</span></div>
+            <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로 꽉 채우기</span><span class="val">${sH}</span></div>
             <div class="scale-item" onclick="applyScale('${sO}', this)"><span class="scale-label">정사이즈 (1:1)</span><span class="val">${sO}</span></div>`;
 
         elVisualizer.style.aspectRatio = `${lw}/${lh}`;
         sourceResLabel.innerText = `${iw}x${ih}`;
         
         if (!scaleInput.value) {
-            scaleInput.value = sH;
+            scaleInput.value = sO;
             pixelXInput.value = Math.round(lw / 2);
             pixelYInput.value = Math.round(lh / 2);
             document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
