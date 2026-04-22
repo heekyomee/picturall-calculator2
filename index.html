@@ -32,6 +32,7 @@
             padding: 36px 18px; 
         }
 
+        /* 원래 사이즈 675px로 복구 완료 */
         .container {
             width: 675px; 
             max-width: 100%;
@@ -69,6 +70,31 @@
         }
         input[type="number"] { -moz-appearance: textfield; }
 
+        /* --- [레이어 선택 버튼 그리드 스타일 - 폭에 맞게 미세조정] --- */
+        .layer-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+        .layer-btn {
+            height: 28px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+        .layer-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+        .layer-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
         .visualizer-wrapper {
             width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
             position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 36px;
@@ -79,6 +105,7 @@
         }
         .visualizer-source span { color: white; font-weight: 600; font-size: 0.8rem; pointer-events: none; } 
 
+        /* 원래 비율 0.8fr 1.2fr 로 복구 완료 */
         .bottom-grid {
             display: grid;
             grid-template-columns: 0.8fr 1.2fr; 
@@ -156,13 +183,14 @@
         .stepper-wrapper button:hover { background-color: #e2e8f0; color: var(--primary); }
         .stepper-wrapper input {
             flex: 1; border: none !important; background: transparent !important; box-shadow: none !important;
-            padding: 0; color: #94a3b8; font-weight: 500;
+            padding: 0; color: #94a3b8; font-weight: 500; text-align: center;
         }
         .stepper-wrapper:focus-within input { color: var(--primary); }
         
         .copied { color: #10b981 !important; font-family: inherit !important; font-size: 0.94rem !important; }
         .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; margin-right: 5px;} 
 
+        /* LED Wall 영역도 원본 유지 */
         .subdued-section { padding-top: 9px; border-top: 1px dashed #e2e8f0; }
         .subdued-section .inner-title { color: #94a3b8; font-size: 0.8rem; margin-bottom: 9px; } 
         .subdued-section label { color: #94a3b8; font-weight: 500; }
@@ -190,6 +218,15 @@
 
     <div class="bottom-grid">
         <div class="col-left">
+            
+            <div>
+                <div class="inner-title">Target Layer (1 - 20)</div>
+                <div class="layer-grid" id="layerGrid">
+                    </div>
+            </div>
+            
+            <hr class="dashed-divider" style="margin-bottom: 24px;">
+
             <div>
                 <div class="inner-title">영상 소스 해상도</div>
                 <div class="form-row" style="margin-bottom: 6px;">
@@ -289,6 +326,8 @@
 
 <script>
     const BASE_WIDTH = 11520;
+    let currentSelectedLayer = 1; 
+
     const iwInput = document.getElementById("iw"), ihInput = document.getElementById("ih");
     const lwInput = document.getElementById("lw"), lhInput = document.getElementById("lh");
     const scaleInput = document.getElementById("scaleValue"), scaleHeightInput = document.getElementById("scaleHeight");
@@ -296,31 +335,65 @@
     const presetSelect = document.getElementById("ledPreset");
     const elSourceBox = document.getElementById("sourceBox"), elVisualizer = document.getElementById("visualizer");
     const sourceResLabel = document.getElementById("sourceResLabel");
+    const layerGrid = document.getElementById("layerGrid");
 
-    // --- [추가된 부분: 파이썬 중계 서버로 데이터 전송 함수] ---
+    // 레이어 버튼 20개 생성
+    for (let i = 1; i <= 20; i++) {
+        const btn = document.createElement("button");
+        btn.className = "layer-btn" + (i === 1 ? " active" : "");
+        btn.innerText = i;
+        btn.onclick = () => { selectLayer(i); };
+        layerGrid.appendChild(btn);
+    }
+
+    // 숫자키 1~9, 0 으로 1~10번 레이어 선택
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        const keyNum = parseInt(e.key);
+        if (keyNum >= 1 && keyNum <= 9) { selectLayer(keyNum); } 
+        else if (e.key === '0') { selectLayer(10); }
+    });
+
+    function selectLayer(num) {
+        const btns = document.querySelectorAll(".layer-btn");
+        btns.forEach(b => b.classList.remove("active"));
+        if(btns[num-1]) {
+            btns[num-1].classList.add("active");
+            currentSelectedLayer = num;
+            triggerSend(); // 레이어가 바뀔 때도 현재 화면의 값을 보내서 바로잡습니다.
+        }
+    }
+
+    // --- [핵심 기능: 값이 바뀔 때마다 자동으로 전송 (Debounce)] ---
+    let sendTimeout = null;
+    function triggerSend() {
+        if(sendTimeout) clearTimeout(sendTimeout);
+        // 0.05초 동안 추가 변경이 없으면 1번만 전송 (드래그 시 랙 방지)
+        sendTimeout = setTimeout(sendToPicturall, 50); 
+    }
+
     async function sendToPicturall() {
+        // X, Y 외에 Scale, Scale Height 값도 모두 가져옵니다.
         const posX = document.getElementById("posX_result").innerText;
         const posY = document.getElementById("posY_result").innerText;
-        
-        // 파이썬 중계 서버가 돌아가고 있는 현재 PC의 IP
+        const scaleVal = document.getElementById("scaleValue").value;
+        const scaleHVal = document.getElementById("scaleHeight").value;
         const bridgeIp = "127.0.0.1"; 
 
         try {
-            const response = await fetch(`http://${bridgeIp}:5000/snap`, {
+            await fetch(`http://${bridgeIp}:5000/snap`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    layer: currentSelectedLayer,
                     x: posX,
                     y: posY,
-                    layer: 1  // 제어할 레이어 번호 (필요에 따라 변경 가능)
+                    scale: scaleVal,
+                    scale_h: scaleHVal
                 })
             });
-            
-            if(!response.ok) {
-                console.error("서버 응답 에러");
-            }
         } catch (error) {
-            console.error("전송 실패(파이썬 서버 확인 요망):", error);
+            console.error("전송 실패:", error);
         }
     }
     // -------------------------------------------------------------
@@ -391,14 +464,11 @@
             updateAll();
         } else {
             const activeSnap = document.querySelector(".snap-btn.active");
-            if (activeSnap) {
-                activeSnap.click(); 
-            } else {
-                updateAll();
-            }
+            if (activeSnap) { activeSnap.click(); } else { updateAll(); }
         }
     }
 
+    // 🌟 값이 업데이트되는 최종 관문
     function updateAll() {
         const lw = Number(lwInput.value), lh = Number(lhInput.value), iw = Number(iwInput.value), ih = Number(ihInput.value);
         const px = Number(pixelXInput.value), py = Number(pixelYInput.value);
@@ -416,11 +486,12 @@
         elSourceBox.style.height = `${hP}%`;
         elSourceBox.style.left = `${(px/lw)*100 - wP/2}%`; 
         elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
-        
         sourceResLabel.innerText = `${iw} X ${ih}`;
+
+        // 화면의 값이 갱신될 때마다 자동으로 파이썬으로 쏘도록 지시합니다!
+        triggerSend();
     }
 
-    // --- [수정된 부분: 버튼 클릭 시 화면 갱신 후 파이썬으로 데이터 전송] ---
     document.querySelectorAll(".snap-btn").forEach(btn => btn.addEventListener("click", function() {
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
         this.classList.add("active");
@@ -434,46 +505,27 @@
         
         pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
         updateAll();
-        
-        // 데이터가 화면에 적용된 직후 통신!
-        sendToPicturall();
+        // (기존에 스냅버튼에 있던 sendToPicturall()은 지웠습니다. updateAll()이 알아서 쏘니까요!)
     }));
-    // -------------------------------------------------------------
 
     let isDrag = false;
-    let dragStartX = 0;
-    let dragStartY = 0;
-    let initPixelX = 0;
-    let initPixelY = 0;
+    let dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0;
 
     elSourceBox.addEventListener("mousedown", (e) => { 
-        isDrag = true; 
-        dragStartX = e.clientX;
-        dragStartY = e.clientY;
-        initPixelX = Number(pixelXInput.value);
-        initPixelY = Number(pixelYInput.value);
+        isDrag = true; dragStartX = e.clientX; dragStartY = e.clientY;
+        initPixelX = Number(pixelXInput.value); initPixelY = Number(pixelYInput.value);
         e.preventDefault(); 
     });
     
     window.addEventListener("mouseup", () => isDrag = false);
-    
     window.addEventListener("mousemove", (e) => {
         if(!isDrag) return;
         const rect = elVisualizer.getBoundingClientRect();
-        const lw = Number(lwInput.value) || 1;
-        const lh = Number(lhInput.value) || 1;
-
-        const scaleX = lw / rect.width;
-        const scaleY = lh / rect.height;
-
-        const deltaX = e.clientX - dragStartX;
-        const deltaY = e.clientY - dragStartY;
-
-        pixelXInput.value = Math.round(initPixelX + (deltaX * scaleX));
-        pixelYInput.value = Math.round(initPixelY + (deltaY * scaleY));
-
+        const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
+        const scaleX = lw / rect.width, scaleY = lh / rect.height;
+        pixelXInput.value = Math.round(initPixelX + ((e.clientX - dragStartX) * scaleX));
+        pixelYInput.value = Math.round(initPixelY + ((e.clientY - dragStartY) * scaleY));
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
-        
         updateAll();
     });
 
