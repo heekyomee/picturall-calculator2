@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Picturall Calculator</title>
     
-    <link rel="icon" type="image/png" href="file:///C:/Users/heekyeong.kim/Desktop/favicon.png">
-
-
-
     <style>
         :root {
             --primary: #2563eb;       
@@ -21,7 +17,6 @@
             --border-color: #ddd;  
             --radius-md: 7px; 
             --radius-sm: 5px; 
-            /* 추가: Preview 박스와 동일한 부드러운 파란색 변수 */
             --preview-blue: rgba(97, 142, 250, 0.9);
         }
 
@@ -47,7 +42,6 @@
             border: 1px solid var(--border-color);
         }
 
-        /* --- Typography Rules --- */
         h2 { text-align: center; font-weight: 800; color: var(--primary); font-size: 1.6rem; margin-bottom: 31px; } 
         
         .section-title { font-size: 1rem; font-weight: 700; color: #000; margin-bottom: 13px; } 
@@ -57,7 +51,6 @@
         .form-row { display: flex; gap: 13px; margin-bottom: 13px; } 
         .form-group { flex: 1; }
 
-        /* --- [모든 숫자 폰트 통일] --- */
         input, select {
             width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm);
             border: 1px solid var(--border-color); background-color: white;
@@ -69,29 +62,23 @@
         input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
         input:disabled { background-color: #f8f9fa; color: #888; border-color: #eee; }
 
-        /* --- [숫자 조절(위아래) 스핀 버튼 숨기기] --- */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
+        input[type="number"] { -moz-appearance: textfield; }
 
-        /* 비주얼라이저 */
         .visualizer-wrapper {
             width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
             position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 36px;
         } 
         .visualizer-source {
-            /* 여기서 쓰인 색상을 --preview-blue 변수로 대체 */
             position: absolute; background-color: var(--preview-blue);
             display: flex; justify-content: center; align-items: center; cursor: move;
         }
         .visualizer-source span { color: white; font-weight: 600; font-size: 0.8rem; pointer-events: none; } 
 
-        /* 하단 2열 레이아웃 (Grid) */
         .bottom-grid {
             display: grid;
             grid-template-columns: 0.8fr 1.2fr; 
@@ -99,37 +86,19 @@
             align-items: start;
         }
 
-        .col-left, .col-right {
-            display: flex;
-            flex-direction: column;
-            gap: 27px; 
-        }
+        .col-left, .col-right { display: flex; flex-direction: column; gap: 27px; }
 
-        /* --- [왼쪽 열] 영역 구분 점선 --- */
         .dashed-divider {
-            border: none;
-            border-top: 1px dashed #cbd5e1;
-            margin: -5px 0; 
-            width: 100%;
+            border: none; border-top: 1px dashed #cbd5e1; margin: -5px 0; width: 100%;
         }
 
-        /* --- [왼쪽 열] 영상 소스 해상도 --- */
         .ratio-info { 
-            font-size: 0.76rem; 
-            color: var(--text-sub); 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-            margin-top: 6px; 
-            padding-left: 2px; 
-            margin-bottom: 20px;
+            font-size: 0.76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; 
+            margin-top: 6px; padding-left: 2px; margin-bottom: 20px;
         } 
         .ratio-info .value { font-weight: 500; font-size: 0.94rem; color: var(--text-sub); } 
 
-        /* --- 영상 소스 프리셋 버튼 --- */
-        .preset-btn-row {
-            display: flex; gap: 7px; flex-wrap: wrap;
-        } 
+        .preset-btn-row { display: flex; gap: 7px; flex-wrap: wrap; } 
         .preset-btn {
             background-color: white; border: 1px solid var(--border-color); color: var(--text-sub);
             padding: 5px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;
@@ -137,7 +106,6 @@
         } 
         .preset-btn:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); }
 
-        /* --- [왼쪽 열] 자동 스냅 --- */
         .snap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; } 
         .snap-btn {
             height: 39px; border: 1px solid var(--border-color); background: white;
@@ -145,12 +113,9 @@
             display: flex; justify-content: center; align-items: center; color: #555;
         } 
         .snap-btn:hover { background: var(--primary-light); border-color: var(--preview-blue); color: var(--preview-blue); }
-        
-        /* 활성화된 스냅 버튼 색상을 Preview 박스 색상(--preview-blue)으로 변경 */
         .snap-btn.active { background: var(--preview-blue); color: white; border-color: var(--preview-blue); }
         .snap-btn.active .dot { width: 5px; height: 5px; background: white; border-radius: 50%; } 
 
-        /* --- [오른쪽 열] 스케일 리스트 --- */
         .scale-list {
             background: #f8fafc; border: 1px solid var(--border-color);
             border-radius: var(--radius-sm); display: flex; flex-direction: column; 
@@ -162,14 +127,12 @@
         .scale-label { font-size: 0.76rem; font-weight: 600; color: var(--text-sub); } 
         .scale-item .val { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
 
-        /* --- [오른쪽 열] 파란색 결과 컨트롤 박스 --- */
         .control-box-blue {
             background-color: var(--primary-light); border: 1px solid var(--primary-border);
             padding: 21px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 16px;
         } 
         .control-box-blue .form-row { margin-bottom: 0; gap: 13px;} 
         
-        /* Readonly 결과창 (Pos X, Pos Y) */
         .readonly-box {
             width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm);
             border: 1px solid var(--primary-border); background-color: white;
@@ -178,60 +141,29 @@
         .readonly-box:hover { border-color: var(--primary); }
         .readonly-box span { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
         
-        /* --- [중앙 Px, Py: 심플한 Stepper (증감 버튼) 디자인] --- */
         .stepper-wrapper {
-            display: flex;
-            align-items: center;
-            background-color: #f8fafc; 
-            border: 1px solid transparent;
-            border-radius: var(--radius-sm);
-            height: 39px;
-            overflow: hidden;
-            transition: all 0.2s;
+            display: flex; align-items: center; background-color: #f8fafc; 
+            border: 1px solid transparent; border-radius: var(--radius-sm); height: 39px;
+            overflow: hidden; transition: all 0.2s;
         }
         .stepper-wrapper:focus-within {
-            background-color: #fff;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
+            background-color: #fff; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light);
         }
         .stepper-wrapper button {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.1rem;
-            width: 32px;
-            height: 100%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s;
+            background: transparent; border: none; color: #94a3b8; font-size: 1.1rem;
+            width: 32px; height: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s;
         }
-        .stepper-wrapper button:hover {
-            background-color: #e2e8f0;
-            color: var(--primary);
-        }
+        .stepper-wrapper button:hover { background-color: #e2e8f0; color: var(--primary); }
         .stepper-wrapper input {
-            flex: 1;
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            padding: 0;
-            color: #94a3b8;
-            font-weight: 500;
+            flex: 1; border: none !important; background: transparent !important; box-shadow: none !important;
+            padding: 0; color: #94a3b8; font-weight: 500;
         }
-        .stepper-wrapper:focus-within input {
-            color: var(--primary);
-        }
+        .stepper-wrapper:focus-within input { color: var(--primary); }
         
         .copied { color: #10b981 !important; font-family: inherit !important; font-size: 0.94rem !important; }
         .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; margin-right: 5px;} 
 
-        /* --- [오른쪽 열] LED 월 해상도 (눈에 띄지 않는 Subdued 스타일) --- */
-        .subdued-section {
-            padding-top: 9px; 
-            border-top: 1px dashed #e2e8f0;
-        }
+        .subdued-section { padding-top: 9px; border-top: 1px dashed #e2e8f0; }
         .subdued-section .inner-title { color: #94a3b8; font-size: 0.8rem; margin-bottom: 9px; } 
         .subdued-section label { color: #94a3b8; font-weight: 500; }
         .subdued-section select, .subdued-section input {
@@ -365,6 +297,34 @@
     const elSourceBox = document.getElementById("sourceBox"), elVisualizer = document.getElementById("visualizer");
     const sourceResLabel = document.getElementById("sourceResLabel");
 
+    // --- [추가된 부분: 파이썬 중계 서버로 데이터 전송 함수] ---
+    async function sendToPicturall() {
+        const posX = document.getElementById("posX_result").innerText;
+        const posY = document.getElementById("posY_result").innerText;
+        
+        // 파이썬 중계 서버가 돌아가고 있는 현재 PC의 IP
+        const bridgeIp = "127.0.0.1"; 
+
+        try {
+            const response = await fetch(`http://${bridgeIp}:5000/snap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    x: posX,
+                    y: posY,
+                    layer: 1  // 제어할 레이어 번호 (필요에 따라 변경 가능)
+                })
+            });
+            
+            if(!response.ok) {
+                console.error("서버 응답 에러");
+            }
+        } catch (error) {
+            console.error("전송 실패(파이썬 서버 확인 요망):", error);
+        }
+    }
+    // -------------------------------------------------------------
+
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     
     function applyPreset() {
@@ -383,11 +343,9 @@
         handleResolutionChange();
     };
 
-    // 중앙 픽셀 ±1 미세 조절 함수
     window.adjustPixel = function(id, delta) {
         const input = document.getElementById(id);
         input.value = Number(input.value) + delta;
-        // 마우스로 위치를 조절한 것이므로 스냅 버튼 불 끄기
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
         updateAll();
     };
@@ -462,6 +420,7 @@
         sourceResLabel.innerText = `${iw} X ${ih}`;
     }
 
+    // --- [수정된 부분: 버튼 클릭 시 화면 갱신 후 파이썬으로 데이터 전송] ---
     document.querySelectorAll(".snap-btn").forEach(btn => btn.addEventListener("click", function() {
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
         this.classList.add("active");
@@ -473,8 +432,13 @@
         if(this.dataset.x === 'left') tx = bW/2; else if(this.dataset.x === 'right') tx = lw - bW/2;
         if(this.dataset.y === 'top') ty = bH/2; else if(this.dataset.y === 'bottom') ty = lh - bH/2;
         
-        pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); updateAll();
+        pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
+        updateAll();
+        
+        // 데이터가 화면에 적용된 직후 통신!
+        sendToPicturall();
     }));
+    // -------------------------------------------------------------
 
     let isDrag = false;
     let dragStartX = 0;
