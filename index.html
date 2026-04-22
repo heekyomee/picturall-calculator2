@@ -12,6 +12,7 @@
             --primary-border: #bfdbfe;
             --bg-body: #f5f6f8;       
             --bg-card: #ffffff;       
+            --bg-panel: #f8fafc;
             --text-main: #333;     
             --text-sub: #666;      
             --border-color: #ddd;  
@@ -32,20 +33,71 @@
             padding: 36px 18px; 
         }
 
-        /* 원래 사이즈 675px로 복구 완료 */
         .container {
-            width: 675px; 
+            width: 880px; /* 좌측 패널을 위해 너비 증가 */
             max-width: 100%;
             background: var(--bg-card);
-            padding: 36px; 
+            padding: 24px; 
             border-radius: 11px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
+            display: flex; /* 좌우 분할을 위한 Flexbox */
+            gap: 24px;
         }
 
-        h2 { text-align: center; font-weight: 800; color: var(--primary); font-size: 1.6rem; margin-bottom: 31px; } 
+        /* --- [좌측 포토샵 스타일 레이어 패널] --- */
+        .layer-panel {
+            width: 180px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .layer-panel-header {
+            background: #e2e8f0;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            color: #334155;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .layer-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            height: 520px; /* 스크롤 고정 높이 */
+        }
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #475569;
+            transition: 0.1s;
+        }
+        .layer-item:hover { background: #e2e8f0; }
+        .layer-item.active { background: var(--primary); color: white; font-weight: 600; }
+        .layer-number { width: 24px; font-size: 0.7rem; opacity: 0.7; }
+        .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;}
+        .layer-hint { font-size: 0.6rem; color: #94a3b8; text-align: center; padding: 5px; border-top: 1px dashed var(--border-color); }
+
+        /* --- [우측 컨트롤 영역] --- */
+        .controls-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 { text-align: center; font-weight: 800; color: var(--primary); font-size: 1.4rem; margin-bottom: 24px; margin-top: 5px;} 
         
-        .section-title { font-size: 1rem; font-weight: 700; color: #000; margin-bottom: 13px; } 
         .inner-title { font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 11px; } 
         label { font-size: 0.76rem; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; display: block; padding-left: 2px;} 
         
@@ -63,41 +115,12 @@
         input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
         input:disabled { background-color: #f8f9fa; color: #888; border-color: #eee; }
 
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
-
-        /* --- [레이어 선택 버튼 그리드 스타일 - 폭에 맞게 미세조정] --- */
-        .layer-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 4px;
-            margin-bottom: 24px;
-        }
-        .layer-btn {
-            height: 28px;
-            border: 1px solid var(--border-color);
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            transition: 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-        .layer-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
-        .layer-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .visualizer-wrapper {
             width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
-            position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 36px;
+            position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 24px;
         } 
         .visualizer-source {
             position: absolute; background-color: var(--preview-blue);
@@ -105,222 +128,164 @@
         }
         .visualizer-source span { color: white; font-weight: 600; font-size: 0.8rem; pointer-events: none; } 
 
-        /* 원래 비율 0.8fr 1.2fr 로 복구 완료 */
-        .bottom-grid {
-            display: grid;
-            grid-template-columns: 0.8fr 1.2fr; 
-            gap: 45px; 
-            align-items: start;
-        }
+        .bottom-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 30px; align-items: start; }
+        .col-left, .col-right { display: flex; flex-direction: column; gap: 20px; }
+        .dashed-divider { border: none; border-top: 1px dashed #cbd5e1; margin: -5px 0; width: 100%; }
 
-        .col-left, .col-right { display: flex; flex-direction: column; gap: 27px; }
-
-        .dashed-divider {
-            border: none; border-top: 1px dashed #cbd5e1; margin: -5px 0; width: 100%;
-        }
-
-        .ratio-info { 
-            font-size: 0.76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; 
-            margin-top: 6px; padding-left: 2px; margin-bottom: 20px;
-        } 
+        .ratio-info { font-size: 0.76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; margin-top: 6px; padding-left: 2px; margin-bottom: 15px; } 
         .ratio-info .value { font-weight: 500; font-size: 0.94rem; color: var(--text-sub); } 
 
         .preset-btn-row { display: flex; gap: 7px; flex-wrap: wrap; } 
-        .preset-btn {
-            background-color: white; border: 1px solid var(--border-color); color: var(--text-sub);
-            padding: 5px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; font-family: inherit;
-        } 
+        .preset-btn { background-color: white; border: 1px solid var(--border-color); color: var(--text-sub); padding: 5px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; } 
         .preset-btn:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); }
 
         .snap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; } 
-        .snap-btn {
-            height: 39px; border: 1px solid var(--border-color); background: white;
-            border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; transition: 0.2s;
-            display: flex; justify-content: center; align-items: center; color: #555;
-        } 
+        .snap-btn { height: 39px; border: 1px solid var(--border-color); background: white; border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; color: #555; } 
         .snap-btn:hover { background: var(--primary-light); border-color: var(--preview-blue); color: var(--preview-blue); }
         .snap-btn.active { background: var(--preview-blue); color: white; border-color: var(--preview-blue); }
         .snap-btn.active .dot { width: 5px; height: 5px; background: white; border-radius: 50%; } 
 
-        .scale-list {
-            background: #f8fafc; border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm); display: flex; flex-direction: column; 
-            justify-content: center; padding: 5px 0; 
-        }
+        .scale-list { background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; flex-direction: column; justify-content: center; padding: 5px 0; }
         .scale-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; border-bottom: 1px dashed var(--border-color); cursor: pointer; } 
         .scale-item:last-child { border-bottom: none; }
         .scale-item:hover { background: var(--primary-light); }
         .scale-label { font-size: 0.76rem; font-weight: 600; color: var(--text-sub); } 
         .scale-item .val { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
 
-        .control-box-blue {
-            background-color: var(--primary-light); border: 1px solid var(--primary-border);
-            padding: 21px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 16px;
-        } 
+        .control-box-blue { background-color: var(--primary-light); border: 1px solid var(--primary-border); padding: 21px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 16px; } 
         .control-box-blue .form-row { margin-bottom: 0; gap: 13px;} 
         
-        .readonly-box {
-            width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm);
-            border: 1px solid var(--primary-border); background-color: white;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
-        } 
-        .readonly-box:hover { border-color: var(--primary); }
+        .readonly-box { width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm); border: 1px solid var(--primary-border); background-color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; } 
         .readonly-box span { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
         
-        .stepper-wrapper {
-            display: flex; align-items: center; background-color: #f8fafc; 
-            border: 1px solid transparent; border-radius: var(--radius-sm); height: 39px;
-            overflow: hidden; transition: all 0.2s;
-        }
-        .stepper-wrapper:focus-within {
-            background-color: #fff; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        .stepper-wrapper button {
-            background: transparent; border: none; color: #94a3b8; font-size: 1.1rem;
-            width: 32px; height: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s;
-        }
-        .stepper-wrapper button:hover { background-color: #e2e8f0; color: var(--primary); }
-        .stepper-wrapper input {
-            flex: 1; border: none !important; background: transparent !important; box-shadow: none !important;
-            padding: 0; color: #94a3b8; font-weight: 500; text-align: center;
-        }
-        .stepper-wrapper:focus-within input { color: var(--primary); }
+        .stepper-wrapper { display: flex; align-items: center; background-color: #f8fafc; border: 1px solid transparent; border-radius: var(--radius-sm); height: 39px; overflow: hidden; transition: all 0.2s; }
+        .stepper-wrapper button { background: transparent; border: none; color: #94a3b8; font-size: 1.1rem; width: 32px; height: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; }
+        .stepper-wrapper input { flex: 1; border: none !important; background: transparent !important; padding: 0; color: #94a3b8; font-weight: 500; text-align: center; }
         
-        .copied { color: #10b981 !important; font-family: inherit !important; font-size: 0.94rem !important; }
-        .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; margin-right: 5px;} 
+        .copied { color: #10b981 !important; font-size: 0.94rem !important; }
+        .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; } 
 
-        /* LED Wall 영역도 원본 유지 */
         .subdued-section { padding-top: 9px; border-top: 1px dashed #e2e8f0; }
         .subdued-section .inner-title { color: #94a3b8; font-size: 0.8rem; margin-bottom: 9px; } 
         .subdued-section label { color: #94a3b8; font-weight: 500; }
-        .subdued-section select, .subdued-section input {
-            height: 34px; font-size: 0.94rem; color: #64748b; font-weight: 500;
-            background-color: transparent; border: 1px solid #e2e8f0;
-        } 
-        .subdued-section select:focus, .subdued-section input:focus { border-color: #cbd5e1; box-shadow: none; }
-        .subdued-section input:disabled { background-color: #f8fafc; border-color: transparent; color: #94a3b8; }
+        .subdued-section select, .subdued-section input { height: 34px; font-size: 0.94rem; color: #64748b; font-weight: 500; background-color: transparent; border: 1px solid #e2e8f0; } 
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Picturall Calculator</h2>
-
-    <div>
-        <div class="inner-title">Preview</div>
-        <div class="visualizer-wrapper" id="visualizer">
-            <div class="visualizer-source" id="sourceBox">
-                <span id="sourceResLabel">3840 X 2160</span>
+    
+    <div class="layer-panel">
+        <div class="layer-panel-header">Layers</div>
+        <div class="layer-list" id="layerList">
             </div>
-        </div>
+        <div class="layer-hint">💡 더블클릭하여 이름 변경</div>
     </div>
 
-    <div class="bottom-grid">
-        <div class="col-left">
-            
-            <div>
-                <div class="inner-title">Target Layer (1 - 20)</div>
-                <div class="layer-grid" id="layerGrid">
-                    </div>
-            </div>
-            
-            <hr class="dashed-divider" style="margin-bottom: 24px;">
+    <div class="controls-area">
+        <h2>Picturall Calculator</h2>
 
-            <div>
-                <div class="inner-title">영상 소스 해상도</div>
-                <div class="form-row" style="margin-bottom: 6px;">
-                    <div class="form-group"><label>가로 (px)</label><input id="iw" type="number" value="3840"></div>
-                    <div class="form-group"><label>세로 (px)</label><input id="ih" type="number" value="2160"></div>
-                </div>
-                <div class="ratio-info">비율 <div style="width:4px;height:4px;background:#ccc;border-radius:50%"></div> <span class="value" id="ratioValue">16:9</span></div>
-                <div class="preset-btn-row">
-                    <button class="preset-btn" onclick="applySourcePreset(3840, 2160)">3840 X 2160</button>
-                    <button class="preset-btn" onclick="applySourcePreset(1920, 1080)">1920 X 1080</button>
-                    <button class="preset-btn" onclick="applySourcePreset(2944, 1920)">2944 X 1920</button>
-                    <button class="preset-btn" onclick="applySourcePreset(2048, 1024)">2048 X 1024</button>
-                </div>
-            </div>
-
-            <hr class="dashed-divider">
-
-            <div>
-                <div class="inner-title">Snap</div>
-                <div class="snap-grid" id="buttonGrid">
-                    <button class="snap-btn" data-x="left" data-y="top">↖</button>
-                    <button class="snap-btn" data-x="center" data-y="top">↑</button>
-                    <button class="snap-btn" data-x="right" data-y="top">↗</button>
-                    <button class="snap-btn" data-x="left" data-y="center">←</button>
-                    <button class="snap-btn active" data-x="center" data-y="center">●</button>
-                    <button class="snap-btn" data-x="right" data-y="center">→</button>
-                    <button class="snap-btn" data-x="left" data-y="bottom">↙</button>
-                    <button class="snap-btn" data-x="center" data-y="bottom">↓</button>
-                    <button class="snap-btn" data-x="right" data-y="bottom">↘</button>
+        <div>
+            <div class="inner-title">Preview <span id="previewLayerName" style="color:var(--primary); font-weight:800; margin-left:10px;">[Layer 1]</span></div>
+            <div class="visualizer-wrapper" id="visualizer">
+                <div class="visualizer-source" id="sourceBox">
+                    <span id="sourceResLabel">3840 X 2160</span>
                 </div>
             </div>
         </div>
 
-        <div class="col-right">
-            <div class="scale-list" id="baseScaleResult"></div>
+        <div class="bottom-grid">
+            <div class="col-left">
+                <div>
+                    <div class="inner-title">영상 소스 해상도</div>
+                    <div class="form-row" style="margin-bottom: 6px;">
+                        <div class="form-group"><label>가로 (px)</label><input id="iw" type="number" value="3840"></div>
+                        <div class="form-group"><label>세로 (px)</label><input id="ih" type="number" value="2160"></div>
+                    </div>
+                    <div class="ratio-info">비율 <div style="width:4px;height:4px;background:#ccc;border-radius:50%"></div> <span class="value" id="ratioValue">16:9</span></div>
+                    <div class="preset-btn-row">
+                        <button class="preset-btn" onclick="applySourcePreset(3840, 2160)">3840 X 2160</button>
+                        <button class="preset-btn" onclick="applySourcePreset(1920, 1080)">1920 X 1080</button>
+                        <button class="preset-btn" onclick="applySourcePreset(2944, 1920)">2944 X 1920</button>
+                        <button class="preset-btn" onclick="applySourcePreset(2048, 1024)">2048 X 1024</button>
+                    </div>
+                </div>
 
-            <div class="control-box-blue">
-                <div class="form-row">
-                    <div class="form-group"><label>Scale</label><input id="scaleValue" type="number" step="0.000001"></div>
-                    <div class="form-group"><label>Scale height</label><input id="scaleHeight" type="number" step="0.000001" value="1.0"></div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Pos X</label>
-                        <div class="readonly-box" onclick="copyValue(this.innerText, this)">
-                            <span id="posX_result">0.000000</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Pos Y</label>
-                        <div class="readonly-box" onclick="copyValue(this.innerText, this)">
-                            <span id="posY_result">0.000000</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>중앙 Px (가로)</label>
-                        <div class="stepper-wrapper">
-                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', -1)">−</button>
-                            <input id="pixelX" type="number">
-                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>중앙 Py (세로)</label>
-                        <div class="stepper-wrapper">
-                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', -1)">−</button>
-                            <input id="pixelY" type="number">
-                            <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', 1)">+</button>
-                        </div>
+                <hr class="dashed-divider">
+
+                <div>
+                    <div class="inner-title">Snap</div>
+                    <div class="snap-grid" id="buttonGrid">
+                        <button class="snap-btn" data-x="left" data-y="top">↖</button>
+                        <button class="snap-btn" data-x="center" data-y="top">↑</button>
+                        <button class="snap-btn" data-x="right" data-y="top">↗</button>
+                        <button class="snap-btn" data-x="left" data-y="center">←</button>
+                        <button class="snap-btn active" data-x="center" data-y="center">●</button>
+                        <button class="snap-btn" data-x="right" data-y="center">→</button>
+                        <button class="snap-btn" data-x="left" data-y="bottom">↙</button>
+                        <button class="snap-btn" data-x="center" data-y="bottom">↓</button>
+                        <button class="snap-btn" data-x="right" data-y="bottom">↘</button>
                     </div>
                 </div>
             </div>
-            
-            <div class="helper-text">💡 클릭하여 복사</div>
 
-            <div class="subdued-section">
-                <div class="inner-title">LED Wall 해상도</div>
-                <select id="ledPreset" style="margin-bottom: 12px;">
-                    <option value="9216,3672" selected>남산 (9216 × 3672)</option>
-                    <option value="7680,2160">8K 가로형 (7680 × 2160)</option>
-                    <option value="3840,2160">4K UHD (3840 × 2160)</option>
-                    <option value="">직접 입력</option>
-                </select>
-                <div class="form-row" style="margin-bottom: 0;">
-                    <div class="form-group"><label>가로 (W)</label><input id="lw" type="number" disabled></div>
-                    <div class="form-group"><label>세로 (H)</label><input id="lh" type="number" disabled></div>
+            <div class="col-right">
+                <div class="scale-list" id="baseScaleResult"></div>
+
+                <div class="control-box-blue">
+                    <div class="form-row">
+                        <div class="form-group"><label>Scale</label><input id="scaleValue" type="number" step="0.000001"></div>
+                        <div class="form-group"><label>Scale height</label><input id="scaleHeight" type="number" step="0.000001" value="1.0"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Pos X</label>
+                            <div class="readonly-box" onclick="copyValue(this.innerText, this)"><span id="posX_result">0.000000</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Pos Y</label>
+                            <div class="readonly-box" onclick="copyValue(this.innerText, this)"><span id="posY_result">0.000000</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>중앙 Px (가로)</label>
+                            <div class="stepper-wrapper">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', -1)">−</button>
+                                <input id="pixelX" type="number">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>중앙 Py (세로)</label>
+                            <div class="stepper-wrapper">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', -1)">−</button>
+                                <input id="pixelY" type="number">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="helper-text">💡 클릭하여 복사</div>
+
+                <div class="subdued-section">
+                    <div class="inner-title">LED Wall 해상도</div>
+                    <select id="ledPreset" style="margin-bottom: 12px;">
+                        <option value="9216,3672" selected>남산 (9216 × 3672)</option>
+                        <option value="7680,2160">8K 가로형 (7680 × 2160)</option>
+                        <option value="3840,2160">4K UHD (3840 × 2160)</option>
+                        <option value="">직접 입력</option>
+                    </select>
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group"><label>가로 (W)</label><input id="lw" type="number" disabled></div>
+                        <div class="form-group"><label>세로 (H)</label><input id="lh" type="number" disabled></div>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -335,18 +300,43 @@
     const presetSelect = document.getElementById("ledPreset");
     const elSourceBox = document.getElementById("sourceBox"), elVisualizer = document.getElementById("visualizer");
     const sourceResLabel = document.getElementById("sourceResLabel");
-    const layerGrid = document.getElementById("layerGrid");
+    const layerList = document.getElementById("layerList");
+    const previewLayerName = document.getElementById("previewLayerName");
 
-    // 레이어 버튼 20개 생성
+    // --- [포토샵 스타일 세로 레이어 리스트 생성] ---
+    const layerNames = {}; // 사용자가 지정한 이름을 저장할 객체
+
     for (let i = 1; i <= 20; i++) {
-        const btn = document.createElement("button");
-        btn.className = "layer-btn" + (i === 1 ? " active" : "");
-        btn.innerText = i;
-        btn.onclick = () => { selectLayer(i); };
-        layerGrid.appendChild(btn);
+        layerNames[i] = `Layer ${i}`; // 초기 이름 셋팅
+        
+        const item = document.createElement("div");
+        item.className = "layer-item" + (i === 1 ? " active" : "");
+        item.id = `layer-item-${i}`;
+        
+        item.innerHTML = `
+            <div class="layer-number">${i}</div>
+            <div class="layer-name" id="layer-name-${i}">${layerNames[i]}</div>
+        `;
+        
+        // 클릭 시 레이어 선택
+        item.onclick = () => { selectLayer(i); };
+        
+        // 더블클릭 시 이름 변경 및 전송
+        item.ondblclick = () => {
+            const newName = prompt(`${i}번 레이어의 새 이름을 입력하세요:`, layerNames[i]);
+            if (newName && newName.trim() !== "") {
+                layerNames[i] = newName.trim();
+                document.getElementById(`layer-name-${i}`).innerText = layerNames[i];
+                if(currentSelectedLayer === i) previewLayerName.innerText = `[${layerNames[i]}]`;
+                
+                // 파이썬으로 이름 변경 명령어 쏘기!
+                renameLayerInPicturall(i, layerNames[i]);
+            }
+        };
+        
+        layerList.appendChild(item);
     }
 
-    // 숫자키 1~9, 0 으로 1~10번 레이어 선택
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         const keyNum = parseInt(e.key);
@@ -355,25 +345,40 @@
     });
 
     function selectLayer(num) {
-        const btns = document.querySelectorAll(".layer-btn");
-        btns.forEach(b => b.classList.remove("active"));
-        if(btns[num-1]) {
-            btns[num-1].classList.add("active");
+        document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
+        const target = document.getElementById(`layer-item-${num}`);
+        if(target) {
+            target.classList.add("active");
             currentSelectedLayer = num;
-            triggerSend(); // 레이어가 바뀔 때도 현재 화면의 값을 보내서 바로잡습니다.
+            previewLayerName.innerText = `[${layerNames[num]}]`;
+            triggerSend(); 
         }
     }
 
-    // --- [핵심 기능: 값이 바뀔 때마다 자동으로 전송 (Debounce)] ---
     let sendTimeout = null;
     function triggerSend() {
         if(sendTimeout) clearTimeout(sendTimeout);
-        // 0.05초 동안 추가 변경이 없으면 1번만 전송 (드래그 시 랙 방지)
         sendTimeout = setTimeout(sendToPicturall, 50); 
     }
 
+    // 💡 이름 변경을 Picturall로 전송하는 독립 함수
+    async function renameLayerInPicturall(layerNum, newName) {
+        const bridgeIp = "127.0.0.1"; 
+        try {
+            await fetch(`http://${bridgeIp}:5000/snap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    layer: layerNum,
+                    name: newName // 이름 데이터 전송!
+                })
+            });
+        } catch (error) {
+            console.error("이름 전송 실패:", error);
+        }
+    }
+
     async function sendToPicturall() {
-        // X, Y 외에 Scale, Scale Height 값도 모두 가져옵니다.
         const posX = document.getElementById("posX_result").innerText;
         const posY = document.getElementById("posY_result").innerText;
         const scaleVal = document.getElementById("scaleValue").value;
@@ -396,7 +401,6 @@
             console.error("전송 실패:", error);
         }
     }
-    // -------------------------------------------------------------
 
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     
@@ -468,7 +472,6 @@
         }
     }
 
-    // 🌟 값이 업데이트되는 최종 관문
     function updateAll() {
         const lw = Number(lwInput.value), lh = Number(lhInput.value), iw = Number(iwInput.value), ih = Number(ihInput.value);
         const px = Number(pixelXInput.value), py = Number(pixelYInput.value);
@@ -488,7 +491,6 @@
         elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
         sourceResLabel.innerText = `${iw} X ${ih}`;
 
-        // 화면의 값이 갱신될 때마다 자동으로 파이썬으로 쏘도록 지시합니다!
         triggerSend();
     }
 
@@ -505,11 +507,9 @@
         
         pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
         updateAll();
-        // (기존에 스냅버튼에 있던 sendToPicturall()은 지웠습니다. updateAll()이 알아서 쏘니까요!)
     }));
 
-    let isDrag = false;
-    let dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0;
+    let isDrag = false, dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0;
 
     elSourceBox.addEventListener("mousedown", (e) => { 
         isDrag = true; dragStartX = e.clientX; dragStartY = e.clientY;
