@@ -6,6 +6,7 @@
     <title>Picturall Calculator</title>
     
     <style>
+        /* 기존 CSS를 그대로 유지합니다 */
         :root {
             --primary: #2563eb;       
             --primary-light: #eff6ff; 
@@ -204,7 +205,6 @@
 <body>
 
 <div class="container">
-    
     <div class="layer-panel">
         <div class="layer-panel-header">Layers</div>
         <div class="layer-list" id="layerList"></div>
@@ -340,6 +340,9 @@
     const BASE_WIDTH = 11520;
     let currentSelectedLayer = 1; 
 
+    // ✅ 각 레이어의 상태를 독립적으로 저장하는 저장소를 만듭니다!
+    const layerStates = {}; 
+
     let undoStack = [];
     let redoStack = [];
     let isHistoryAction = false;
@@ -365,6 +368,44 @@
     const moveXBtn = document.getElementById("moveXBtn"), moveYBtn = document.getElementById("moveYBtn");
 
     const layerNames = {}; 
+
+    // ✅ 현재 레이어의 설정값을 layerStates에 저장하는 함수
+    function saveCurrentLayerState() {
+        layerStates[currentSelectedLayer] = {
+            iw: iwInput.value,
+            ih: ihInput.value,
+            scaleValue: scaleInput.value,
+            scaleHeight: scaleHeightInput.value,
+            pixelX: pixelXInput.value,
+            pixelY: pixelYInput.value,
+            ledPreset: presetSelect.value,
+            lw: lwInput.value,
+            lh: lhInput.value
+        };
+    }
+
+    // ✅ 선택한 레이어의 설정값을 불러와서 화면에 적용하는 함수
+    function loadLayerState(num) {
+        const state = layerStates[num];
+        if (!state) return;
+
+        iwInput.value = state.iw;
+        ihInput.value = state.ih;
+        scaleInput.value = state.scaleValue;
+        scaleHeightInput.value = state.scaleHeight;
+        pixelXInput.value = state.pixelX;
+        pixelYInput.value = state.pixelY;
+        presetSelect.value = state.ledPreset;
+        lwInput.value = state.lw;
+        lhInput.value = state.lh;
+        
+        // 프리셋 선택 여부에 따라 입력창 잠금 처리
+        if (presetSelect.value) {
+            lwInput.disabled = true; lhInput.disabled = true;
+        } else {
+            lwInput.disabled = false; lhInput.disabled = false;
+        }
+    }
 
     moveXBtn.onclick = function() {
         allowMoveX = !allowMoveX; 
@@ -395,6 +436,7 @@
         let val = parseFloat(el.value);
         if (!isNaN(val)) {
             el.value = val.toFixed(6); 
+            saveCurrentLayerState(); // 값 변경시 바로 저장
         }
     }
 
@@ -444,6 +486,7 @@
         window.addEventListener('mouseup', () => {
             if (isDown && scrubbing) {
                 document.body.style.userSelect = ''; 
+                saveCurrentLayerState(); // 스크러빙 끝난 후 상태 저장
                 captureState(); 
                 setTimeout(() => { isGlobalScrubbing = false; }, 50); 
             }
@@ -492,13 +535,21 @@
             if(el) el.value = state.values[id];
         });
         
-        // 💡 25번까지 반복 처리 업데이트!
         for(let i=1; i<=25; i++) {
             const nameEl = document.getElementById(`layer-name-${i}`);
             if(nameEl) nameEl.innerText = layerNames[i];
         }
         
-        selectLayer(state.layer, false);
+        // 💡 히스토리 되돌리기 시 저장소 상태도 함께 동기화!
+        if(state.layer) {
+            currentSelectedLayer = state.layer;
+            document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
+            const target = document.getElementById(`layer-item-${state.layer}`);
+            if(target) target.classList.add("active");
+            previewLayerName.innerText = `[${layerNames[state.layer]}]`;
+        }
+        saveCurrentLayerState(); 
+
         applyPreset(false); 
         
         isHistoryAction = false;
@@ -543,9 +594,17 @@
         else if (e.key === '0') { selectLayer(10); }
     });
 
-    // 💡 레이어 25개 생성 처리!
+    // 💡 레이어 25개 및 상태 초기값 생성
     for (let i = 1; i <= 25; i++) {
         layerNames[i] = `Layer ${i}`; 
+        
+        // 각 레이어별 초기 기본값 세팅
+        layerStates[i] = {
+            iw: "3840", ih: "2160",
+            scaleValue: "0.333333", scaleHeight: "1.000000",
+            pixelX: "4608", pixelY: "1836", // 9216x3672 기준 중앙값
+            ledPreset: "9216,3672", lw: "9216", lh: "3672"
+        };
         
         const item = document.createElement("div");
         item.className = "layer-item" + (i === 1 ? " active" : "");
@@ -572,13 +631,28 @@
         layerList.appendChild(item);
     }
 
+    // ✅ 레이어를 변경할 때 저장 및 불러오기 기능 추가
     function selectLayer(num, shouldCapture = true) {
+        // 이미 선택된 레이어라면 무시
+        if (currentSelectedLayer === num && document.querySelector(`.layer-item.active`)) return;
+
+        // 다른 레이어로 넘어가기 전에, 현재 작업 중이던 값을 저장해 둡니다.
+        saveCurrentLayerState();
+
         document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
         const target = document.getElementById(`layer-item-${num}`);
+        
         if(target) {
             target.classList.add("active");
             currentSelectedLayer = num;
             previewLayerName.innerText = `[${layerNames[num]}]`;
+            
+            // 새롭게 선택한 레이어의 저장된 값을 폼에 채워 넣습니다.
+            loadLayerState(num);
+            
+            // 값을 바꿨으니 화면(비율 등)을 새로고침 합니다.
+            handleResolutionChange();
+            updateAll();
             
             if(shouldCapture) captureState();
             triggerSend(); 
@@ -622,12 +696,14 @@
         }
         handleResolutionChange();
         if(shouldCapture) captureState();
+        saveCurrentLayerState(); // 프리셋 변경 시 상태 저장
     }
 
     window.applySourcePreset = function(width, height) {
         iwInput.value = width; ihInput.value = height;
         handleResolutionChange();
         captureState();
+        saveCurrentLayerState();
     };
 
     window.adjustPixel = function(id, delta) {
@@ -636,6 +712,7 @@
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
         updateAll();
         captureState();
+        saveCurrentLayerState();
     };
 
     window.copyValue = function(text, element) {
@@ -651,6 +728,7 @@
         scaleInput.value = val; 
         updateAll();
         captureState();
+        saveCurrentLayerState();
         const target = element.querySelector('.val');
         const orig = target.innerText; target.classList.add("copied"); target.innerText = "Copied";
         setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
@@ -681,6 +759,7 @@
             document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
             updateAll();
         } else {
+            // 위치 변경이 없다면 활성화된 snap 유지, 아니면 UI 업데이트
             const activeSnap = document.querySelector(".snap-btn.active");
             if (activeSnap) { activeSnap.click(); } else { updateAll(); }
         }
@@ -726,6 +805,7 @@
         pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
         updateAll();
         captureState();
+        saveCurrentLayerState(); // 스냅 조절 후 상태 저장
     }));
 
     let isDrag = false, dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0;
@@ -740,7 +820,10 @@
     });
     
     window.addEventListener("mouseup", () => {
-        if(isDrag && hasMovedDuringDrag) { captureState(); }
+        if(isDrag && hasMovedDuringDrag) { 
+            captureState(); 
+            saveCurrentLayerState(); // 드래그 완료 후 상태 저장
+        }
         isDrag = false;
         hasMovedDuringDrag = false;
     });
@@ -764,11 +847,15 @@
         updateAll();
     });
 
+    // 인풋 값이 변할 때 화면 갱신 및 상태 저장 이벤트 연결
     inputsToTrack.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
             el.addEventListener("input", updateAll);
-            el.addEventListener("change", captureState);
+            el.addEventListener("change", () => {
+                captureState();
+                saveCurrentLayerState(); 
+            });
         }
     });
 
@@ -777,11 +864,9 @@
     
     presetSelect.addEventListener("change", () => applyPreset(true));
 
+    // ✅ 앱 초기화 시 레이어 1의 기본 정보를 불러오도록 설정
     window.onload = () => {
-        document.getElementById("scaleValue").value = "0.333333";
-
-        document.getElementById("scaleHeight").value = "1.000000";
-        
+        loadLayerState(1); // 1번 레이어 값 불러오기
         applyPreset(false);
         captureState();
         
