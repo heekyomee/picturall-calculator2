@@ -55,15 +55,43 @@
             overflow: hidden;
             flex-shrink: 0;
         }
+
+        /* 🔥 Layers 헤더 디자인 변경: 가로 배치 및 양옆 정렬 */
         .layer-panel-header {
             background: #e2e8f0;
-            padding: 10px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-align: center;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            font-weight: 800;
             color: #334155;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
         }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        /* 🔥 글자 뺀 깔쌈한 아이콘 버튼 스타일 */
+        .layer-move-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px;
+            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+            color: #475569; padding: 0;
+            cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .layer-move-btn:hover {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 3px 6px rgba(37, 99, 235, 0.2); transform: translateY(-1px);
+        }
+        .layer-move-btn:active {
+            transform: translateY(0); box-shadow: none;
+        }
+
         .layer-list {
             flex: 1;
             overflow-y: auto;
@@ -164,7 +192,6 @@
         .ratio-info { font-size: 0.76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; margin-top: 6px; padding-left: 2px; margin-bottom: 15px; } 
         .ratio-info .value { font-weight: 500; font-size: 0.94rem; color: var(--text-sub); } 
 
-        /* 💡 드롭존 (고정 사이즈 & 절대 정렬) */
         .scan-drop-box {
             border: 2px dashed var(--primary-border);
             background: var(--primary-light);
@@ -181,7 +208,6 @@
             flex-direction: column;
         }
 
-        /* 💡 오버레이 레이어: CSS :hover 대신 JS로 클래스 제어 (.active-overlay) */
         .scan-drop-box::after {
             content: "새 소스 불러오기"; 
             position: absolute;
@@ -199,7 +225,6 @@
             pointer-events: none;
         }
 
-        /* 활성화 클래스가 있을 때만 파란 오버레이 노출 */
         .scan-drop-box.active-overlay::after {
             opacity: 1;
         }
@@ -231,7 +256,6 @@
             font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin: 0;
         }
 
-        /* 💡 해상도 적용 버튼 (강조색 고정) */
         .apply-btn {
             width: 100%; height: 38px; border-radius: 4px; border: none;
             background: var(--preview-blue); 
@@ -240,7 +264,7 @@
             margin-bottom: 15px;
         }
         .apply-btn:not(:disabled):hover { 
-            background: var(--preview-blue); /* 마우스 올려도 색상 유지 */
+            background: var(--preview-blue);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .apply-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: default; }
@@ -285,7 +309,16 @@
 
 <div class="container">
     <div class="layer-panel">
-        <div class="layer-panel-header">Layers</div>
+        <div class="layer-panel-header">
+            <!-- 🔥 화살표 아이콘(UP), 양옆 배치 적용 -->
+            <button id="layerUpBtn" class="layer-move-btn" title="위로 이동">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            </button>
+            <div class="header-title">Layers</div>
+            <button id="layerDownBtn" class="layer-move-btn" title="아래로 이동">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+        </div>
         <div class="layer-list" id="layerList"></div>
         <div class="layer-hint">💡 더블클릭하여 이름 변경</div>
     </div>
@@ -467,7 +500,6 @@
 
     const layerNames = {}; 
 
-    // ✅ 스마트 스캐너 전역 변수
     const dropZone = document.getElementById('mediaDropZone');
     const scanDefaultState = document.getElementById('scanDefaultState');
     const scanActiveState = document.getElementById('scanActiveState');
@@ -481,19 +513,13 @@
     let tempScannedW = 0;
     let tempScannedH = 0;
 
-    // 💡 마우스 호버 시 오버레이 클래스 제어
-    dropZone.addEventListener('mouseenter', () => {
-        dropZone.classList.add('active-overlay');
-    });
-    dropZone.addEventListener('mouseleave', () => {
-        dropZone.classList.remove('active-overlay');
-    });
+    dropZone.addEventListener('mouseenter', () => { dropZone.classList.add('active-overlay'); });
+    dropZone.addEventListener('mouseleave', () => { dropZone.classList.remove('active-overlay'); });
 
-    // 💡 드래그 시 시각적 일관성 확보
     dropZone.addEventListener('dragover', (e) => { 
         e.preventDefault(); 
         dropZone.classList.add('dragover'); 
-        dropZone.classList.add('active-overlay'); // 💡 드래그 중에도 오버레이 표시
+        dropZone.classList.add('active-overlay'); 
     });
     dropZone.addEventListener('dragleave', () => { 
         dropZone.classList.remove('dragover'); 
@@ -507,9 +533,8 @@
         if (file) processMediaFile(file);
     });
 
-    // 💡 클릭 시 탐색기 창이 뜨는 동안 오버레이를 즉시 제거하여 기존 정보가 보이게 함
     dropZone.addEventListener('click', () => {
-        dropZone.classList.remove('active-overlay'); // 💡 즉시 제거!
+        dropZone.classList.remove('active-overlay'); 
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'video/*, image/*';
@@ -927,6 +952,43 @@
     document.getElementById("scaleValue").addEventListener("blur", function() { forceDecimalFormat(this.id); });
     document.getElementById("scaleHeight").addEventListener("blur", function() { forceDecimalFormat(this.id); });
     presetSelect.addEventListener("change", () => applyPreset(true));
+
+    document.getElementById("layerUpBtn").addEventListener("click", () => swapLayerOrder(-1));
+    document.getElementById("layerDownBtn").addEventListener("click", () => swapLayerOrder(1));
+
+    function swapLayerOrder(direction) {
+        const targetLayerNum = currentSelectedLayer + direction;
+        
+        if (targetLayerNum < 1 || targetLayerNum > 25) return;
+
+        saveCurrentLayerState();
+
+        const tempState = JSON.parse(JSON.stringify(layerStates[currentSelectedLayer]));
+        layerStates[currentSelectedLayer] = JSON.parse(JSON.stringify(layerStates[targetLayerNum]));
+        layerStates[targetLayerNum] = tempState;
+
+        const tempName = layerNames[currentSelectedLayer];
+        layerNames[currentSelectedLayer] = layerNames[targetLayerNum];
+        layerNames[targetLayerNum] = tempName;
+
+        document.getElementById(`layer-name-${currentSelectedLayer}`).innerText = layerNames[currentSelectedLayer];
+        document.getElementById(`layer-name-${targetLayerNum}`).innerText = layerNames[targetLayerNum];
+
+        renameLayerInPicturall(currentSelectedLayer, layerNames[currentSelectedLayer]);
+        renameLayerInPicturall(targetLayerNum, layerNames[targetLayerNum]);
+
+        currentSelectedLayer = targetLayerNum;
+        document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
+        document.getElementById(`layer-item-${targetLayerNum}`).classList.add("active");
+        previewLayerName.innerText = `[${layerNames[targetLayerNum]}]`;
+        
+        loadLayerState(targetLayerNum);
+        handleResolutionChange(); 
+        updateAll();
+        
+        captureState();
+        triggerSend();
+    }
 
     window.onload = () => {
         loadLayerState(1); applyPreset(false); captureState();
