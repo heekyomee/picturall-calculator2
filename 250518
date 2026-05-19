@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picturall Calculator Pro</title>
+    
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-light: #eff6ff; 
+            --primary-border: #bfdbfe;
+            --bg-body: #f5f6f8;       
+            --bg-card: #ffffff;       
+            --bg-panel: #f8fafc;
+            --text-main: #333;     
+            --text-sub: #666;      
+            --border-color: #ddd;  
+            --radius-md: 7px; 
+            --radius-sm: 5px; 
+            --preview-blue: rgba(97, 142, 250, 0.9);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 36px 18px; 
+        }
+
+        .container {
+            width: 880px; 
+            max-width: 100%;
+            background: var(--bg-card);
+            padding: 24px; 
+            border-radius: 11px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            display: flex; 
+            gap: 24px;
+        }
+
+        .layer-panel {
+            width: 180px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .layer-panel-header {
+            background: #e2e8f0;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            color: #334155;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .layer-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            height: 520px; 
+        }
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #475569;
+            transition: 0.1s;
+        }
+        .layer-item:hover { background: #e2e8f0; }
+        .layer-item.active { background: var(--primary); color: white; font-weight: 600; }
+        .layer-number { width: 24px; font-size: 0.7rem; opacity: 0.7; }
+        .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;}
+        .layer-hint { font-size: 0.6rem; color: #94a3b8; text-align: center; padding: 5px; border-top: 1px dashed var(--border-color); }
+
+        .controls-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 { text-align: center; font-weight: 800; color: var(--primary); font-size: 1.4rem; margin-bottom: 24px; margin-top: 5px;} 
+        
+        .inner-title { font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 11px; } 
+        label { font-size: 0.76rem; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; display: block; padding-left: 2px; transition: color 0.2s;} 
+        
+        .form-row { display: flex; gap: 13px; margin-bottom: 13px; } 
+        .form-group { flex: 1; }
+
+        input, select {
+            width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color); background-color: white;
+            color: var(--primary); font-weight: 500; font-size: 0.94rem; text-align: center; box-sizing: border-box;
+            transition: all 0.2s; font-family: inherit;
+        } 
+        select { text-align: left; }
+
+        input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
+        input:disabled { background-color: #f8f9fa; color: #888; border-color: #eee; }
+
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end; 
+            margin-bottom: 11px;
+        }
+        .preview-header .inner-title { margin-bottom: 0; }
+        
+        .toolbar { display: flex; gap: 15px; align-items: center; }
+        
+        .lock-controls {
+            display: flex; gap: 4px; background: #e2e8f0; padding: 4px; border-radius: var(--radius-sm);
+        }
+        .lock-btn {
+            border: none; background: transparent; border-radius: 3px; cursor: pointer; 
+            padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: #64748b; transition: 0.2s;
+        }
+        .lock-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        .history-controls { display: flex; gap: 6px; }
+        .history-btn {
+            width: 32px; height: 30px; background: white; border: 1px solid var(--border-color);
+            border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            font-size: 1.1rem; color: #475569; transition: all 0.2s;
+        }
+        .history-btn:hover:not(:disabled) { background: var(--primary-light); color: var(--primary); border-color: var(--primary-border); }
+        .history-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f8fafc; }
+
+        .visualizer-wrapper {
+            width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
+            position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 24px;
+        } 
+
+        .visualizer-source {
+            position: absolute; background-color: var(--preview-blue);
+            display: flex; justify-content: center; align-items: center; cursor: move; flex-direction: column;
+        }
+        .res-text-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        #sourceResLabel { color: white; font-weight: 600; font-size: 0.8rem; line-height: 1.2; }
+        #calcResLabel { color: #bfdbfe; font-weight: 600; font-size: 0.65rem; line-height: 1.2; margin-top: 2px; }
+
+        .bottom-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 30px; align-items: start; }
+        .col-left, .col-right { display: flex; flex-direction: column; gap: 20px; }
+        .dashed-divider { border: none; border-top: 1px dashed #cbd5e1; margin: -5px 0; width: 100%; }
+
+        .ratio-info { font-size: 0.76rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; margin-top: 6px; padding-left: 2px; margin-bottom: 15px; } 
+        .ratio-info .value { font-weight: 500; font-size: 0.94rem; color: var(--text-sub); } 
+
+        /* 💡 드롭존 (고정 사이즈 & 절대 정렬) */
+        .scan-drop-box {
+            border: 2px dashed var(--primary-border);
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 100px; 
+            width: 100%;   
+            overflow: hidden; 
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 💡 오버레이 레이어: CSS :hover 대신 JS로 클래스 제어 (.active-overlay) */
+        .scan-drop-box::after {
+            content: "새 소스 불러오기"; 
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--primary);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.1s;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* 활성화 클래스가 있을 때만 파란 오버레이 노출 */
+        .scan-drop-box.active-overlay::after {
+            opacity: 1;
+        }
+
+        .scan-state-wrapper {
+            width: 100%; height: 100%; 
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 10px 16px; box-sizing: border-box;
+            gap: 6px; 
+        }
+
+        .scan-default {
+            color: var(--primary); font-size: 0.85rem; font-weight: 600; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        
+        #scanName { 
+            font-size: 0.85rem; font-weight: 700; color: var(--text-main); 
+            width: 100%; text-align: center; white-space: nowrap; 
+            overflow: hidden; text-overflow: ellipsis; line-height: 1.5; padding-bottom: 2px; margin: 0;
+        }
+        #scanExt { 
+            font-size: 0.65rem; font-weight: 500; color: var(--primary); 
+            background: #dbeafe; padding: 2px 8px; border-radius: 4px; 
+            text-transform: uppercase; border: 1px solid #bfdbfe; margin: 0;
+        }
+        #scanRes { 
+            font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin: 0;
+        }
+
+        /* 💡 해상도 적용 버튼 (강조색 고정) */
+        .apply-btn {
+            width: 100%; height: 38px; border-radius: 4px; border: none;
+            background: var(--preview-blue); 
+            color: white; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px;
+            margin-bottom: 15px;
+        }
+        .apply-btn:not(:disabled):hover { 
+            background: var(--preview-blue); /* 마우스 올려도 색상 유지 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .apply-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: default; }
+
+        .preset-btn-row { display: flex; gap: 7px; flex-wrap: wrap; } 
+        .preset-btn { background-color: white; border: 1px solid var(--border-color); color: var(--text-sub); padding: 5px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; } 
+        .preset-btn:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); }
+
+        .snap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; } 
+        .snap-btn { height: 39px; border: 1px solid var(--border-color); background: white; border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; color: #555; } 
+        .snap-btn:hover { background: var(--primary-light); border-color: var(--preview-blue); color: var(--preview-blue); }
+        .snap-btn.active { background: var(--preview-blue); color: white; border-color: var(--preview-blue); }
+        
+        .scale-list { background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; flex-direction: column; justify-content: center; padding: 5px 0; }
+        .scale-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; border-bottom: 1px dashed var(--border-color); cursor: pointer; } 
+        .scale-item:last-child { border-bottom: none; }
+        .scale-item:hover { background: var(--primary-light); }
+        .scale-label { font-size: 0.76rem; font-weight: 600; color: var(--text-sub); } 
+        .scale-item .val { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; } 
+
+        .control-box-blue { background-color: var(--primary-light); border: 1px solid var(--primary-border); padding: 21px; border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 16px; } 
+        .control-box-blue .form-row { margin-bottom: 0; gap: 13px;} 
+        
+        .readonly-box { width: 100%; height: 39px; padding: 0 11px; border-radius: var(--radius-sm); border: 1px solid var(--primary-border); background-color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; } 
+        .readonly-box span { font-size: 0.94rem; font-weight: 500; color: #111; font-family: inherit; pointer-events: none;} 
+        
+        .stepper-wrapper { display: flex; align-items: center; background-color: #f8fafc; border: 1px solid transparent; border-radius: var(--radius-sm); height: 39px; overflow: hidden; transition: all 0.2s; }
+        .stepper-wrapper button { background: transparent; border: none; color: #94a3b8; font-size: 1.1rem; width: 32px; height: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; }
+        .stepper-wrapper input { flex: 1; border: none !important; background: transparent !important; padding: 0; color: #94a3b8; font-weight: 500; text-align: center; }
+        
+        .copied { color: #10b981 !important; font-size: 0.94rem !important; }
+        .copied-label { color: #10b981 !important; font-weight: 800 !important; }
+        .helper-text { text-align: right; font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: -5px; } 
+
+        .subdued-section { padding-top: 9px; border-top: 1px dashed #e2e8f0; }
+        .subdued-section .inner-title { color: #94a3b8; font-size: 0.8rem; margin-bottom: 9px; } 
+        .subdued-section label { color: #94a3b8; font-weight: 500; }
+        .subdued-section select, .subdued-section input { height: 34px; font-size: 0.94rem; color: #64748b; font-weight: 500; background-color: transparent; border: 1px solid #e2e8f0; } 
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="layer-panel">
+        <div class="layer-panel-header">Layers</div>
+        <div class="layer-list" id="layerList"></div>
+        <div class="layer-hint">💡 더블클릭하여 이름 변경</div>
+    </div>
+
+    <div class="controls-area">
+        <h2>Picturall Calculator</h2>
+
+        <div>
+            <div class="preview-header">
+                <div class="inner-title">Preview <span id="previewLayerName" style="color:var(--primary); font-weight:800; margin-left:10px;">[Layer 1]</span></div>
+                
+                <div class="toolbar">
+                    <div class="lock-controls">
+                        <button id="moveXBtn" class="lock-btn active" title="수평(X축) 이동을 켜거나 끕니다">↔ 수평이동</button>
+                        <button id="moveYBtn" class="lock-btn active" title="수직(Y축) 이동을 켜거나 끕니다">↕ 수직이동</button>
+                    </div>
+
+                    <div class="history-controls">
+                        <button class="history-btn" id="undoBtn" title="되돌리기 (Ctrl+Z)" disabled>↶</button>
+                        <button class="history-btn" id="redoBtn" title="다시 실행 (Ctrl+Y)" disabled>↷</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualizer-wrapper" id="visualizer">
+                <div class="visualizer-source" id="sourceBox">
+                    <div class="res-text-wrapper">
+                        <span id="sourceResLabel">3840 X 2160</span>
+                        <span id="calcResLabel">(3840 X 2160)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="col-left">
+                <div>
+                    <div class="inner-title">해상도</div>
+                    
+                    <div id="mediaDropZone" class="scan-drop-box">
+                        <div id="scanDefaultState" class="scan-state-wrapper scan-default">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span>소스 불러오기</span>
+                        </div>
+                        
+                        <div id="scanActiveState" class="scan-state-wrapper" style="display: none;">
+                            <div id="scanName"></div>
+                            <div id="scanExt"></div>
+                            <div id="scanRes">-</div>
+                        </div>
+                    </div>
+
+                    <button id="applyScanBtn" class="apply-btn" disabled>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 
+                        해상도 적용
+                    </button>
+
+                    <div class="form-row" style="margin-bottom: 6px;">
+                        <div class="form-group"><label>가로 (px)</label><input id="iw" type="number" value="3840"></div>
+                        <div class="form-group"><label>세로 (px)</label><input id="ih" type="number" value="2160"></div>
+                    </div>
+                    <div class="ratio-info">비율 <div style="width:4px;height:4px;background:#ccc;border-radius:50%"></div> <span class="value" id="ratioValue">16:9</span></div>
+                    
+                    <div class="preset-btn-row">
+                        <button class="preset-btn" onclick="applySourcePreset(2048, 1024)">2048 X 1024</button>
+                        <button class="preset-btn" onclick="applySourcePreset(2944, 1920)">2944 X 1920</button>
+                        <button class="preset-btn" onclick="applySourcePreset(3840, 2160)">3840 X 2160</button>
+                        <button class="preset-btn" onclick="applySourcePreset(9216, 3672)">9216 X 3672</button>
+                    </div>
+                </div>
+
+                <hr class="dashed-divider">
+
+                <div>
+                    <div class="inner-title">스냅</div>
+                    <div class="snap-grid" id="buttonGrid">
+                        <button class="snap-btn" data-x="left" data-y="top">↖</button>
+                        <button class="snap-btn" data-x="center" data-y="top">↑</button>
+                        <button class="snap-btn" data-x="right" data-y="top">↗</button>
+                        <button class="snap-btn" data-x="left" data-y="center">←</button>
+                        <button class="snap-btn active" data-x="center" data-y="center">●</button>
+                        <button class="snap-btn" data-x="right" data-y="center">→</button>
+                        <button class="snap-btn" data-x="left" data-y="bottom">↙</button>
+                        <button class="snap-btn" data-x="center" data-y="bottom">↓</button>
+                        <button class="snap-btn" data-x="right" data-y="bottom">↘</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-right">
+                <div class="scale-list" id="baseScaleResult"></div>
+
+                <div class="control-box-blue">
+                    <div class="form-row">
+                        <div class="form-group"><label>Scale</label><input id="scaleValue" type="text" value="1.000000" onclick="copyInput('scaleValue', 'Scale')"></div>
+                        <div class="form-group"><label>Scale height</label><input id="scaleHeight" type="text" value="1.000000" onclick="copyInput('scaleHeight', 'Scale height')"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Pos X</label>
+                            <div class="readonly-box" id="posX_wrapper" onclick="copyValue(this.innerText, this)"><span id="posX_result">0.000000</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Pos Y</label>
+                            <div class="readonly-box" id="posY_wrapper" onclick="copyValue(this.innerText, this)"><span id="posY_result">0.000000</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>중앙 Px (가로)</label>
+                            <div class="stepper-wrapper">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', -1)">−</button>
+                                <input id="pixelX" type="number">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>중앙 Py (세로)</label>
+                            <div class="stepper-wrapper">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', -1)">−</button>
+                                <input id="pixelY" type="number">
+                                <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="helper-text">💡 마우스 드래그 (Shift:미세) / 클릭 복사</div>
+
+                <div class="subdued-section">
+                    <div class="inner-title">LED Wall 해상도</div>
+                    <select id="ledPreset" style="margin-bottom: 12px;">
+                        <option value="3840,2160">4K UHD (3840 × 2160)</option>
+                        <option value="7680,2160">8K 가로형 (7680 × 2160)</option>
+                        <option value="9216,3672" selected>남산 (9216 × 3672)</option>
+                        <option value="">직접 입력</option>
+                    </select>
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group"><label>가로 (W)</label><input id="lw" type="number" disabled></div>
+                        <div class="form-group"><label>세로 (H)</label><input id="lh" type="number" disabled></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE_WIDTH = 11520;
+    let currentSelectedLayer = 1; 
+
+    const layerStates = {}; 
+
+    let undoStack = [];
+    let redoStack = [];
+    let isHistoryAction = false;
+    let isGlobalScrubbing = false; 
+    
+    let allowMoveX = true; 
+    let allowMoveY = true; 
+
+    const UNDO_LIMIT = 30;
+    const inputsToTrack = ["iw", "ih", "scaleValue", "scaleHeight", "pixelX", "pixelY", "ledPreset", "lw", "lh"];
+    
+    const iwInput = document.getElementById("iw"), ihInput = document.getElementById("ih");
+    const lwInput = document.getElementById("lw"), lhInput = document.getElementById("lh");
+    const scaleInput = document.getElementById("scaleValue"), scaleHeightInput = document.getElementById("scaleHeight");
+    const pixelXInput = document.getElementById("pixelX"), pixelYInput = document.getElementById("pixelY");
+    const presetSelect = document.getElementById("ledPreset");
+    const elSourceBox = document.getElementById("sourceBox"), elVisualizer = document.getElementById("visualizer");
+    const sourceResLabel = document.getElementById("sourceResLabel"), calcResLabel = document.getElementById("calcResLabel");
+    const layerList = document.getElementById("layerList");
+    const previewLayerName = document.getElementById("previewLayerName");
+    
+    const undoBtn = document.getElementById("undoBtn"), redoBtn = document.getElementById("redoBtn");
+    const moveXBtn = document.getElementById("moveXBtn"), moveYBtn = document.getElementById("moveYBtn");
+
+    const layerNames = {}; 
+
+    // ✅ 스마트 스캐너 전역 변수
+    const dropZone = document.getElementById('mediaDropZone');
+    const scanDefaultState = document.getElementById('scanDefaultState');
+    const scanActiveState = document.getElementById('scanActiveState');
+    const scanNameEl = document.getElementById('scanName');
+    const scanExtEl = document.getElementById('scanExt');
+    const scanResEl = document.getElementById('scanRes');
+    const applyScanBtn = document.getElementById('applyScanBtn');
+
+    let tempScannedName = "";
+    let tempScannedExt = "";
+    let tempScannedW = 0;
+    let tempScannedH = 0;
+
+    // 💡 마우스 호버 시 오버레이 클래스 제어
+    dropZone.addEventListener('mouseenter', () => {
+        dropZone.classList.add('active-overlay');
+    });
+    dropZone.addEventListener('mouseleave', () => {
+        dropZone.classList.remove('active-overlay');
+    });
+
+    // 💡 드래그 시 시각적 일관성 확보
+    dropZone.addEventListener('dragover', (e) => { 
+        e.preventDefault(); 
+        dropZone.classList.add('dragover'); 
+        dropZone.classList.add('active-overlay'); // 💡 드래그 중에도 오버레이 표시
+    });
+    dropZone.addEventListener('dragleave', () => { 
+        dropZone.classList.remove('dragover'); 
+        dropZone.classList.remove('active-overlay');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        dropZone.classList.remove('active-overlay');
+        const file = e.dataTransfer.files[0];
+        if (file) processMediaFile(file);
+    });
+
+    // 💡 클릭 시 탐색기 창이 뜨는 동안 오버레이를 즉시 제거하여 기존 정보가 보이게 함
+    dropZone.addEventListener('click', () => {
+        dropZone.classList.remove('active-overlay'); // 💡 즉시 제거!
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'video/*, image/*';
+        input.onchange = (e) => {
+            if(e.target.files[0]) processMediaFile(e.target.files[0]);
+        };
+        input.click();
+    });
+
+    function processMediaFile(file) {
+        const extMatch = file.name.match(/\.([a-z0-9]+)$/i);
+        const ext = extMatch ? extMatch[1].toLowerCase() : "";
+        const isVideo = file.type.startsWith('video/') || ['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext);
+        const isImage = file.type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+        const fileURL = URL.createObjectURL(file);
+
+        if (isVideo) {
+            const video = document.createElement('video');
+            video.src = fileURL;
+            video.onloadedmetadata = () => {
+                updateScanUI(file.name, ext, video.videoWidth, video.videoHeight);
+                URL.revokeObjectURL(fileURL);
+            };
+            video.onerror = () => { alert('영상을 로드할 수 없습니다.'); };
+        } else if (isImage) {
+            const img = new Image();
+            img.src = fileURL;
+            img.onload = () => {
+                updateScanUI(file.name, ext, img.naturalWidth, img.naturalHeight);
+                URL.revokeObjectURL(fileURL);
+            };
+            img.onerror = () => { alert('이미지를 로드할 수 없습니다.'); };
+        } else {
+            alert('지원하지 않는 파일 형식입니다.');
+        }
+    }
+
+    function updateScanUI(fileName, ext, width, height) {
+        tempScannedName = fileName;
+        tempScannedExt = ext;
+        tempScannedW = width;
+        tempScannedH = height;
+
+        scanDefaultState.style.display = 'none';
+        scanActiveState.style.display = 'flex';
+
+        let nameOnly = fileName;
+        if(ext) {
+            const regex = new RegExp('\\.' + ext + '$', 'i');
+            nameOnly = fileName.replace(regex, '');
+        }
+
+        scanNameEl.innerText = nameOnly;
+        scanNameEl.title = fileName; 
+        scanExtEl.innerText = ext ? ext.toUpperCase() : "UNKNOWN";
+        scanResEl.innerText = `${width} × ${height}`; 
+        
+        checkScanAppliedState();
+        saveCurrentLayerState(); 
+    }
+
+    function resetScanUI() {
+        tempScannedName = ""; tempScannedExt = ""; tempScannedW = 0; tempScannedH = 0;
+        scanDefaultState.style.display = 'flex';
+        scanActiveState.style.display = 'none';
+    }
+
+    function checkScanAppliedState() {
+        if (tempScannedW > 0 && tempScannedH > 0) {
+            const currentIw = Number(iwInput.value);
+            const currentIh = Number(ihInput.value);
+            
+            if (currentIw === tempScannedW && currentIh === tempScannedH) {
+                applyScanBtn.disabled = true; 
+                applyScanBtn.innerHTML = `✅ 해상도 적용됨 ✅`;
+            } else {
+                applyScanBtn.disabled = false;
+                applyScanBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 해상도 적용`;
+            }
+        }
+    }
+
+    applyScanBtn.addEventListener('click', () => {
+        if(tempScannedW === 0 || tempScannedH === 0) return;
+        iwInput.value = tempScannedW;
+        ihInput.value = tempScannedH;
+        handleResolutionChange(); 
+        captureState();
+        saveCurrentLayerState();
+    });
+
+    function saveCurrentLayerState() {
+        layerStates[currentSelectedLayer] = {
+            iw: iwInput.value, ih: ihInput.value,
+            scaleValue: scaleInput.value, scaleHeight: scaleHeightInput.value,
+            pixelX: pixelXInput.value, pixelY: pixelYInput.value,
+            ledPreset: presetSelect.value, lw: lwInput.value, lh: lhInput.value,
+            scanName: tempScannedName, scanExt: tempScannedExt, scanW: tempScannedW, scanH: tempScannedH 
+        };
+    }
+
+    function loadLayerState(num) {
+        const state = layerStates[num];
+        if (!state) return;
+        iwInput.value = state.iw; ihInput.value = state.ih;
+        scaleInput.value = state.scaleValue; scaleHeightInput.value = state.scaleHeight;
+        pixelXInput.value = state.pixelX; pixelYInput.value = state.pixelY;
+        presetSelect.value = state.ledPreset; lwInput.value = state.lw; lhInput.value = state.lh;
+        if (presetSelect.value) { lwInput.disabled = true; lhInput.disabled = true; } 
+        else { lwInput.disabled = false; lhInput.disabled = false; }
+
+        if (state.scanW && state.scanW > 0) {
+            updateScanUI(state.scanName, state.scanExt, state.scanW, state.scanH);
+        } else {
+            resetScanUI();
+        }
+    }
+
+    moveXBtn.onclick = function() { allowMoveX = !allowMoveX; this.classList.toggle("active", allowMoveX); };
+    moveYBtn.onclick = function() { allowMoveY = !allowMoveY; this.classList.toggle("active", allowMoveY); };
+
+    window.copyInput = function(inputId, labelText) {
+        if (isGlobalScrubbing) return; 
+        const input = document.getElementById(inputId);
+        navigator.clipboard.writeText(input.value);
+        const label = input.previousElementSibling;
+        label.classList.add("copied-label"); label.innerText = "Copied!";
+        setTimeout(() => { label.classList.remove("copied-label"); label.innerText = labelText; }, 800);
+    };
+
+    function forceDecimalFormat(elId) {
+        const el = document.getElementById(elId);
+        let val = parseFloat(el.value);
+        if (!isNaN(val)) { el.value = val.toFixed(6); saveCurrentLayerState(); }
+    }
+
+    function makeScrubbable(elId, targetInputId, stepMultiplier, isInt) {
+        const triggerEl = document.getElementById(elId);
+        if (!triggerEl) return;
+        triggerEl.style.cursor = 'ns-resize';
+        triggerEl.title = "위아래로 드래그하여 조절 (Shift: 미세조절)";
+        let isDown = false, scrubbing = false, startY = 0, startVal = 0;
+        triggerEl.addEventListener('mousedown', (e) => {
+            isDown = true; scrubbing = false; startY = e.clientY;
+            startVal = parseFloat(document.getElementById(targetInputId).value) || 0;
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            let deltaY = startY - e.clientY; 
+            if (!scrubbing && Math.abs(deltaY) > 3) {
+                scrubbing = true; isGlobalScrubbing = true; document.body.style.userSelect = 'none'; 
+            }
+            if (scrubbing) {
+                let currentStep = e.shiftKey ? stepMultiplier * 0.1 : stepMultiplier;
+                let newVal = startVal + (deltaY * currentStep);
+                if (isInt) newVal = Math.round(newVal); else newVal = Number(newVal).toFixed(6); 
+                document.getElementById(targetInputId).value = newVal;
+                document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+                updateAll();
+            }
+        });
+        window.addEventListener('mouseup', () => {
+            if (isDown && scrubbing) {
+                document.body.style.userSelect = ''; 
+                saveCurrentLayerState(); captureState(); 
+                setTimeout(() => { isGlobalScrubbing = false; }, 50); 
+            }
+            isDown = false; scrubbing = false;
+        });
+    }
+
+    function captureState() {
+        if (isHistoryAction) return;
+        const state = { layer: currentSelectedLayer, names: { ...layerNames }, values: {} };
+        inputsToTrack.forEach(id => { const el = document.getElementById(id); if(el) state.values[id] = el.value; });
+        const newStateStr = JSON.stringify(state);
+        if (undoStack.length > 0 && undoStack[undoStack.length - 1] === newStateStr) return;
+        undoStack.push(newStateStr);
+        if (undoStack.length > UNDO_LIMIT) undoStack.shift(); 
+        redoStack = []; updateHistoryButtons();
+    }
+
+    function applyState(stateStr) {
+        isHistoryAction = true;
+        const state = JSON.parse(stateStr);
+        Object.keys(layerNames).forEach(k => {
+            if (layerNames[k] !== state.names[k]) { renameLayerInPicturall(k, state.names[k]); }
+            layerNames[k] = state.names[k];
+        });
+        inputsToTrack.forEach(id => { const el = document.getElementById(id); if(id !== 'iw' && id !== 'ih') el.value = state.values[id]; });
+        for(let i=1; i<=25; i++) {
+            const nameEl = document.getElementById(`layer-name-${i}`);
+            if(nameEl) nameEl.innerText = layerNames[i];
+        }
+        if(state.layer) {
+            currentSelectedLayer = state.layer;
+            document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
+            const target = document.getElementById(`layer-item-${state.layer}`);
+            if(target) target.classList.add("active");
+            previewLayerName.innerText = `[${layerNames[state.layer]}]`;
+        }
+        iwInput.value = state.values.iw; ihInput.value = state.values.ih;
+        saveCurrentLayerState(); 
+        applyPreset(false); 
+        isHistoryAction = false;
+        updateAll(); updateHistoryButtons();
+    }
+
+    function undo() { if (undoStack.length <= 1) return; redoStack.push(undoStack.pop()); applyState(undoStack[undoStack.length - 1]); }
+    function redo() { if (redoStack.length === 0) return; const state = redoStack.pop(); undoStack.push(state); applyState(state); }
+    function updateHistoryButtons() { undoBtn.disabled = undoStack.length <= 1; redoBtn.disabled = redoStack.length === 0; }
+    undoBtn.onclick = undo; redoBtn.onclick = redo;
+
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') e.target.blur(); return; }
+        if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+        if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); return; }
+        const keyNum = parseInt(e.key);
+        if (keyNum >= 1 && keyNum <= 9) { selectLayer(keyNum); } 
+        else if (e.key === '0') { selectLayer(10); }
+    });
+
+    for (let i = 1; i <= 25; i++) {
+        layerNames[i] = `Layer ${i}`; 
+        layerStates[i] = {
+            iw: "3840", ih: "2160", scaleValue: "0.333333", scaleHeight: "1.000000",
+            pixelX: "4608", pixelY: "1836", ledPreset: "9216,3672", lw: "9216", lh: "3672",
+            scanName: "", scanExt: "", scanW: 0, scanH: 0
+        };
+        const item = document.createElement("div");
+        item.className = "layer-item" + (i === 1 ? " active" : "");
+        item.id = `layer-item-${i}`;
+        item.innerHTML = `<div class="layer-number">${i}</div><div class="layer-name" id="layer-name-${i}">${layerNames[i]}</div>`;
+        item.onclick = () => { selectLayer(i); };
+        item.ondblclick = () => {
+            const newName = prompt(`${i}번 레이어의 새 이름을 입력하세요:`, layerNames[i]);
+            if (newName && newName.trim() !== "") {
+                layerNames[i] = newName.trim();
+                document.getElementById(`layer-name-${i}`).innerText = layerNames[i];
+                if(currentSelectedLayer === i) previewLayerName.innerText = `[${layerNames[i]}]`;
+                captureState(); renameLayerInPicturall(i, layerNames[i]);
+            }
+        };
+        layerList.appendChild(item);
+    }
+
+    function selectLayer(num, shouldCapture = true) {
+        if (currentSelectedLayer === num && document.querySelector(`.layer-item.active`)) return;
+        saveCurrentLayerState(); 
+        document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
+        const target = document.getElementById(`layer-item-${num}`);
+        if(target) {
+            target.classList.add("active");
+            currentSelectedLayer = num;
+            previewLayerName.innerText = `[${layerNames[num]}]`;
+            loadLayerState(num);
+            handleResolutionChange(); updateAll();
+            if(shouldCapture) captureState();
+            triggerSend(); 
+        }
+    }
+
+    let sendTimeout = null;
+    function triggerSend() {
+        if(sendTimeout) clearTimeout(sendTimeout);
+        sendTimeout = setTimeout(sendToPicturall, 50); 
+    }
+
+    async function renameLayerInPicturall(layerNum, newName) {
+        const bridgeIp = "127.0.0.1"; 
+        try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ layer: layerNum, name: newName }) }); } catch (error) {}
+    }
+
+    async function sendToPicturall() {
+        const posX = document.getElementById("posX_result").innerText;
+        const posY = document.getElementById("posY_result").innerText;
+        const scaleVal = document.getElementById("scaleValue").value;
+        const scaleHVal = document.getElementById("scaleHeight").value;
+        const bridgeIp = "127.0.0.1"; 
+        try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ layer: currentSelectedLayer, x: posX, y: posY, scale: scaleVal, scale_h: scaleHVal }) }); } catch (error) {}
+    }
+
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+    
+    function applyPreset(shouldCapture = true) {
+        if (presetSelect.value) {
+            const [w, h] = presetSelect.value.split(",");
+            lwInput.value = w; lhInput.value = h;
+            lwInput.disabled = true; lhInput.disabled = true;
+        } else {
+            lwInput.disabled = false; lhInput.disabled = false;
+        }
+        handleResolutionChange();
+        if(shouldCapture) captureState();
+        saveCurrentLayerState();
+    }
+
+    window.applySourcePreset = function(width, height) {
+        iwInput.value = width; ihInput.value = height;
+        handleResolutionChange(); captureState(); saveCurrentLayerState();
+    };
+
+    window.adjustPixel = function(id, delta) {
+        const input = document.getElementById(id);
+        input.value = Number(input.value) + delta;
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        updateAll(); captureState(); saveCurrentLayerState();
+    };
+
+    window.copyValue = function(text, element) {
+        if (isGlobalScrubbing) return; 
+        navigator.clipboard.writeText(text);
+        const target = element.querySelector('span') || element;
+        const orig = target.innerText; 
+        target.classList.add("copied"); target.innerText = "Copied";
+        setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
+    };
+
+    window.applyScale = function(val, element) {
+        scaleInput.value = val; updateAll(); captureState(); saveCurrentLayerState();
+        const target = element.querySelector('.val');
+        const orig = target.innerText; target.classList.add("copied"); target.innerText = "Copied";
+        setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
+    };
+
+    function handleResolutionChange() {
+        const iw = Number(iwInput.value) || 1, ih = Number(ihInput.value) || 1;
+        const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
+        const g = gcd(iw, ih); document.getElementById("ratioValue").innerText = `${iw/g}:${ih/g}`;
+        checkScanAppliedState();
+        const sW = (lw / BASE_WIDTH).toFixed(6);
+        const sH = (Number(sW) * lh / (lw * ih / iw)).toFixed(6);
+        const sO = (iw / BASE_WIDTH).toFixed(6);
+        document.getElementById("baseScaleResult").innerHTML = `
+            <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로 채우기</span><span class="val">${sW}</span></div>
+            <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로 채우기</span><span class="val">${sH}</span></div>
+            <div class="scale-item" onclick="applyScale('${sO}', this)"><span class="scale-label">정사이즈 (1:1)</span><span class="val">${sO}</span></div>`;
+        elVisualizer.style.aspectRatio = `${lw}/${lh}`;
+        sourceResLabel.innerText = `${iw}x${ih}`;
+        if (!scaleInput.value) {
+            scaleInput.value = sO;
+            pixelXInput.value = Math.round(lw / 2); pixelYInput.value = Math.round(lh / 2);
+            document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+            document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
+            updateAll();
+        } else {
+            const activeSnap = document.querySelector(".snap-btn.active");
+            if (activeSnap) { activeSnap.click(); } else { updateAll(); }
+        }
+    }
+
+    function updateAll() {
+        const lw = Number(lwInput.value), lh = Number(lhInput.value), iw = Number(iwInput.value), ih = Number(ihInput.value);
+        const px = Number(pixelXInput.value), py = Number(pixelYInput.value);
+        const S = parseFloat(scaleInput.value) || 1, Sh = parseFloat(scaleHeightInput.value) || 1;
+        const nX = (px - lw / 2) / BASE_WIDTH;
+        const nY = (lh / 2 - py) / BASE_WIDTH;
+        document.getElementById("posX_result").innerText = nX.toFixed(6);
+        document.getElementById("posY_result").innerText = nY.toFixed(6);
+        const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (ih / iw);
+        const wP = (bW / lw) * 100, hP = (bH / lh) * 100;
+        elSourceBox.style.width = `${wP}%`; elSourceBox.style.height = `${hP}%`;
+        elSourceBox.style.left = `${(px/lw)*100 - wP/2}%`; elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
+        sourceResLabel.innerText = `${iw} X ${ih}`; calcResLabel.innerText = `(${Math.round(bW)} X ${Math.round(bH)})`;
+        triggerSend();
+    }
+
+    document.querySelectorAll(".snap-btn").forEach(btn => btn.addEventListener("click", function() {
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        const S = parseFloat(scaleInput.value) || 1, Sh = parseFloat(scaleHeightInput.value) || 1;
+        const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (Number(ihInput.value)/Number(iwInput.value));
+        const lw = Number(lwInput.value), lh = Number(lhInput.value);
+        let tx = lw/2, ty = lh/2;
+        if(this.dataset.x === 'left') tx = bW/2; else if(this.dataset.x === 'right') tx = lw - bW/2;
+        if(this.dataset.y === 'top') ty = bH/2; else if(this.dataset.y === 'bottom') ty = lh - bH/2;
+        pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
+        updateAll(); captureState(); saveCurrentLayerState(); 
+    }));
+
+    let isDrag = false, dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0, hasMovedDuringDrag = false;
+    elSourceBox.addEventListener("mousedown", (e) => { 
+        isDrag = true; hasMovedDuringDrag = false; 
+        dragStartX = e.clientX; dragStartY = e.clientY;
+        initPixelX = Number(pixelXInput.value); initPixelY = Number(pixelYInput.value);
+        e.preventDefault(); 
+    });
+    window.addEventListener("mouseup", () => {
+        if(isDrag && hasMovedDuringDrag) { captureState(); saveCurrentLayerState(); }
+        isDrag = false; hasMovedDuringDrag = false;
+    });
+    window.addEventListener("mousemove", (e) => {
+        if(!isDrag) return;
+        hasMovedDuringDrag = true; 
+        const rect = elVisualizer.getBoundingClientRect();
+        const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
+        const scaleX = lw / rect.width, scaleY = lh / rect.height;
+        if (allowMoveX) pixelXInput.value = Math.round(initPixelX + ((e.clientX - dragStartX) * scaleX));
+        if (allowMoveY) pixelYInput.value = Math.round(initPixelY + ((e.clientY - dragStartY) * scaleY));
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        updateAll();
+    });
+
+    inputsToTrack.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) { 
+            el.addEventListener("input", () => {
+                if (['iw', 'ih', 'lw', 'lh'].includes(id)) handleResolutionChange();
+                else updateAll();
+            }); 
+            el.addEventListener("change", () => { captureState(); saveCurrentLayerState(); }); 
+        }
+    });
+
+    document.getElementById("scaleValue").addEventListener("blur", function() { forceDecimalFormat(this.id); });
+    document.getElementById("scaleHeight").addEventListener("blur", function() { forceDecimalFormat(this.id); });
+    presetSelect.addEventListener("change", () => applyPreset(true));
+
+    window.onload = () => {
+        loadLayerState(1); applyPreset(false); captureState();
+        makeScrubbable('scaleValue', 'scaleValue', 0.002, false);
+        makeScrubbable('scaleHeight', 'scaleHeight', 0.002, false);
+        makeScrubbable('pixelX', 'pixelX', 10, true);
+        makeScrubbable('pixelY', 'pixelY', 10, true);
+        makeScrubbable('posX_wrapper', 'pixelX', 10, true);
+        makeScrubbable('posY_wrapper', 'pixelY', 10, true);
+    };
+</script>
+</body>
+</html>
