@@ -51,18 +51,10 @@
             body { justify-content: flex-start; }
         }
 
-        .layer-column {
-            width:240px;
-            display:flex;
-            flex-direction:column;
-            gap:8px;
-            align-self:flex-start;
-            flex-shrink:0;
-        }
         .layer-panel {
-            width: 100%;
-            height: 650px;
-            min-height: 650px;
+            width: 240px;
+            height: 720px;
+            min-height: 720px;
             max-height: none;
             align-self: flex-start;
             background: var(--bg-panel);
@@ -72,7 +64,6 @@
             flex-direction: column;
             overflow: hidden;
             flex-shrink: 0;
-            box-sizing:border-box;
         }
         .layer-panel-header {
             background: #e2e8f0;
@@ -114,16 +105,6 @@
         .layer-item.active:not(.primary) { background: #60a5fa; }
         .layer-item.primary { box-shadow: inset 3px 0 0 white, 0 0 0 1px #1d4ed8; }
         .layer-number { flex:0 0 24px;width:24px;font-size:0.7rem;opacity:0.7; }
-        .layer-playback-indicator { position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 14px;width:14px;height:14px;margin-right:4px;color:#64748b; }
-        .layer-playback-indicator::before { content:"";display:block;box-sizing:border-box; }
-        .layer-playback-indicator[data-state="stop"]::before { width:7px;height:7px;border-radius:1px;background:currentColor; }
-        .layer-playback-indicator[data-state="play"] { color:#2563eb; }
-        .layer-playback-indicator[data-state="play"]::before { width:0;height:0;margin-left:1px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid currentColor; }
-        .layer-playback-indicator[data-state="pause"] { color:#d97706; }
-        .layer-playback-indicator[data-state="pause"]::before { width:8px;height:9px;background:linear-gradient(to right,currentColor 0 3px,transparent 3px 5px,currentColor 5px 8px); }
-        .layer-item.active .layer-playback-indicator { color:white; }
-        .layer-modified-marker { flex:0 0 7px;width:7px;height:7px;margin-right:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 2px rgba(255,255,255,.72);visibility:hidden; }
-        .layer-modified-marker.visible { visibility:visible; }
         .layer-name { flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none; }
         .layer-name-input { width:100%;height:23px;padding:0 5px;border:1px solid #93c5fd;border-radius:3px;background:white;color:#1e293b;font-size:.72rem;font-weight:600;text-align:left;pointer-events:auto;user-select:text;-webkit-user-select:text; }
         .surface-buttons { display:flex;flex:0 0 auto;gap:3px;margin-left:5px; }
@@ -171,11 +152,6 @@
         .preview-header .inner-title { margin-bottom: 0; }
         
         .toolbar { display: flex; gap: 15px; align-items: center; }
-        .workspace-controls { display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px 8px 5px;background:#fff;border:1px solid var(--border-color);border-radius:var(--radius-md);box-shadow:0 2px 6px rgba(15,23,42,.05);box-sizing:border-box; }
-        .workspace-btn { width:100%;height:30px;padding:0 5px;border:1px solid var(--border-color);border-radius:5px;background:#fff;color:#475569;font-family:inherit;font-size:.66rem;font-weight:800;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-        .workspace-btn:hover { color:var(--primary);border-color:#93c5fd;background:var(--primary-light); }
-        .workspace-saved { grid-column:1 / -1;height:14px;text-align:center;color:#16a34a;font-size:.64rem;font-weight:700;opacity:0;transition:opacity .2s; }
-        .workspace-saved.visible { opacity:1; }
         
         .header-auto-split { height:30px;padding:0 12px;margin:0;border:1px solid var(--primary-border);border-radius:5px;background:white;color:var(--primary);font-family:inherit;font-size:.72rem;font-weight:800;cursor:pointer; }
         .header-auto-split:hover { background:var(--primary-light);border-color:#93c5fd; }
@@ -256,22 +232,6 @@
         .rotation-preset.active { color: #1d4ed8; background: #eaf2ff; border-color: #7daaf7; }
         .rotation-arrow { font-size: .74rem; line-height: 1; color:#94a3b8; }
         .rotation-preset.active .rotation-arrow { color:#2563eb; }
-        .playback-panel { display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius-md); }
-        .playback-timeline { display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:8px;align-items:center; }
-        .playback-timeline.non-video { grid-template-columns:42px minmax(0,1fr) 88px; }
-        .playback-timeline[hidden] { display:none; }
-        .playback-time { color:#64748b;font-size:.58rem;font-weight:700;font-variant-numeric:tabular-nums; }
-        .playback-time:last-child { text-align:right; }
-        .playback-seek { width:100%;height:4px;margin:0;accent-color:var(--primary);cursor:pointer; }
-        .playback-seek:disabled { cursor:not-allowed;opacity:.45;accent-color:#94a3b8; }
-        .playback-time.media-not-video { color:#94a3b8;font-size:.6rem;white-space:nowrap; }
-        .playback-controls { display:grid;grid-template-columns:repeat(3,40px);gap:7px;justify-content:center; }
-        .playback-btn { display:flex;align-items:center;justify-content:center;width:40px;height:34px;padding:0;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#64748b;cursor:pointer;transition:.12s; }
-        .playback-btn svg { width:15px;height:15px; }
-        .playback-btn:hover { border-color:#93c5fd;background:#f8fbff;color:#2563eb; }
-        .playback-btn.active { border-color:#7daaf7;background:#dbeafe;color:#1d4ed8; }
-        .playback-btn.commanded { animation:playbackPulse .25s ease-out; }
-        @keyframes playbackPulse { 50% { transform:translateY(-1px);background:#dbeafe; } }
         .quick-tools-row { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch; }
         .rotation-panel { padding:9px 10px;background-color:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius-md); }
         .rotation-panel > label { margin-bottom:6px;color:#475569; }
@@ -425,53 +385,31 @@
         .multi-preview-source { position:absolute;z-index:1;display:flex;align-items:center;justify-content:center;background:rgba(59,130,246,.34);border:2px solid rgba(37,99,235,.72);transform-origin:center;pointer-events:none;overflow:hidden; }
         .multi-preview-source .source-layer-name { padding:3px 6px;background:rgba(15,23,42,.68);border-radius:4px;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis; }
         .left-panel-hidden, .preview-hidden { display:none !important; }
-        .auto-split-panel { min-height:420px;margin-bottom:24px;padding:16px;border:1px solid #cbd5e1;border-radius:var(--radius-sm);background:#f8fafc;box-sizing:border-box; }
+        .auto-split-panel { min-height:420px;margin-bottom:24px;padding:16px;border:1px solid var(--primary-border);border-radius:var(--radius-sm);background:var(--primary-light);box-sizing:border-box; }
         .auto-split-title { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:.9rem;font-weight:800;color:var(--primary); }
-        .auto-split-toolbar { display:grid;grid-template-columns:minmax(240px,.8fr) minmax(360px,1.2fr);gap:10px;margin-bottom:12px; }
-        .auto-split-tool-group { padding:9px;background:white;border:1px solid #dbeafe;border-radius:7px; }
-        .auto-split-tool-label { display:block;margin-bottom:6px;color:#64748b;font-size:.62rem;font-weight:800; }
-        .split-surface-picker { display:grid;grid-template-columns:repeat(3,1fr);gap:6px; }
+        .split-surface-picker { display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;padding:9px;background:rgba(255,255,255,.65);border:1px solid #dbeafe;border-radius:6px; }
         .split-surface-btn { height:32px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#64748b;font-family:inherit;font-size:.72rem;font-weight:800;cursor:pointer; }
         .split-surface-btn:hover { border-color:#93c5fd;color:#2563eb; }
         .split-surface-btn.active { border-color:var(--primary);background:var(--primary);color:white; }
-        .auto-split-workspace { display:block; }
-        .auto-split-preview-column { min-width:0; }
-        .split-layout-inputs { display:flex;align-items:flex-end;gap:8px; }
-        .split-layout-field { display:flex;flex-direction:column;gap:3px;color:#64748b;font-size:.57rem;font-weight:800; }
-        .split-layout-field input { width:78px;height:34px;padding:0 8px;border:1px solid var(--primary-border);border-radius:5px;background:white;color:#0f172a;font-family:inherit;font-size:.82rem;font-weight:800;text-align:center;box-sizing:border-box; }
-        .split-layout-field input:focus { outline:2px solid rgba(59,130,246,.18);border-color:var(--primary); }
-        .split-layout-times { height:34px;display:flex;align-items:center;color:#94a3b8;font-size:1rem;font-weight:700; }
-        .split-layout-total { height:34px;display:flex;align-items:center;margin-left:4px;color:#2563eb;font-size:.65rem;font-weight:800; }
+        .auto-split-workspace { display:grid;grid-template-columns:minmax(260px,.9fr) minmax(340px,1.1fr);gap:14px;align-items:start; }
+        .auto-split-preview-column, .auto-split-settings-column { min-width:0; }
+        .split-presets { display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px; }
+        .split-preset { height:34px;border:1px solid var(--primary-border);background:white;border-radius:4px;color:#64748b;font-weight:700;cursor:pointer; }
+        .split-preset.active { background:var(--primary);color:white;border-color:var(--primary); }
         .split-preview { display:grid;gap:0;width:100%;aspect-ratio:16/9;margin-bottom:12px;background:#cbd5e1;border:4px solid #cbd5e1;border-radius:5px;box-sizing:border-box;overflow:hidden; }
-        .split-cell { position:relative;display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;min-width:0;min-height:0;background:white;box-shadow:inset 0 0 0 1px #cbd5e1;border-radius:0;color:#94a3b8;font-size:.7rem;font-weight:800;cursor:pointer;overflow:visible; }
+        .split-cell { position:relative;display:flex;align-items:center;justify-content:center;min-width:0;background:white;border-radius:0;color:#94a3b8;font-size:.7rem;font-weight:800;cursor:pointer; }
         .split-cell.assigned { background:#dbeafe;color:var(--primary); }
-        .split-cell.selected { z-index:3;background:#eff6ff;box-shadow:inset 0 0 0 2px #3b82f6; }
-        .split-cell-ratio { font-size:.55rem;font-weight:700;color:#94a3b8;pointer-events:none; }
-        .split-cell-layer-editor { display:flex;align-items:center;gap:3px;color:#64748b;font-size:.58rem;font-weight:900;cursor:text; }
-        .split-cell-layer-editor input { width:46px;height:24px;padding:0 3px;border:1px solid #cbd5e1;border-radius:3px;background:white;color:#0f172a;font-family:inherit;font-size:.68rem;font-weight:800;text-align:center;box-sizing:border-box; }
-        .split-cell-layer-editor input:focus { outline:2px solid rgba(59,130,246,.2);border-color:#3b82f6; }
-        .split-cell-size-editor { display:flex;gap:4px;align-items:center;justify-content:center;max-width:calc(100% - 10px); }
-        .split-cell-size-editor label { display:flex;gap:2px;align-items:center;margin:0;padding:0;color:#64748b;font-size:.52rem;font-weight:800; }
-        .split-cell-size-editor input { width:38px;height:22px;padding:0 2px;border:1px solid #93c5fd;border-radius:3px;background:white;color:#1d4ed8;font-size:.62rem;font-weight:800;text-align:center;box-sizing:border-box; }
-        .split-cell-size-editor input:focus { outline:2px solid rgba(59,130,246,.22);border-color:#3b82f6; }
-        .split-cell-size-editor label.is-locked { color:#94a3b8;cursor:not-allowed; }
-        .split-cell-size-editor input:disabled { border-color:#cbd5e1;background:#e2e8f0;color:#94a3b8;cursor:not-allowed;box-shadow:inset 0 0 0 1px rgba(148,163,184,.08); }
-        .split-resize-handle { position:absolute;z-index:5;background:#3b82f6;border:2px solid white;border-radius:4px;box-shadow:0 1px 4px rgba(15,23,42,.25);touch-action:none; }
-        .split-resize-handle.left,.split-resize-handle.right { top:50%;width:7px;height:28px;transform:translateY(-50%);cursor:col-resize; }
-        .split-resize-handle.left { left:-4px; }
-        .split-resize-handle.right { right:-4px; }
-        .split-resize-handle.top,.split-resize-handle.bottom { left:50%;width:28px;height:7px;transform:translateX(-50%);cursor:row-resize; }
-        .split-resize-handle.top { top:-4px; }
-        .split-resize-handle.bottom { bottom:-4px; }
-        .split-actions { display:grid;grid-template-columns:120px 120px;justify-content:end;gap:7px;margin-top:10px; }
+        .split-settings { display:flex;flex-direction:column;gap:7px;max-height:330px;overflow:auto;padding-right:2px; }
+        .split-row { background:white;border:1px solid #dbeafe;border-radius:5px;padding:8px; }
+        .split-row-title { font-size:.68rem;font-weight:800;color:#475569;margin-bottom:6px; }
+        .split-fields { display:grid;grid-template-columns:1.05fr .95fr .8fr .8fr;gap:5px; }
+        .split-fields label { font-size:.58rem;margin-bottom:2px;padding:0;text-align:center; }
+        .split-fields input { height:29px;padding:0 4px;font-size:.74rem; }
+        .split-actions { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px; }
         .split-action { height:36px;border-radius:4px;font-weight:800;cursor:pointer; }
         .split-cancel { border:1px solid #cbd5e1;background:white;color:#64748b; }
         .split-apply { border:1px solid var(--primary);background:var(--primary);color:white; }
         .split-error { min-height:16px;margin-top:6px;color:#dc2626;font-size:.66rem;text-align:center; }
-        .split-preview-help { margin-top:-6px;color:#64748b;font-size:.6rem;text-align:center; }
-        @media (max-width: 1120px) {
-            .auto-split-toolbar { grid-template-columns:1fr; }
-        }
         
         .scale-list { background:#f8fafc;border:1px solid var(--border-color);border-radius:var(--radius-sm);display:flex;flex-direction:column;justify-content:center;padding:5px 0;min-width:0; }
         .scale-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; border-bottom: 1px dashed var(--border-color); cursor: pointer; } 
@@ -503,18 +441,10 @@
 <body>
 
 <div class="container">
-    <div class="layer-column">
-        <div class="workspace-controls">
-            <button id="saveWorkspaceBtn" class="workspace-btn" type="button" title="전체 레이어 설정을 이름 붙인 파일로 저장">💾 다른 이름 저장</button>
-            <button id="loadWorkspaceBtn" class="workspace-btn" type="button" title="저장한 전체 설정 파일 불러오기">📂 설정 불러오기</button>
-            <span id="workspaceSavedStatus" class="workspace-saved"></span>
-            <input id="workspaceFileInput" type="file" accept=".json,.picturall.json,application/json" hidden>
-        </div>
-        <div class="layer-panel">
-            <div class="layer-panel-header">Layers</div>
-            <div class="layer-list" id="layerList"></div>
-            <div class="layer-hint">Ctrl: 다중 선택 · Shift: 범위 선택<br>Ctrl+C/V: 설정 복사·붙여넣기 · 더블클릭: 이름 변경</div>
-        </div>
+    <div class="layer-panel">
+        <div class="layer-panel-header">Layers</div>
+        <div class="layer-list" id="layerList"></div>
+        <div class="layer-hint">Ctrl: 다중 선택 · Shift: 범위 선택<br>더블클릭하여 이름 변경</div>
     </div>
 
     <div class="controls-area">
@@ -560,29 +490,25 @@
             </div>
             <div id="autoSplitPanel" class="auto-split-panel preview-hidden">
                 <div class="auto-split-title"><span>▦ Auto-Split</span><span id="autoSplitLayerLabel"></span></div>
-                <div class="auto-split-toolbar">
-                    <div class="auto-split-tool-group">
-                        <span class="auto-split-tool-label">분할 대상</span>
-                        <div class="split-surface-picker" aria-label="분할 대상 영역">
-                            <button class="split-surface-btn active" type="button" data-surface="main">메인</button>
-                            <button class="split-surface-btn" type="button" data-surface="floor">바닥</button>
-                            <button class="split-surface-btn" type="button" data-surface="ceiling">천장</button>
-                        </div>
-                    </div>
-                    <div class="auto-split-tool-group">
-                        <span class="auto-split-tool-label">분할 형태</span>
-                        <div class="split-layout-inputs">
-                            <label class="split-layout-field">가로<input id="splitColsInput" type="number" min="1" max="50" step="1" value="2" aria-label="가로 분할 수"></label>
-                            <span class="split-layout-times">×</span>
-                            <label class="split-layout-field">세로<input id="splitRowsInput" type="number" min="1" max="50" step="1" value="1" aria-label="세로 분할 수"></label>
-                            <span id="splitLayoutTotal" class="split-layout-total">총 2영역</span>
-                        </div>
-                    </div>
+                <div class="split-surface-picker" aria-label="분할 대상 영역">
+                    <button class="split-surface-btn active" type="button" data-surface="main">메인</button>
+                    <button class="split-surface-btn" type="button" data-surface="floor">바닥</button>
+                    <button class="split-surface-btn" type="button" data-surface="ceiling">천장</button>
                 </div>
                 <div class="auto-split-workspace">
                     <div class="auto-split-preview-column">
+                        <div class="split-presets" id="splitPresets">
+                            <button class="split-preset active" type="button" data-split="2">2분할</button>
+                            <button class="split-preset" type="button" data-split="3">3분할</button>
+                            <button class="split-preset" type="button" data-split="4">4분할</button>
+                            <button class="split-preset" type="button" data-split="6">6분할</button>
+                            <button class="split-preset" type="button" data-split="8">8분할</button>
+                            <button class="split-preset" type="button" data-split="9">9분할</button>
+                        </div>
                         <div id="splitPreview" class="split-preview"></div>
-                        <div class="split-preview-help">각 칸에서 레이어 번호를 입력하세요. 영역을 선택하면 크기 비율을 조절할 수 있습니다.</div>
+                    </div>
+                    <div class="auto-split-settings-column">
+                        <div id="splitSettings" class="split-settings"></div>
                         <div id="splitError" class="split-error"></div>
                         <div class="split-actions">
                             <button id="cancelAutoSplitBtn" class="split-action split-cancel" type="button">취소</button>
@@ -663,18 +589,6 @@
             </div>
 
             <div class="col-right">
-                <div class="playback-panel" aria-label="레이어 재생 제어">
-                    <div id="playbackTimeline" class="playback-timeline non-video">
-                        <span id="playbackCurrentTime" class="playback-time">00:00</span>
-                        <input id="playbackSeek" class="playback-seek" type="range" min="0" max="1" step="0.01" value="0" aria-label="재생 위치" disabled>
-                        <span id="playbackDuration" class="playback-time media-not-video">소스를 불러오세요</span>
-                    </div>
-                    <div class="playback-controls">
-                        <button class="playback-btn" type="button" data-playback="stop" title="정지하고 처음으로" aria-label="정지하고 처음으로"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1" fill="currentColor"></rect></svg></button>
-                        <button class="playback-btn" type="button" data-playback="play" title="재생" aria-label="재생"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.8v10.4L13 8z" fill="currentColor"></path></svg></button>
-                        <button class="playback-btn" type="button" data-playback="pause" title="일시정지" aria-label="일시정지"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3" width="3.3" height="10" rx=".8" fill="currentColor"></rect><rect x="9.2" y="3" width="3.3" height="10" rx=".8" fill="currentColor"></rect></svg></button>
-                    </div>
-                </div>
                 <div class="quick-tools-row">
                     <div class="scale-list" id="baseScaleResult"></div>
                     <div class="rotation-panel transform-field" data-transform="rotationValue" data-label="Rotation">
@@ -740,9 +654,19 @@
                 
                 <div class="helper-text">💡 마우스 드래그 (Shift:미세) / 클릭 복사</div>
 
-                <input id="ledPreset" type="hidden" value="9216,3672">
-                <input id="lw" type="hidden" value="9216">
-                <input id="lh" type="hidden" value="3672">
+                <div class="subdued-section">
+                    <div class="inner-title">LED Wall 해상도</div>
+                    <select id="ledPreset" style="margin-bottom: 12px;">
+                        <option value="3840,2160">4K UHD (3840 × 2160)</option>
+                        <option value="7680,2160">8K 가로형 (7680 × 2160)</option>
+                        <option value="9216,3672" selected>남산 (9216 × 3672)</option>
+                        <option value="">직접 입력</option>
+                    </select>
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group"><label>가로 (W)</label><input id="lw" type="number" disabled></div>
+                        <div class="form-group"><label>세로 (H)</label><input id="lh" type="number" disabled></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -751,9 +675,6 @@
 <script>
     const BASE_WIDTH = 11520;
     const MAX_LAYERS = 50;
-    const LED_WALL_WIDTH = 9216;
-    const LED_WALL_HEIGHT = 3672;
-    const LED_WALL_PRESET = '9216,3672';
     const EDITOR_SCALE_X = 1.5;
     const EDITOR_SCALE_Y = 2.5;
     const EDITOR_MARGIN_X = (EDITOR_SCALE_X - 1) / 2;
@@ -764,8 +685,8 @@
     });
     const DEFAULT_LAYER_STATE = Object.freeze({
         iw: "3840", ih: "2160", scaleValue: "0.333333", scaleHeight: "1.000000", scaleHeightLocked: true, rotationValue: "0",
-        pixelX: "4608", pixelY: "1836", ledPreset: LED_WALL_PRESET, lw: String(LED_WALL_WIDTH), lh: String(LED_WALL_HEIGHT),
-        scanName: "", scanExt: "", scanW: 0, scanH: 0, mediaDuration: 0, mediaIsVideo: false, edgeBlurEnabled: false, edgeBlurStrength: "20", surfaceRole: "main"
+        pixelX: "4608", pixelY: "1836", ledPreset: "9216,3672", lw: "9216", lh: "3672",
+        scanName: "", scanExt: "", scanW: 0, scanH: 0, edgeBlurEnabled: false, edgeBlurStrength: "20", surfaceRole: "main"
     });
     function getMainTransformSnapshot(state) {
         return {
@@ -779,41 +700,11 @@
         state.mainTransform = getMainTransformSnapshot(state);
         return state;
     }
-    const MODIFIED_STATE_KEYS = [
-        'iw', 'ih', 'scaleValue', 'scaleHeight', 'scaleHeightLocked', 'rotationValue', 'pixelX', 'pixelY',
-        'ledPreset', 'lw', 'lh', 'scanName', 'scanExt', 'scanW', 'scanH', 'mediaIsVideo', 'edgeBlurEnabled', 'edgeBlurStrength', 'surfaceRole'
-    ];
-    const NUMERIC_STATE_KEYS = new Set(['iw', 'ih', 'scaleValue', 'scaleHeight', 'rotationValue', 'pixelX', 'pixelY', 'lw', 'lh', 'scanW', 'scanH', 'edgeBlurStrength']);
-
-    function isLayerModified(layer) {
-        const state = layerStates[layer] || createDefaultLayerState();
-        return MODIFIED_STATE_KEYS.some(key => {
-            if (NUMERIC_STATE_KEYS.has(key)) {
-                const current = Number(state[key]);
-                const initial = Number(DEFAULT_LAYER_STATE[key]);
-                return !Number.isFinite(current) || Math.abs(current - initial) > 0.000001;
-            }
-            return (state[key] ?? '') !== (DEFAULT_LAYER_STATE[key] ?? '');
-        });
-    }
-
-    function updateLayerModifiedMarkers() {
-        for (let layer = 1; layer <= MAX_LAYERS; layer++) {
-            const marker = document.getElementById(`layer-modified-${layer}`);
-            if (!marker) continue;
-            const modified = isLayerModified(layer);
-            marker.classList.toggle('visible', modified);
-            marker.title = modified ? '기본값과 다른 설정이 있습니다' : '';
-        }
-    }
     let currentSelectedLayer = 1;
     let selectedLayers = new Set([1]);
     let selectionAnchorLayer = 1;
 
     const layerStates = {}; 
-    const layerPlaybackStates = {};
-    const layerPlaybackPositions = {};
-    const layerPlaybackUpdatedAt = {};
 
     let undoStack = [];
     let redoStack = [];
@@ -836,170 +727,11 @@
     const layerList = document.getElementById("layerList");
     const previewLayerName = document.getElementById("previewLayerName");
     const normalLeftPanel = document.getElementById("normalLeftPanel"), autoSplitPanel = document.getElementById("autoSplitPanel");
-    const splitPreview = document.getElementById("splitPreview"), splitError = document.getElementById("splitError");
-    const splitColsInput = document.getElementById("splitColsInput"), splitRowsInput = document.getElementById("splitRowsInput"), splitLayoutTotal = document.getElementById("splitLayoutTotal");
+    const splitPreview = document.getElementById("splitPreview"), splitSettings = document.getElementById("splitSettings"), splitError = document.getElementById("splitError");
     
     const undoBtn = document.getElementById("undoBtn"), redoBtn = document.getElementById("redoBtn"), resetBtn = document.getElementById("resetBtn");
 
     const layerNames = {}; 
-    const LAYER_CLIPBOARD_KEY = 'picturall-calculator-layer-clipboard-v1';
-    let layerOptionClipboard = null;
-    let savedStatusTimer = null;
-
-    function makeWorkspaceSnapshot(name = '') {
-        saveCurrentLayerState();
-        return {
-            format: 'PicturallCalculatorWorkspace',
-            version: 1,
-            name,
-            savedAt: new Date().toISOString(),
-            currentSelectedLayer,
-            selectedLayers: [...selectedLayers],
-            selectionAnchorLayer,
-            layerNames: { ...layerNames },
-            layerStates: JSON.parse(JSON.stringify(layerStates))
-        };
-    }
-
-    function showWorkspaceSavedStatus(text = '완료') {
-        const status = document.getElementById('workspaceSavedStatus');
-        if (!status) return;
-        status.textContent = text;
-        status.classList.add('visible');
-        if (savedStatusTimer) clearTimeout(savedStatusTimer);
-        savedStatusTimer = setTimeout(() => status.classList.remove('visible'), 1500);
-    }
-
-    function applyWorkspaceSnapshot(snapshot, fromFile = false) {
-        if (!snapshot || snapshot.format !== 'PicturallCalculatorWorkspace' || !snapshot.layerStates) {
-            throw new Error('Picturall Calculator 설정 파일이 아닙니다.');
-        }
-        isHistoryAction = true;
-        for (let i = 1; i <= MAX_LAYERS; i++) {
-            const incoming = snapshot.layerStates[i] || snapshot.layerStates[String(i)] || {};
-            const defaults = createDefaultLayerState();
-            layerStates[i] = { ...defaults, ...incoming };
-            layerStates[i].mainTransform = { ...defaults.mainTransform, ...(incoming.mainTransform || {}) };
-            layerStates[i].ledPreset = LED_WALL_PRESET;
-            layerStates[i].lw = String(LED_WALL_WIDTH);
-            layerStates[i].lh = String(LED_WALL_HEIGHT);
-            const savedName = snapshot.layerNames?.[i] ?? snapshot.layerNames?.[String(i)];
-            layerNames[i] = String(savedName || `Layer ${i}`);
-            const nameEl = document.getElementById(`layer-name-${i}`);
-            if (nameEl) { nameEl.textContent = layerNames[i]; nameEl.title = layerNames[i]; }
-        }
-        const requestedPrimary = Number(snapshot.currentSelectedLayer);
-        currentSelectedLayer = Number.isInteger(requestedPrimary) && requestedPrimary >= 1 && requestedPrimary <= MAX_LAYERS ? requestedPrimary : 1;
-        const restoredSelection = Array.isArray(snapshot.selectedLayers)
-            ? snapshot.selectedLayers.map(Number).filter(layer => Number.isInteger(layer) && layer >= 1 && layer <= MAX_LAYERS)
-            : [currentSelectedLayer];
-        selectedLayers = new Set(restoredSelection.length ? restoredSelection : [currentSelectedLayer]);
-        selectedLayers.add(currentSelectedLayer);
-        const requestedAnchor = Number(snapshot.selectionAnchorLayer);
-        selectionAnchorLayer = Number.isInteger(requestedAnchor) && requestedAnchor >= 1 && requestedAnchor <= MAX_LAYERS ? requestedAnchor : currentSelectedLayer;
-        loadLayerState(currentSelectedLayer);
-        updateLayerSelectionUI();
-        handleResolutionChange(false, false);
-        updateSurfaceButtonStates();
-        renderMultiLayerPreview();
-        updateAll(false);
-        undoStack = [];
-        redoStack = [];
-        isHistoryAction = false;
-        captureState();
-        showWorkspaceSavedStatus(fromFile ? '불러옴' : '복원됨');
-    }
-
-    function safeWorkspaceFileName(name) {
-        const cleaned = String(name || 'Picturall 설정').trim().replace(/[\\/:*?"<>|]+/g, '_');
-        return `${cleaned || 'Picturall 설정'}.picturall.json`;
-    }
-
-    function cloneLayerState(state) {
-        const cloned = JSON.parse(JSON.stringify(state || createDefaultLayerState()));
-        const defaults = createDefaultLayerState();
-        return {
-            ...defaults,
-            ...cloned,
-            mainTransform: { ...defaults.mainTransform, ...(cloned.mainTransform || {}) }
-        };
-    }
-
-    function copySelectedLayerOptions() {
-        saveCurrentLayerState();
-        const source = currentSelectedLayer;
-        layerOptionClipboard = {
-            format: 'PicturallCalculatorLayerOptions',
-            version: 1,
-            copiedFrom: source,
-            copiedAt: new Date().toISOString(),
-            state: cloneLayerState(layerStates[source])
-        };
-        try { localStorage.setItem(LAYER_CLIPBOARD_KEY, JSON.stringify(layerOptionClipboard)); } catch (error) {}
-        showWorkspaceSavedStatus(`${source}번 복사됨`);
-    }
-
-    function readLayerOptionClipboard() {
-        if (layerOptionClipboard?.format === 'PicturallCalculatorLayerOptions') return layerOptionClipboard;
-        try {
-            const saved = JSON.parse(localStorage.getItem(LAYER_CLIPBOARD_KEY) || 'null');
-            if (saved?.format === 'PicturallCalculatorLayerOptions' && saved.state) {
-                layerOptionClipboard = saved;
-                return saved;
-            }
-        } catch (error) {}
-        return null;
-    }
-
-    function pasteLayerOptionsToSelection() {
-        const copied = readLayerOptionClipboard();
-        if (!copied) {
-            showWorkspaceSavedStatus('복사된 설정 없음');
-            return;
-        }
-        const targets = [...selectedLayers].sort((a, b) => a - b);
-        targets.forEach(layer => {
-            layerStates[layer] = cloneLayerState(copied.state);
-            sendToPicturall(makeLayerTransformPayload(layer, layerStates[layer]));
-        });
-        loadLayerState(currentSelectedLayer);
-        handleResolutionChange(false, false);
-        updateSurfaceButtonStates();
-        renderMultiLayerPreview();
-        updateAll(false);
-        captureState();
-        showWorkspaceSavedStatus(targets.length > 1 ? `${targets.length}개에 붙여넣음` : `${targets[0]}번에 붙여넣음`);
-    }
-
-    function downloadWorkspaceFile() {
-        const defaultName = `Picturall 설정 ${new Date().toLocaleDateString('ko-KR').replace(/\.\s*/g, '-')}`.replace(/-$/, '');
-        const name = prompt('저장할 설정 이름을 입력하세요.', defaultName);
-        if (name === null) return;
-        const snapshot = makeWorkspaceSnapshot(name.trim() || defaultName);
-        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = safeWorkspaceFileName(snapshot.name);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        showWorkspaceSavedStatus('파일 저장됨');
-    }
-
-    function importWorkspaceFile(file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            try {
-                applyWorkspaceSnapshot(JSON.parse(String(reader.result)), true);
-            } catch (error) {
-                alert(`설정 파일을 불러오지 못했습니다.\n\n${error.message}`);
-            }
-        };
-        reader.onerror = () => alert('설정 파일을 읽지 못했습니다.');
-        reader.readAsText(file, 'utf-8');
-    }
 
     function getPreviewLayerLabel(layer) {
         const rawName = String(layerNames[layer] || '').trim();
@@ -1043,12 +775,6 @@
     let tempScannedExt = "";
     let tempScannedW = 0;
     let tempScannedH = 0;
-    let tempScannedDuration = 0;
-    let tempScannedIsVideo = false;
-
-    function isVideoFileExtension(ext) {
-        return ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', 'mpeg', 'mpg'].includes(String(ext || '').toLowerCase());
-    }
 
     // 💡 마우스 호버 시 오버레이 클래스 제어
     dropZone.addEventListener('mouseenter', () => {
@@ -1099,9 +825,7 @@
             const video = document.createElement('video');
             video.src = fileURL;
             video.onloadedmetadata = () => {
-                layerPlaybackPositions[currentSelectedLayer] = 0;
-                layerPlaybackStates[currentSelectedLayer] = null;
-                updateScanUI(file.name, ext, video.videoWidth, video.videoHeight, Number.isFinite(video.duration) ? video.duration : 0, true);
+                updateScanUI(file.name, ext, video.videoWidth, video.videoHeight);
                 URL.revokeObjectURL(fileURL);
             };
             video.onerror = () => { alert('영상을 로드할 수 없습니다.'); };
@@ -1109,9 +833,7 @@
             const img = new Image();
             img.src = fileURL;
             img.onload = () => {
-                layerPlaybackPositions[currentSelectedLayer] = 0;
-                layerPlaybackStates[currentSelectedLayer] = null;
-                updateScanUI(file.name, ext, img.naturalWidth, img.naturalHeight, 0, false);
+                updateScanUI(file.name, ext, img.naturalWidth, img.naturalHeight);
                 URL.revokeObjectURL(fileURL);
             };
             img.onerror = () => { alert('이미지를 로드할 수 없습니다.'); };
@@ -1120,13 +842,11 @@
         }
     }
 
-    function updateScanUI(fileName, ext, width, height, duration = 0, isVideo = null) {
+    function updateScanUI(fileName, ext, width, height) {
         tempScannedName = fileName;
         tempScannedExt = ext;
         tempScannedW = width;
         tempScannedH = height;
-        tempScannedDuration = Number.isFinite(Number(duration)) ? Math.max(0, Number(duration)) : 0;
-        tempScannedIsVideo = isVideo === null ? (tempScannedDuration > 0 || isVideoFileExtension(ext)) : Boolean(isVideo);
 
         scanDefaultState.style.display = 'none';
         scanActiveState.style.display = 'flex';
@@ -1144,14 +864,12 @@
         
         checkScanAppliedState();
         saveCurrentLayerState(); 
-        updatePlaybackControlUI();
     }
 
     function resetScanUI() {
-        tempScannedName = ""; tempScannedExt = ""; tempScannedW = 0; tempScannedH = 0; tempScannedDuration = 0; tempScannedIsVideo = false;
+        tempScannedName = ""; tempScannedExt = ""; tempScannedW = 0; tempScannedH = 0;
         scanDefaultState.style.display = 'flex';
         scanActiveState.style.display = 'none';
-        updatePlaybackControlUI();
     }
 
     function checkScanAppliedState() {
@@ -1193,12 +911,10 @@
             pixelX: pixelXInput.value, pixelY: pixelYInput.value,
             ledPreset: presetSelect.value, lw: lwInput.value, lh: lhInput.value,
             scanName: tempScannedName, scanExt: tempScannedExt, scanW: tempScannedW, scanH: tempScannedH,
-            mediaDuration: tempScannedDuration, mediaIsVideo: tempScannedIsVideo,
             edgeBlurEnabled: edgeBlurEnabledInput.checked, edgeBlurStrength: edgeBlurStrengthInput.value,
             surfaceRole,
             mainTransform: surfaceRole === "main" ? currentTransform : previous.mainTransform
         };
-        updateLayerModifiedMarkers();
     }
 
     function loadLayerState(num) {
@@ -1210,20 +926,17 @@
         updateScaleHeightLockUI(state.scaleHeightLocked !== false);
         rotationInput.value = state.rotationValue ?? "0";
         pixelXInput.value = state.pixelX; pixelYInput.value = state.pixelY;
-        state.ledPreset = LED_WALL_PRESET; state.lw = String(LED_WALL_WIDTH); state.lh = String(LED_WALL_HEIGHT);
-        presetSelect.value = LED_WALL_PRESET; lwInput.value = String(LED_WALL_WIDTH); lhInput.value = String(LED_WALL_HEIGHT);
+        presetSelect.value = state.ledPreset; lwInput.value = state.lw; lhInput.value = state.lh;
         edgeBlurEnabledInput.checked = Boolean(state.edgeBlurEnabled);
         edgeBlurStrengthInput.value = state.edgeBlurStrength ?? "20";
         updateEdgeBlurUI(false);
         state.surfaceRole = state.surfaceRole || "main";
         updateSurfaceButtonStates();
-        lwInput.disabled = true; lhInput.disabled = true;
+        if (presetSelect.value) { lwInput.disabled = true; lhInput.disabled = true; } 
+        else { lwInput.disabled = false; lhInput.disabled = false; }
 
         if (state.scanW && state.scanW > 0) {
-            updateScanUI(
-                state.scanName, state.scanExt, state.scanW, state.scanH, state.mediaDuration || 0,
-                state.mediaIsVideo === true || Number(state.mediaDuration) > 0 || isVideoFileExtension(state.scanExt)
-            );
+            updateScanUI(state.scanName, state.scanExt, state.scanW, state.scanH);
         } else {
             resetScanUI();
         }
@@ -1281,16 +994,8 @@
 
     function captureState() {
         if (isHistoryAction) return;
-        // 그룹 편집으로 바뀐 레이어까지 한 번에 되돌릴 수 있도록
-        // 현재 보이는 입력값뿐 아니라 전체 레이어 상태와 선택 상태를 기록한다.
-        saveCurrentLayerState();
-        const state = {
-            currentSelectedLayer,
-            selectedLayers: [...selectedLayers],
-            selectionAnchorLayer,
-            layerNames: { ...layerNames },
-            layerStates: JSON.parse(JSON.stringify(layerStates))
-        };
+        const state = { layer: currentSelectedLayer, names: { ...layerNames }, values: {}, edgeBlurEnabled: edgeBlurEnabledInput.checked, scaleHeightLocked: scaleHeightInput.disabled };
+        inputsToTrack.forEach(id => { const el = document.getElementById(id); if(el) state.values[id] = el.value; });
         const newStateStr = JSON.stringify(state);
         if (undoStack.length > 0 && undoStack[undoStack.length - 1] === newStateStr) return;
         undoStack.push(newStateStr);
@@ -1299,57 +1004,31 @@
     }
 
     function applyState(stateStr) {
-        const state = JSON.parse(stateStr);
-        const previousLayerStates = {};
-        const previousLayerNames = { ...layerNames };
-        for (let i = 1; i <= MAX_LAYERS; i++) previousLayerStates[i] = cloneLayerState(layerStates[i]);
-
         isHistoryAction = true;
-        try {
-            for (let i = 1; i <= MAX_LAYERS; i++) {
-                const incoming = state.layerStates?.[i] || state.layerStates?.[String(i)] || createDefaultLayerState();
-                layerStates[i] = cloneLayerState(incoming);
-                layerStates[i].ledPreset = LED_WALL_PRESET;
-                layerStates[i].lw = String(LED_WALL_WIDTH);
-                layerStates[i].lh = String(LED_WALL_HEIGHT);
-
-                const restoredName = state.layerNames?.[i] ?? state.layerNames?.[String(i)] ?? `Layer ${i}`;
-                layerNames[i] = String(restoredName);
-                const nameEl = document.getElementById(`layer-name-${i}`);
-                if (nameEl) { nameEl.textContent = layerNames[i]; nameEl.title = layerNames[i]; }
-            }
-
-            const requestedPrimary = Number(state.currentSelectedLayer);
-            currentSelectedLayer = Number.isInteger(requestedPrimary) && requestedPrimary >= 1 && requestedPrimary <= MAX_LAYERS
-                ? requestedPrimary : 1;
-            const restoredSelection = Array.isArray(state.selectedLayers)
-                ? state.selectedLayers.map(Number).filter(layer => Number.isInteger(layer) && layer >= 1 && layer <= MAX_LAYERS)
-                : [currentSelectedLayer];
-            selectedLayers = new Set(restoredSelection.length ? restoredSelection : [currentSelectedLayer]);
-            selectedLayers.add(currentSelectedLayer);
-            const requestedAnchor = Number(state.selectionAnchorLayer);
-            selectionAnchorLayer = Number.isInteger(requestedAnchor) && requestedAnchor >= 1 && requestedAnchor <= MAX_LAYERS
-                ? requestedAnchor : currentSelectedLayer;
-
-            loadLayerState(currentSelectedLayer);
+        const state = JSON.parse(stateStr);
+        Object.keys(layerNames).forEach(k => {
+            if (layerNames[k] !== state.names[k]) { renameLayerInPicturall(k, state.names[k]); }
+            layerNames[k] = state.names[k];
+        });
+        inputsToTrack.forEach(id => { const el = document.getElementById(id); if(id !== 'iw' && id !== 'ih') el.value = state.values[id]; });
+        updateScaleHeightLockUI(state.scaleHeightLocked !== false);
+        for(let i=1; i<=MAX_LAYERS; i++) {
+            const nameEl = document.getElementById(`layer-name-${i}`);
+            if(nameEl) { nameEl.innerText = layerNames[i]; nameEl.title = layerNames[i]; }
+        }
+        if(state.layer) {
+            currentSelectedLayer = state.layer;
+            selectedLayers = new Set([state.layer]); selectionAnchorLayer = state.layer;
             updateLayerSelectionUI();
-            handleResolutionChange(false, false);
-            updateSurfaceButtonStates();
-            updateLayerModifiedMarkers();
-            renderMultiLayerPreview();
-            updateAll(false);
-        } finally {
-            isHistoryAction = false;
+            previewLayerName.innerText = `[${layerNames[state.layer]}]`;
         }
-
-        // 화면만 되돌리는 것이 아니라 그룹에 포함됐던 모든 레이어의 복원값을 전송한다.
-        for (let i = 1; i <= MAX_LAYERS; i++) {
-            if (previousLayerNames[i] !== layerNames[i]) renameLayerInPicturall(i, layerNames[i]);
-            if (JSON.stringify(previousLayerStates[i]) !== JSON.stringify(layerStates[i])) {
-                sendToPicturall(makeLayerTransformPayload(i, layerStates[i]));
-            }
-        }
-        updateHistoryButtons();
+        iwInput.value = state.values.iw; ihInput.value = state.values.ih;
+        edgeBlurEnabledInput.checked = Boolean(state.edgeBlurEnabled);
+        updateEdgeBlurUI(false);
+        saveCurrentLayerState(); 
+        applyPreset(false); 
+        isHistoryAction = false;
+        updateAll(); updateHistoryButtons();
     }
 
     function undo() { if (undoStack.length <= 1) return; redoStack.push(undoStack.pop()); applyState(undoStack[undoStack.length - 1]); }
@@ -1374,13 +1053,9 @@
     };
 
     document.addEventListener('keydown', (e) => {
-        const isTextEditing = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
-        if (isTextEditing) { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.target.blur(); return; }
-        const commandKey = e.ctrlKey || e.metaKey;
-        if (commandKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copySelectedLayerOptions(); return; }
-        if (commandKey && e.key.toLowerCase() === 'v') { e.preventDefault(); pasteLayerOptionsToSelection(); return; }
-        if (commandKey && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
-        if (commandKey && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+        if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') e.target.blur(); return; }
+        if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+        if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); return; }
         const keyNum = parseInt(e.key);
         if (keyNum >= 1 && keyNum <= 9) { selectLayer(keyNum); } 
         else if (e.key === '0') { selectLayer(10); }
@@ -1431,13 +1106,12 @@
         const item = document.createElement("div");
         item.className = "layer-item" + (i === 1 ? " active primary" : "");
         item.id = `layer-item-${i}`;
-        item.innerHTML = `<div class="layer-number">${i}</div><span class="layer-playback-indicator" id="layer-playback-${i}" data-state="stop" role="img" aria-label="정지" title="정지"></span><span class="layer-modified-marker" id="layer-modified-${i}" aria-label="수정된 레이어"></span><div class="layer-name" id="layer-name-${i}" title="${layerNames[i]}">${layerNames[i]}</div><div class="surface-buttons"><button class="surface-btn" type="button" data-role="main" title="메인으로 지정">메인</button><button class="surface-btn" type="button" data-role="floor" title="바닥 프리셋 적용">바닥</button><button class="surface-btn" type="button" data-role="ceiling" title="천장 프리셋 적용">천장</button></div>`;
+        item.innerHTML = `<div class="layer-number">${i}</div><div class="layer-name" id="layer-name-${i}" title="${layerNames[i]}">${layerNames[i]}</div><div class="surface-buttons"><button class="surface-btn" type="button" data-role="main" title="메인으로 지정">메인</button><button class="surface-btn" type="button" data-role="floor" title="바닥 프리셋 적용">바닥</button><button class="surface-btn" type="button" data-role="ceiling" title="천장 프리셋 적용">천장</button></div>`;
         item.onclick = (event) => { selectLayer(i, true, event.ctrlKey || event.metaKey, event.shiftKey); };
         item.querySelectorAll('.surface-btn').forEach(button => button.addEventListener('click', event => {
             event.stopPropagation();
             const targets = selectedLayers.size > 1 && selectedLayers.has(i) ? [...selectedLayers] : [i];
             targets.forEach(layer => applySurfacePresetToLayer(layer, button.dataset.role));
-            captureState();
         }));
         item.querySelectorAll('.surface-btn').forEach(button => button.addEventListener('dblclick', event => event.stopPropagation()));
         item.ondblclick = event => {
@@ -1458,8 +1132,6 @@
         previewLayerName.innerText = `[${layerNames[currentSelectedLayer]}]${extra}`;
         updatePrimarySourceTextVisibility();
         updateSurfaceButtonStates();
-        updateLayerModifiedMarkers();
-        updatePlaybackControlUI();
     }
 
     function updateSurfaceButtonStates() {
@@ -1471,7 +1143,6 @@
         const role = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
         const labels = { main: '메인', floor: '바닥', ceiling: '천장' };
         document.getElementById('snapTitle').textContent = `스냅 · ${labels[role]}`;
-        updateLayerModifiedMarkers();
     }
 
     function applySurfacePresetToLayer(layer, role) {
@@ -1511,7 +1182,7 @@
             scale: state.scaleValue, scale_h: state.scaleHeight, rotation: state.rotationValue,
             edge_blur: Boolean(state.edgeBlurEnabled), edge_blur_strength: state.edgeBlurStrength || '20', surface: role
         });
-        if (layer === currentSelectedLayer) { loadLayerState(layer); handleResolutionChange(false, false); }
+        if (layer === currentSelectedLayer) { loadLayerState(layer); handleResolutionChange(false, false); captureState(); }
         updateSurfaceButtonStates(); renderMultiLayerPreview();
     }
 
@@ -1642,7 +1313,6 @@
         });
         if (multiSendTimeout) clearTimeout(multiSendTimeout);
         multiSendTimeout = setTimeout(() => payloads.forEach(sendToPicturall), 50);
-        updateLayerModifiedMarkers();
     }
 
     async function renameLayerInPicturall(layerNum, newName) {
@@ -1654,128 +1324,6 @@
         const bridgeIp = "127.0.0.1"; 
         try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); } catch (error) {}
     }
-
-    function formatPlaybackTime(seconds) {
-        const safe = Math.max(0, Number(seconds) || 0);
-        const hours = Math.floor(safe / 3600);
-        const minutes = Math.floor((safe % 3600) / 60);
-        const secs = Math.floor(safe % 60);
-        return hours > 0
-            ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-            : `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function advanceLayerPlaybackPosition(layer, now = Date.now()) {
-        const duration = Number(layerStates[layer]?.mediaDuration) || 0;
-        const previousTime = layerPlaybackUpdatedAt[layer] || now;
-        if (layerPlaybackStates[layer] === 'play' && duration > 0) {
-            const next = (Number(layerPlaybackPositions[layer]) || 0) + Math.max(0, now - previousTime) / 1000;
-            layerPlaybackPositions[layer] = Math.min(duration, next);
-            if (layerPlaybackPositions[layer] >= duration) layerPlaybackStates[layer] = 'pause';
-        }
-        layerPlaybackUpdatedAt[layer] = now;
-    }
-
-    function updateLayerPlaybackIndicators() {
-        const labels = { stop: '정지', play: '재생 중', pause: '일시정지' };
-        for (let layer = 1; layer <= MAX_LAYERS; layer++) {
-            const indicator = document.getElementById(`layer-playback-${layer}`);
-            if (!indicator) continue;
-            const state = ['play', 'pause', 'stop'].includes(layerPlaybackStates[layer]) ? layerPlaybackStates[layer] : 'stop';
-            indicator.dataset.state = state;
-            indicator.title = labels[state];
-            indicator.setAttribute('aria-label', labels[state]);
-        }
-    }
-
-    function updatePlaybackControlUI() {
-        const targets = [...selectedLayers];
-        const states = targets.map(layer => layerPlaybackStates[layer] || 'stop');
-        const commonState = states.length && states.every(state => state === states[0]) ? states[0] : null;
-        document.querySelectorAll('.playback-btn').forEach(button => {
-            button.classList.toggle('active', button.dataset.playback === commonState);
-        });
-        advanceLayerPlaybackPosition(currentSelectedLayer);
-        const currentState = layerStates[currentSelectedLayer] || createDefaultLayerState();
-        const duration = Number(currentState.mediaDuration) || 0;
-        const hasSource = Boolean(currentState.scanName);
-        const position = Math.min(duration, Number(layerPlaybackPositions[currentSelectedLayer]) || 0);
-        const timeline = document.getElementById('playbackTimeline');
-        const seek = document.getElementById('playbackSeek');
-        const durationLabel = document.getElementById('playbackDuration');
-        timeline.hidden = false;
-        timeline.classList.toggle('non-video', duration <= 0);
-        seek.disabled = duration <= 0;
-        if (duration > 0) {
-            seek.max = String(duration);
-            if (document.activeElement !== seek) seek.value = String(position);
-            document.getElementById('playbackCurrentTime').textContent = formatPlaybackTime(document.activeElement === seek ? seek.value : position);
-            durationLabel.textContent = formatPlaybackTime(duration);
-            durationLabel.classList.remove('media-not-video');
-        } else if (hasSource) {
-            seek.max = '1';
-            seek.value = '0';
-            document.getElementById('playbackCurrentTime').textContent = '00:00';
-            durationLabel.textContent = '영상 파일 아님';
-            durationLabel.classList.add('media-not-video');
-        } else {
-            seek.max = '1';
-            seek.value = '0';
-            document.getElementById('playbackCurrentTime').textContent = '00:00';
-            durationLabel.textContent = '소스를 불러오세요';
-            durationLabel.classList.add('media-not-video');
-        }
-        updateLayerPlaybackIndicators();
-    }
-
-    function sendPlaybackCommand(command, sourceButton) {
-        const targets = [...selectedLayers];
-        const now = Date.now();
-        targets.forEach(layer => {
-            advanceLayerPlaybackPosition(layer, now);
-            if (command === 'play' || command === 'pause') layerPlaybackStates[layer] = command;
-            if (command === 'stop') {
-                layerPlaybackStates[layer] = 'stop';
-                layerPlaybackPositions[layer] = 0;
-            }
-            layerPlaybackUpdatedAt[layer] = now;
-            if (command === 'stop') {
-                // 일반적인 정지 버튼처럼 재생 중단과 처음 이동을 한 명령으로 보낸다.
-                sendToPicturall({ layer, transport: 'stop', position: 0 });
-            } else {
-                sendToPicturall({ layer, transport: command });
-            }
-        });
-        updatePlaybackControlUI();
-        sourceButton.classList.remove('commanded');
-        void sourceButton.offsetWidth;
-        sourceButton.classList.add('commanded');
-    }
-
-    document.querySelectorAll('.playback-btn').forEach(button => button.addEventListener('click', () => {
-        sendPlaybackCommand(button.dataset.playback, button);
-    }));
-    const playbackSeekInput = document.getElementById('playbackSeek');
-    playbackSeekInput.addEventListener('input', () => {
-        document.getElementById('playbackCurrentTime').textContent = formatPlaybackTime(playbackSeekInput.value);
-    });
-    playbackSeekInput.addEventListener('change', () => {
-        const primaryDuration = Number(layerStates[currentSelectedLayer]?.mediaDuration) || 0;
-        if (primaryDuration <= 0) return;
-        const ratio = Math.max(0, Math.min(1, Number(playbackSeekInput.value) / primaryDuration));
-        const now = Date.now();
-        selectedLayers.forEach(layer => {
-            const duration = Number(layerStates[layer]?.mediaDuration) || 0;
-            const position = duration > 0 ? duration * ratio : Number(playbackSeekInput.value);
-            layerPlaybackPositions[layer] = position;
-            layerPlaybackUpdatedAt[layer] = now;
-            sendToPicturall({ layer, transport: 'seek', position: Number(position.toFixed(3)) });
-        });
-        updatePlaybackControlUI();
-    });
-    setInterval(() => {
-        if ([...selectedLayers].some(layer => layerPlaybackStates[layer] === 'play')) updatePlaybackControlUI();
-    }, 250);
 
     function updateEdgeBlurUI(shouldSend = true) {
         edgeBlurStrengthInput.disabled = !edgeBlurEnabledInput.checked;
@@ -1790,221 +1338,92 @@
     });
     edgeBlurStrengthInput.addEventListener('change', captureState);
 
-    let autoSplitCols = 2;
-    let autoSplitRows = 1;
+    const SPLIT_LAYOUTS = {
+        2: { cols: 2, rows: 1 }, 3: { cols: 3, rows: 1 }, 4: { cols: 2, rows: 2 },
+        6: { cols: 3, rows: 2 }, 8: { cols: 4, rows: 2 }, 9: { cols: 3, rows: 3 }
+    };
     let autoSplitCount = 2;
     let autoSplitDraft = [];
     let autoSplitSurface = 'main';
-    let autoSplitSelectedIndex = 0;
-    let autoSplitColWeights = [];
-    let autoSplitRowWeights = [];
-
-    function equalSplitWeights(count) {
-        return Array.from({ length: count }, () => 1 / count);
-    }
-
-    function getAutoSplitLayout() {
-        return { cols: autoSplitCols, rows: autoSplitRows };
-    }
-
-    function getSplitMinimum(trackCount) {
-        return Math.min(.08, .8 / Math.max(1, trackCount));
-    }
-
-    function getDefaultSplitDimensions(count) {
-        const safeCount = Math.max(1, Math.min(MAX_LAYERS, count));
-        let rows = Math.floor(Math.sqrt(safeCount));
-        while (rows > 1 && safeCount % rows !== 0) rows -= 1;
-        return { cols: safeCount / rows, rows };
-    }
-
-    function applySplitDimensionsFromInputs() {
-        const cols = Number(splitColsInput.value), rows = Number(splitRowsInput.value);
-        if (!Number.isInteger(cols) || !Number.isInteger(rows) || cols < 1 || rows < 1) {
-            splitError.textContent = '가로와 세로에 1 이상의 정수를 입력해주세요.';
-            return;
-        }
-        if (cols * rows > MAX_LAYERS) {
-            splitError.textContent = `분할 영역은 최대 ${MAX_LAYERS}개까지 만들 수 있습니다.`;
-            return;
-        }
-        syncSplitDraftFromUI();
-        autoSplitCols = cols;
-        autoSplitRows = rows;
-        autoSplitCount = cols * rows;
-        makeSplitDraft(autoSplitCount);
-        autoSplitSelectedIndex = Math.min(autoSplitSelectedIndex, autoSplitCount - 1);
-        resetAutoSplitGridWeights();
-        splitError.textContent = '';
-        renderAutoSplit();
-    }
-
-    function resetAutoSplitGridWeights() {
-        const layout = getAutoSplitLayout();
-        autoSplitColWeights = equalSplitWeights(layout.cols);
-        autoSplitRowWeights = equalSplitWeights(layout.rows);
-        autoSplitSelectedIndex = Math.min(autoSplitSelectedIndex, autoSplitCount - 1);
-    }
 
     function makeSplitDraft(count) {
         const old = autoSplitDraft;
         autoSplitDraft = Array.from({ length: count }, (_, index) => old[index] || {
-            layer: ''
+            layer: index === 0 ? String(currentSelectedLayer) : '', scale: '1.000', offsetX: '0', offsetY: '0'
         });
     }
 
     function syncSplitDraftFromUI() {
-        splitPreview.querySelectorAll('[data-layer-index]').forEach(input => {
-            autoSplitDraft[Number(input.dataset.layerIndex)].layer = input.value.trim();
+        splitSettings.querySelectorAll('.split-row').forEach(row => {
+            const index = Number(row.dataset.index);
+            autoSplitDraft[index] = {
+                layer: row.querySelector('[data-field="layer"]').value.trim(),
+                scale: row.querySelector('[data-field="scale"]').value.trim(),
+                offsetX: row.querySelector('[data-field="offsetX"]').value.trim(),
+                offsetY: row.querySelector('[data-field="offsetY"]').value.trim()
+            };
         });
-    }
-
-    function setSplitTrackPercentage(axis, index, requestedPercentage) {
-        const weights = axis === 'col' ? autoSplitColWeights : autoSplitRowWeights;
-        if (!Number.isFinite(requestedPercentage) || index < 0 || index >= weights.length || weights.length <= 1) return;
-        const minimum = getSplitMinimum(weights.length);
-        const requested = Math.max(minimum, Math.min(1 - minimum * (weights.length - 1), requestedPercentage / 100));
-        const oldRemaining = 1 - weights[index];
-        const nextRemaining = 1 - requested;
-        weights.forEach((weight, trackIndex) => {
-            if (trackIndex === index) return;
-            weights[trackIndex] = oldRemaining > 0 ? weight / oldRemaining * nextRemaining : nextRemaining / (weights.length - 1);
-        });
-        weights[index] = requested;
-        updateSplitGridPreview();
-    }
-
-    function beginSplitBoundaryDrag(event, axis, boundaryIndex) {
-        event.preventDefault();
-        event.stopPropagation();
-        const weights = axis === 'col' ? autoSplitColWeights : autoSplitRowWeights;
-        const rect = splitPreview.getBoundingClientRect();
-        const totalPixels = axis === 'col' ? rect.width : rect.height;
-        const startPointer = axis === 'col' ? event.clientX : event.clientY;
-        const startBefore = weights[boundaryIndex];
-        const startAfter = weights[boundaryIndex + 1];
-        const pairTotal = startBefore + startAfter;
-        const minimum = Math.min(getSplitMinimum(weights.length), pairTotal * .4);
-        const move = moveEvent => {
-            const pointer = axis === 'col' ? moveEvent.clientX : moveEvent.clientY;
-            const delta = (pointer - startPointer) / Math.max(1, totalPixels);
-            const nextBefore = Math.max(minimum, Math.min(pairTotal - minimum, startBefore + delta));
-            weights[boundaryIndex] = nextBefore;
-            weights[boundaryIndex + 1] = pairTotal - nextBefore;
-            updateSplitGridPreview();
-        };
-        const finish = () => {
-            window.removeEventListener('pointermove', move);
-            window.removeEventListener('pointerup', finish);
-            window.removeEventListener('pointercancel', finish);
-        };
-        window.addEventListener('pointermove', move);
-        window.addEventListener('pointerup', finish);
-        window.addEventListener('pointercancel', finish);
-    }
-
-    function updateSplitGridPreview() {
-        const layout = getAutoSplitLayout();
-        splitPreview.style.gridTemplateColumns = autoSplitColWeights.map(weight => `${weight * 100}%`).join(' ');
-        splitPreview.style.gridTemplateRows = autoSplitRowWeights.map(weight => `${weight * 100}%`).join(' ');
-        splitPreview.querySelectorAll('.split-cell').forEach(cell => {
-            const index = Number(cell.dataset.index);
-            const col = index % layout.cols, row = Math.floor(index / layout.cols);
-            const ratio = cell.querySelector('.split-cell-ratio');
-            if (ratio) ratio.textContent = `${Math.round(autoSplitColWeights[col] * 100)}% × ${Math.round(autoSplitRowWeights[row] * 100)}%`;
-            const widthInput = cell.querySelector('[data-size-axis="col"]');
-            const heightInput = cell.querySelector('[data-size-axis="row"]');
-            if (widthInput && document.activeElement !== widthInput) widthInput.value = (autoSplitColWeights[col] * 100).toFixed(1).replace(/\.0$/, '');
-            if (heightInput && document.activeElement !== heightInput) heightInput.value = (autoSplitRowWeights[row] * 100).toFixed(1).replace(/\.0$/, '');
-            cell.classList.toggle('selected', index === autoSplitSelectedIndex);
-        });
-    }
-
-    function selectAutoSplitCell(index) {
-        autoSplitSelectedIndex = index;
-        renderAutoSplit();
     }
 
     function renderAutoSplit() {
-        const layout = getAutoSplitLayout();
+        const layout = SPLIT_LAYOUTS[autoSplitCount];
         const surfaceLabels = { main: '메인', floor: '바닥', ceiling: '천장' };
         const wallW = Number(lwInput.value) || 1, wallH = Number(lhInput.value) || 1;
         const surfaceBounds = getSurfaceBoundsForRole(autoSplitSurface, wallW, wallH);
         splitPreview.style.aspectRatio = `${surfaceBounds.right - surfaceBounds.left}/${surfaceBounds.bottom - surfaceBounds.top}`;
-        splitColsInput.value = String(layout.cols);
-        splitRowsInput.value = String(layout.rows);
-        splitLayoutTotal.textContent = `총 ${autoSplitCount}영역`;
-        document.getElementById('autoSplitLayerLabel').textContent = surfaceLabels[autoSplitSurface];
-        if (autoSplitColWeights.length !== layout.cols || autoSplitRowWeights.length !== layout.rows) resetAutoSplitGridWeights();
-        splitPreview.innerHTML = autoSplitDraft.map((slot, index) => {
-            const col = index % layout.cols, row = Math.floor(index / layout.cols);
-            const handles = [
-                col > 0 ? `<span class="split-resize-handle left" data-axis="col" data-boundary="${col - 1}"></span>` : '',
-                col < layout.cols - 1 ? `<span class="split-resize-handle right" data-axis="col" data-boundary="${col}"></span>` : '',
-                row > 0 ? `<span class="split-resize-handle top" data-axis="row" data-boundary="${row - 1}"></span>` : '',
-                row < layout.rows - 1 ? `<span class="split-resize-handle bottom" data-axis="row" data-boundary="${row}"></span>` : ''
-            ].join('');
-            const colMin = getSplitMinimum(layout.cols) * 100;
-            const rowMin = getSplitMinimum(layout.rows) * 100;
-            const colMax = 100 - colMin * (layout.cols - 1);
-            const rowMax = 100 - rowMin * (layout.rows - 1);
-            const heightLocked = layout.rows === 1;
-            const editor = index === autoSplitSelectedIndex ? `<div class="split-cell-size-editor"><label>가로 <input type="number" min="${colMin}" max="${colMax}" step="1" data-size-axis="col" data-track="${col}">%</label><label class="${heightLocked ? 'is-locked' : ''}" title="${heightLocked ? '한 줄 분할은 세로 100%로 고정됩니다.' : '세로 영역 비율'}">${heightLocked ? '🔒 ' : ''}세로 <input type="number" min="${heightLocked ? 100 : rowMin}" max="${rowMax}" step="1" data-size-axis="row" data-track="${row}"${heightLocked ? ' disabled' : ''}>%</label></div>` : '';
-            const layerEditor = `<label class="split-cell-layer-editor" title="이 영역에 배치할 레이어 번호">L <input data-layer-index="${index}" type="number" min="1" max="${MAX_LAYERS}" placeholder="빈칸" value="${slot.layer}"></label>`;
-            return `<div class="split-cell${slot.layer ? ' assigned' : ''}${index === autoSplitSelectedIndex ? ' selected' : ''}" data-index="${index}">${layerEditor}<span class="split-cell-ratio"></span>${editor}${index === autoSplitSelectedIndex ? handles : ''}</div>`;
-        }).join('');
-        splitPreview.querySelectorAll('[data-layer-index]').forEach(input => input.addEventListener('input', () => {
-            const index = Number(input.dataset.layerIndex);
-            autoSplitDraft[index].layer = input.value.trim();
-            input.closest('.split-cell')?.classList.toggle('assigned', Boolean(autoSplitDraft[index].layer));
+        document.getElementById('autoSplitLayerLabel').textContent = `선택 ${selectedLayers.size}개 · ${surfaceLabels[autoSplitSurface]}`;
+        splitPreview.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
+        splitPreview.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
+        splitPreview.innerHTML = autoSplitDraft.map((slot, index) => `<div class="split-cell${slot.layer ? ' assigned' : ''}" data-index="${index}">${slot.layer ? `L${slot.layer}` : '빈칸'}</div>`).join('');
+        splitSettings.innerHTML = autoSplitDraft.map((slot, index) => `
+            <div class="split-row" data-index="${index}">
+                <div class="split-row-title">영역 ${index + 1}</div>
+                <div class="split-fields">
+                    <div><label>레이어</label><input data-field="layer" type="number" min="1" max="${MAX_LAYERS}" placeholder="빈칸" value="${slot.layer}"></div>
+                    <div><label>배율</label><input data-field="scale" type="number" min="0.01" step="0.01" value="${slot.scale}"></div>
+                    <div><label>X 이동</label><input data-field="offsetX" type="number" step="1" value="${slot.offsetX}"></div>
+                    <div><label>Y 이동</label><input data-field="offsetY" type="number" step="1" value="${slot.offsetY}"></div>
+                </div>
+            </div>`).join('');
+        splitSettings.querySelectorAll('input').forEach(input => input.addEventListener('input', () => {
+            syncSplitDraftFromUI();
+            const cells = splitPreview.querySelectorAll('.split-cell');
+            autoSplitDraft.forEach((slot, index) => {
+                cells[index].textContent = slot.layer ? `L${slot.layer}` : '빈칸';
+                cells[index].classList.toggle('assigned', Boolean(slot.layer));
+            });
             splitError.textContent = '';
         }));
-        splitPreview.querySelectorAll('.split-cell').forEach(cell => cell.addEventListener('click', () => selectAutoSplitCell(Number(cell.dataset.index))));
-        splitPreview.querySelectorAll('.split-resize-handle').forEach(handle => handle.addEventListener('pointerdown', event => beginSplitBoundaryDrag(event, handle.dataset.axis, Number(handle.dataset.boundary))));
-        splitPreview.querySelectorAll('.split-cell-size-editor, .split-cell-layer-editor').forEach(editor => {
-            editor.addEventListener('click', event => event.stopPropagation());
-            editor.addEventListener('pointerdown', event => event.stopPropagation());
-        });
-        splitPreview.querySelectorAll('[data-size-axis]').forEach(input => input.addEventListener('change', () => {
-            const axis = input.dataset.sizeAxis;
-            const track = Number(input.dataset.track);
-            setSplitTrackPercentage(axis, track, Number(input.value));
-            const weights = axis === 'col' ? autoSplitColWeights : autoSplitRowWeights;
-            input.value = (weights[track] * 100).toFixed(1).replace(/\.0$/, '');
-            splitError.textContent = '';
+        splitPreview.querySelectorAll('.split-cell').forEach(cell => cell.addEventListener('click', () => {
+            const row = splitSettings.querySelector(`.split-row[data-index="${cell.dataset.index}"]`);
+            row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            row.querySelector('[data-field="layer"]').focus();
         }));
-        updateSplitGridPreview();
     }
 
     function syncLayerPanelHeight() {
         const panel = document.querySelector('.layer-panel');
-        const column = document.querySelector('.layer-column');
-        const workspace = document.querySelector('.workspace-controls');
         const edgeBlurBox = document.querySelector('.edge-blur-box');
-        if (!panel || !column || !workspace || !edgeBlurBox) return;
-        const columnTop = column.getBoundingClientRect().top;
+        if (!panel || !edgeBlurBox) return;
+        const panelTop = panel.getBoundingClientRect().top;
         const edgeBottom = edgeBlurBox.getBoundingClientRect().bottom;
-        const gap = 8;
-        const reserved = workspace.getBoundingClientRect().height + gap;
-        panel.style.height = `${Math.max(650, Math.ceil(edgeBottom - columnTop - reserved))}px`;
+        panel.style.height = `${Math.max(720, Math.ceil(edgeBottom - panelTop))}px`;
     }
 
     function openAutoSplit() {
         saveCurrentLayerState();
-        // 기존 단일/다중 선택과 완전히 분리된 새 작업으로 시작한다.
-        autoSplitCols = 2;
-        autoSplitRows = 1;
-        autoSplitCount = autoSplitCols * autoSplitRows;
-        autoSplitDraft = [];
+        const selected = [...selectedLayers].sort((a, b) => a - b);
+        const splitOptions = [2, 3, 4, 6, 8, 9];
+        autoSplitCount = splitOptions.find(count => count >= Math.min(selected.length, 9)) || 9;
+        autoSplitDraft = selected.slice(0, 9).map(layer => ({ layer: String(layer), scale: '1.000', offsetX: '0', offsetY: '0' }));
         makeSplitDraft(autoSplitCount);
-        autoSplitSelectedIndex = 0;
-        resetAutoSplitGridWeights();
-        autoSplitSurface = 'main';
+        autoSplitSurface = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
+        document.querySelectorAll('.split-preset').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.split) === autoSplitCount));
         document.querySelectorAll('.split-surface-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.surface === autoSplitSurface));
         elVisualizer.classList.add('preview-hidden');
         autoSplitPanel.classList.remove('preview-hidden');
         document.getElementById('openAutoSplitBtn').classList.add('active');
-        splitError.textContent = '';
+        splitError.textContent = selected.length > 9 ? 'Auto-Split은 한 번에 최대 9개 레이어까지 배치합니다.' : '';
         renderAutoSplit();
         requestAnimationFrame(syncLayerPanelHeight);
     }
@@ -2024,14 +1443,13 @@
         if (!assigned.length) { splitError.textContent = '레이어 번호를 하나 이상 입력해주세요.'; return; }
         if (layers.some(layer => !Number.isInteger(layer) || layer < 1 || layer > MAX_LAYERS)) { splitError.textContent = `레이어 번호는 1~${MAX_LAYERS}만 사용할 수 있습니다.`; return; }
         if (new Set(layers).size !== layers.length) { splitError.textContent = '같은 레이어를 여러 영역에 넣을 수 없습니다.'; return; }
-        const layout = getAutoSplitLayout();
+        if (assigned.some(slot => !(Number(slot.scale) > 0) || !Number.isFinite(Number(slot.offsetX)) || !Number.isFinite(Number(slot.offsetY)))) {
+            splitError.textContent = '배율과 이동값을 확인해주세요.'; return;
+        }
+        const layout = SPLIT_LAYOUTS[autoSplitCount];
         const wallW = Number(lwInput.value), wallH = Number(lhInput.value);
         const bounds = getSurfaceBoundsForRole(autoSplitSurface, wallW, wallH);
-        const surfaceW = bounds.right - bounds.left, surfaceH = bounds.bottom - bounds.top;
-        const colStarts = [];
-        const rowStarts = [];
-        autoSplitColWeights.reduce((sum, weight, index) => { colStarts[index] = sum; return sum + weight; }, 0);
-        autoSplitRowWeights.reduce((sum, weight, index) => { rowStarts[index] = sum; return sum + weight; }, 0);
+        const cellW = (bounds.right - bounds.left) / layout.cols, cellH = (bounds.bottom - bounds.top) / layout.rows;
         const prepared = assigned.map(slot => {
             const layer = Number(slot.layer), state = { ...layerStates[layer] };
             const previousRole = state.surfaceRole || 'main';
@@ -2042,62 +1460,20 @@
                 state.ih = String(SURFACE_PRESETS[autoSplitSurface].ih);
                 state.rotationValue = '0';
             }
+            return { slot, layer, state };
+        });
+        const referenceRatio = Number(prepared[0].state.ih) / Number(prepared[0].state.iw);
+        const baseScale = Math.min(cellW / BASE_WIDTH, cellH / (BASE_WIDTH * referenceRatio));
+        const tileW = baseScale * BASE_WIDTH, tileH = tileW * referenceRatio;
+        const groupLeft = bounds.left + ((bounds.right - bounds.left) - tileW * layout.cols) / 2;
+        const groupTop = bounds.top + ((bounds.bottom - bounds.top) - tileH * layout.rows) / 2;
+        prepared.forEach(({ slot, layer, state }) => {
             const col = slot.index % layout.cols, row = Math.floor(slot.index / layout.cols);
-            const cellW = autoSplitColWeights[col] * surfaceW;
-            const cellH = autoSplitRowWeights[row] * surfaceH;
-            const sourceRatio = Number(state.ih) / Number(state.iw);
-            const sourceScale = Math.min(cellW / BASE_WIDTH, cellH / (BASE_WIDTH * sourceRatio));
-            return {
-                slot, layer, state, col, row, sourceScale,
-                renderW: sourceScale * BASE_WIDTH,
-                renderH: sourceScale * BASE_WIDTH * sourceRatio
-            };
-        });
-        const usedRows = [...new Set(prepared.map(item => item.row))].sort((a, b) => a - b);
-        const rowMeta = new Map(usedRows.map(row => {
-            const items = prepared.filter(item => item.row === row).sort((a, b) => a.col - b.col);
-            return [row, { row, items, height: Math.max(...items.map(item => item.renderH)) }];
-        }));
-        rowMeta.forEach(meta => {
-            const runs = [];
-            meta.items.forEach(item => {
-                const current = runs[runs.length - 1];
-                if (!current || item.col !== current[current.length - 1].col + 1) runs.push([item]);
-                else current.push(item);
-            });
-            runs.forEach(run => {
-                const firstCol = run[0].col, lastCol = run[run.length - 1].col;
-                const spanLeft = bounds.left + colStarts[firstCol] * surfaceW;
-                const spanRight = bounds.left + (colStarts[lastCol] + autoSplitColWeights[lastCol]) * surfaceW;
-                const packedWidth = run.reduce((sum, item) => sum + item.renderW, 0);
-                let cursor = spanLeft + ((spanRight - spanLeft) - packedWidth) / 2;
-                run.forEach(item => {
-                    item.previewX = cursor + item.renderW / 2;
-                    cursor += item.renderW;
-                });
-            });
-        });
-        const rowRuns = [];
-        usedRows.forEach(row => {
-            const current = rowRuns[rowRuns.length - 1];
-            if (!current || row !== current[current.length - 1] + 1) rowRuns.push([row]);
-            else current.push(row);
-        });
-        rowRuns.forEach(run => {
-            const firstRow = run[0], lastRow = run[run.length - 1];
-            const spanTop = bounds.top + rowStarts[firstRow] * surfaceH;
-            const spanBottom = bounds.top + (rowStarts[lastRow] + autoSplitRowWeights[lastRow]) * surfaceH;
-            const packedHeight = run.reduce((sum, row) => sum + rowMeta.get(row).height, 0);
-            let cursor = spanTop + ((spanBottom - spanTop) - packedHeight) / 2;
-            run.forEach(row => {
-                const meta = rowMeta.get(row);
-                const centerY = cursor + meta.height / 2;
-                meta.items.forEach(item => { item.previewY = centerY; });
-                cursor += meta.height;
-            });
-        });
-        prepared.forEach(({ layer, state, sourceScale, previewX, previewY }) => {
-            state.scaleValue = sourceScale.toFixed(6);
+            const multiplier = Number(slot.scale), sourceRatio = Number(state.ih) / Number(state.iw);
+            const previewX = groupLeft + (col + .5) * tileW + Number(slot.offsetX);
+            const previewY = groupTop + (row + .5) * tileH + Number(slot.offsetY);
+            const sourceScale = Math.min(tileW / BASE_WIDTH, tileH / (BASE_WIDTH * sourceRatio));
+            state.scaleValue = (sourceScale * multiplier).toFixed(6);
             state.scaleHeight = "1.000000";
             state.scaleHeightLocked = true;
             state.surfaceRole = autoSplitSurface;
@@ -2125,15 +1501,22 @@
         splitError.textContent = '';
         renderAutoSplit();
     }));
-    splitColsInput.addEventListener('input', applySplitDimensionsFromInputs);
-    splitRowsInput.addEventListener('input', applySplitDimensionsFromInputs);
+    document.querySelectorAll('.split-preset').forEach(btn => btn.addEventListener('click', () => {
+        syncSplitDraftFromUI(); autoSplitCount = Number(btn.dataset.split); makeSplitDraft(autoSplitCount);
+        document.querySelectorAll('.split-preset').forEach(item => item.classList.toggle('active', item === btn));
+        splitError.textContent = ''; renderAutoSplit();
+    }));
 
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     
     function applyPreset(shouldCapture = true) {
-        presetSelect.value = LED_WALL_PRESET;
-        lwInput.value = String(LED_WALL_WIDTH); lhInput.value = String(LED_WALL_HEIGHT);
-        lwInput.disabled = true; lhInput.disabled = true;
+        if (presetSelect.value) {
+            const [w, h] = presetSelect.value.split(",");
+            lwInput.value = w; lhInput.value = h;
+            lwInput.disabled = true; lhInput.disabled = true;
+        } else {
+            lwInput.disabled = false; lhInput.disabled = false;
+        }
         handleResolutionChange(shouldCapture, shouldCapture);
         if(shouldCapture) captureState();
         saveCurrentLayerState();
@@ -2667,16 +2050,7 @@
         this.value = Number(value.toFixed(1));
         updateAll(); saveCurrentLayerState();
     });
-    const saveWorkspaceBtn = document.getElementById('saveWorkspaceBtn');
-    const loadWorkspaceBtn = document.getElementById('loadWorkspaceBtn');
-    const workspaceFileInput = document.getElementById('workspaceFileInput');
-    saveWorkspaceBtn.addEventListener('click', downloadWorkspaceFile);
-    loadWorkspaceBtn.addEventListener('click', () => workspaceFileInput.click());
-    workspaceFileInput.addEventListener('change', () => {
-        const file = workspaceFileInput.files?.[0];
-        if (file) importWorkspaceFile(file);
-        workspaceFileInput.value = '';
-    });
+    presetSelect.addEventListener("change", () => applyPreset(true));
 
     window.onload = () => {
         loadLayerState(1); applyPreset(false); captureState();
