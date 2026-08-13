@@ -31,11 +31,14 @@
             display: flex;
             justify-content: center;
             padding: 36px 18px; 
+            overflow-x: auto;
         }
 
         .container {
-            width: 880px; 
-            max-width: 100%;
+            width: 980px; 
+            min-width: 980px;
+            max-width: none;
+            flex: 0 0 980px;
             background: var(--bg-card);
             padding: 24px; 
             border-radius: 11px; 
@@ -44,9 +47,16 @@
             display: flex; 
             gap: 24px;
         }
+        @media (max-width: 1016px) {
+            body { justify-content: flex-start; }
+        }
 
         .layer-panel {
-            width: 180px;
+            width: 240px;
+            height: 720px;
+            min-height: 720px;
+            max-height: none;
+            align-self: flex-start;
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
@@ -65,15 +75,23 @@
             border-bottom: 1px solid var(--border-color);
         }
         .layer-list {
-            flex: 1;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 5px;
-            height: 520px; 
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .layer-item {
             display: flex;
             align-items: center;
-            padding: 8px 10px;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 6px 7px;
             margin-bottom: 2px;
             border-radius: 4px;
             cursor: pointer;
@@ -84,12 +102,21 @@
         }
         .layer-item:hover { background: #e2e8f0; }
         .layer-item.active { background: var(--primary); color: white; font-weight: 600; }
-        .layer-number { width: 24px; font-size: 0.7rem; opacity: 0.7; }
-        .layer-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;}
+        .layer-item.active:not(.primary) { background: #60a5fa; }
+        .layer-item.primary { box-shadow: inset 3px 0 0 white, 0 0 0 1px #1d4ed8; }
+        .layer-number { flex:0 0 24px;width:24px;font-size:0.7rem;opacity:0.7; }
+        .layer-name { flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none; }
+        .layer-name-input { width:100%;height:23px;padding:0 5px;border:1px solid #93c5fd;border-radius:3px;background:white;color:#1e293b;font-size:.72rem;font-weight:600;text-align:left;pointer-events:auto;user-select:text;-webkit-user-select:text; }
+        .surface-buttons { display:flex;flex:0 0 auto;gap:3px;margin-left:5px; }
+        .surface-btn { flex:0 0 auto;height:23px;min-width:27px;padding:0 5px;border:1px solid #cbd5e1;border-radius:4px;background:white;color:#64748b;font-family:inherit;font-size:.58rem;font-weight:800;cursor:pointer; }
+        .surface-btn:hover { color:#2563eb;border-color:#93c5fd;background:#eff6ff; }
+        .surface-btn.active { color:white;background:#64748b;border-color:#64748b; }
+        .layer-item.active .surface-btn:not(.active) { background:rgba(255,255,255,.9);color:#475569; }
         .layer-hint { font-size: 0.6rem; color: #94a3b8; text-align: center; padding: 5px; border-top: 1px dashed var(--border-color); }
 
         .controls-area {
             flex: 1;
+            min-width: 666px;
             display: flex;
             flex-direction: column;
         }
@@ -126,14 +153,9 @@
         
         .toolbar { display: flex; gap: 15px; align-items: center; }
         
-        .lock-controls {
-            display: flex; gap: 4px; background: #e2e8f0; padding: 4px; border-radius: var(--radius-sm);
-        }
-        .lock-btn {
-            border: none; background: transparent; border-radius: 3px; cursor: pointer; 
-            padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: #64748b; transition: 0.2s;
-        }
-        .lock-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header-auto-split { height:30px;padding:0 12px;margin:0;border:1px solid var(--primary-border);border-radius:5px;background:white;color:var(--primary);font-family:inherit;font-size:.72rem;font-weight:800;cursor:pointer; }
+        .header-auto-split:hover { background:var(--primary-light);border-color:#93c5fd; }
+        .header-auto-split.active { background:var(--primary);border-color:var(--primary);color:white; }
         
         .history-controls { display: flex; gap: 6px; }
         .history-btn {
@@ -145,15 +167,103 @@
         .history-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f8fafc; }
 
         .visualizer-wrapper {
-            width: 100%; background-color: #f1f5f9; border: 2px dashed #cbd5e1;
+            width: 100%; background-color: #e2e8f0; border: 1px solid #cbd5e1;
             position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 24px;
+            background-image: linear-gradient(rgba(148,163,184,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.12) 1px, transparent 1px);
+            background-size: 20px 20px;
         } 
+        .led-wall-guide {
+            position: absolute;
+            background: rgba(248,250,252,.78); border: 1px dashed #64748b; box-shadow: 0 0 0 9999px rgba(100,116,139,.08);
+            pointer-events: none; z-index: 1;
+        }
+        .surface-guide { position:absolute;pointer-events:none;z-index:1;border:1px dashed #94a3b8;background:rgba(248,250,252,.78); }
+        .surface-guide span { position:absolute;left:6px;top:5px;color:#64748b;font-size:.58rem;font-weight:900;letter-spacing:.05em; }
+        .ceiling-guide { border-color:#7c9dc2; }
+        .floor-guide { border-color:#9a8d7a; }
+        .led-wall-guide::before {
+            content: "LED WALL"; position: absolute; left: 8px; top: 7px;
+            color: #64748b; font-size: .64rem; font-weight: 800; letter-spacing: .08em;
+        }
+        .led-wall-guide::after {
+            content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px;
+            border-left: 1px solid #94a3b8; border-top: 1px solid #94a3b8; transform: translate(-50%,-50%) rotate(45deg);
+        }
 
         .visualizer-source {
             position: absolute; background-color: var(--preview-blue);
             display: flex; justify-content: center; align-items: center; cursor: move; flex-direction: column;
+            transform-origin: center center; touch-action: none; user-select: none;
+            outline: 1px solid rgba(255,255,255,0.95); z-index: 2;
         }
-        .res-text-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+        .visualizer-source.is-transforming { cursor: grabbing; }
+        .source-handle {
+            position: absolute; width: 12px; height: 12px; padding: 0;
+            border: 2px solid var(--primary); background: white; border-radius: 2px;
+            z-index: 5; touch-action: none;
+        }
+        .source-handle[data-handle="nw"] { left: -7px; top: -7px; cursor: nwse-resize; }
+        .source-handle[data-handle="n"]  { left: 50%; top: -7px; transform: translateX(-50%); cursor: ns-resize; }
+        .source-handle[data-handle="ne"] { right: -7px; top: -7px; cursor: nesw-resize; }
+        .source-handle[data-handle="e"]  { right: -7px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+        .source-handle[data-handle="se"] { right: -7px; bottom: -7px; cursor: nwse-resize; }
+        .source-handle[data-handle="s"]  { left: 50%; bottom: -7px; transform: translateX(-50%); cursor: ns-resize; }
+        .source-handle[data-handle="sw"] { left: -7px; bottom: -7px; cursor: nesw-resize; }
+        .source-handle[data-handle="w"]  { left: -7px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+        .rotate-stem {
+            position: absolute; left: 50%; top: -30px; width: 1px; height: 23px;
+            background: var(--primary); transform: translateX(-50%); pointer-events: none;
+        }
+        .source-handle.rotate-handle {
+            left: 50%; top: -40px; transform: translateX(-50%); border-radius: 50%;
+            cursor: grab; background: var(--primary);
+        }
+        .reset-btn { width: auto; padding: 0 10px; gap: 5px; font-size: 0.76rem; }
+        .rotation-control { display: flex; flex-direction: column; gap: 5px; }
+        .rotation-control input { width: 100%; height: 34px; }
+        .rotation-presets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .rotation-preset {
+            height: 27px; border: 1px solid #d7dde5; border-radius: 5px;
+            background: #ffffff; color: #64748b;
+            font-family: inherit; font-size: .69rem; font-weight: 700; cursor: pointer; padding: 0 8px;
+            display: flex; align-items: center; justify-content: center; gap: 7px; transition: border-color .12s, background .12s, color .12s;
+        }
+        .rotation-preset:hover { color: #2563eb; border-color: #93c5fd; background: #f8fbff; }
+        .rotation-preset.active { color: #1d4ed8; background: #eaf2ff; border-color: #7daaf7; }
+        .rotation-arrow { font-size: .74rem; line-height: 1; color:#94a3b8; }
+        .rotation-preset.active .rotation-arrow { color:#2563eb; }
+        .quick-tools-row { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch; }
+        .rotation-panel { padding:9px 10px;background-color:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius-md); }
+        .rotation-panel > label { margin-bottom:6px;color:#475569; }
+        .locked-transform { opacity: .72; }
+        .locked-transform input { cursor: not-allowed; background: #eef2f7 !important; color: #64748b !important; }
+        .unlocked { opacity: 1; }
+        .unlocked input { cursor: text; background: white !important; color: var(--primary) !important; }
+        .scale-height-label { display:flex;align-items:center;gap:6px;min-height:16px; }
+        .scale-height-lock-icon { position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;color:#64748b;cursor:help; }
+        .scale-height-lock-icon svg { width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+        .scale-height-lock-icon .lock-open { display:none; }
+        .scale-height-lock-icon.is-unlocked .lock-closed { display:none; }
+        .scale-height-lock-icon.is-unlocked .lock-open { display:block; }
+        .lock-tooltip { position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);display:none;width:max-content;max-width:170px;padding:6px 8px;border-radius:5px;background:#334155;color:white;font-size:.64rem;font-weight:600;line-height:1.25;white-space:nowrap;box-shadow:0 4px 12px rgba(15,23,42,.18);z-index:30;pointer-events:none; }
+        .lock-tooltip::after { content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#334155; }
+        .scale-height-lock-icon:hover .lock-tooltip, .scale-height-lock-icon:focus-visible .lock-tooltip { display:block; }
+        .lock-context-menu { position:fixed;z-index:1100;width:190px;padding:6px;background:white;border:1px solid var(--primary-border);border-radius:7px;box-shadow:0 10px 28px rgba(15,23,42,.2); }
+        .lock-context-menu button { width:100%;height:34px;border:0;border-radius:4px;background:white;color:#334155;font-family:inherit;font-size:.74rem;font-weight:700;text-align:left;padding:0 10px;cursor:pointer; }
+        .lock-context-menu button:hover { background:var(--primary-light);color:var(--primary); }
+        .transform-field { position: relative; }
+        .expression-popover {
+            position: fixed; z-index: 1000; width: 245px; padding: 12px; border-radius: 8px;
+            background: white; border: 1px solid var(--primary-border); box-shadow: 0 10px 30px rgba(15,23,42,.18);
+        }
+        .expression-title { font-size: .76rem; font-weight: 800; color: #334155; margin-bottom: 7px; }
+        .expression-popover input { height: 35px; text-align: left; }
+        .expression-hint { font-size: .65rem; color: #64748b; margin-top: 7px; line-height: 1.4; }
+        .expression-error { color: #dc2626; }
+        .res-text-wrapper { position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;padding:0 6px;overflow:visible;pointer-events:none; }
+        .source-layer-name { display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:white;font-size:.72rem;font-weight:900;line-height:1.2;text-shadow:0 1px 2px rgba(15,23,42,.35);margin-bottom:2px; }
+        .source-layer-name.number-only { min-width:max-content;max-width:none;overflow:visible;text-overflow:clip;font-size:.66rem;margin:0;padding:1px 3px;border-radius:3px;background:rgba(15,23,42,.55); }
+        .source-resolution-hidden { display:none !important; }
         #sourceResLabel { color: white; font-weight: 600; font-size: 0.8rem; line-height: 1.2; }
         #calcResLabel { color: #bfdbfe; font-weight: 600; font-size: 0.65rem; line-height: 1.2; margin-top: 2px; }
 
@@ -172,7 +282,7 @@
             margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.2s;
-            height: 100px; 
+            height: 72px; 
             width: 100%;   
             overflow: hidden; 
             position: relative;
@@ -245,16 +355,63 @@
         }
         .apply-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: default; }
 
-        .preset-btn-row { display: flex; gap: 7px; flex-wrap: wrap; } 
-        .preset-btn { background-color: white; border: 1px solid var(--border-color); color: var(--text-sub); padding: 5px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; } 
+        .preset-btn-row { display:grid;grid-template-columns:repeat(4,1fr);gap:5px; } 
+        .preset-btn { height:30px;background-color:white;border:1px solid var(--border-color);color:var(--text-sub);padding:0 5px;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit; } 
         .preset-btn:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); }
 
         .snap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; } 
         .snap-btn { height: 39px; border: 1px solid var(--border-color); background: white; border-radius: var(--radius-sm); cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; color: #555; } 
         .snap-btn:hover { background: var(--primary-light); border-color: var(--preview-blue); color: var(--preview-blue); }
         .snap-btn.active { background: var(--preview-blue); color: white; border-color: var(--preview-blue); }
+        .left-feature-section { padding:12px;border-radius:7px;border:1px solid #e2e8f0;background:#ffffff; }
+        .snap-section { background:#fafbfc; }
+        .auto-split-entry { padding:11px 12px;background:#ffffff;border-color:#e2e8f0; }
+        .auto-split-entry .feature-btn { margin:0;background:#ffffff;color:#2563eb;border-color:#bfdbfe; }
+        .auto-split-entry .feature-btn:hover { background:#eff6ff;border-color:#93c5fd; }
+        .feature-btn {
+            width: 100%; height: 36px; margin-top: 9px; border: 1px solid var(--primary-border); border-radius: var(--radius-sm);
+            background: white; color: var(--primary); font-family: inherit; font-size: .78rem; font-weight: 800; cursor: pointer;
+        }
+        .feature-btn:hover { background: var(--primary-light); }
+        .edge-blur-box { margin-top:0;padding:11px;border:1px solid var(--primary-border);border-radius:var(--radius-md);background-color:var(--primary-light); }
+        .edge-blur-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+        .edge-blur-head strong { font-size: .78rem; color: #475569; }
+        .edge-switch { display: flex; align-items: center; gap: 5px; font-size: .68rem; color: #64748b; cursor: pointer; }
+        .edge-switch input { width: 16px; height: 16px; padding: 0; accent-color: var(--primary); }
+        .edge-strength-row { display: grid; grid-template-columns: 1fr 50px; gap: 8px; align-items: center; }
+        .edge-strength-row input[type="range"] { height: 24px; padding: 0; accent-color: var(--primary); }
+        .edge-value { height: 28px; border: 1px solid var(--border-color); background: white; border-radius: 4px; display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#475569; }
+        .edge-blur-preview { position:absolute; inset:0; pointer-events:none; z-index:1; }
+        .multi-preview-source { position:absolute;z-index:1;display:flex;align-items:center;justify-content:center;background:rgba(59,130,246,.34);border:2px solid rgba(37,99,235,.72);transform-origin:center;pointer-events:none;overflow:hidden; }
+        .multi-preview-source .source-layer-name { padding:3px 6px;background:rgba(15,23,42,.68);border-radius:4px;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis; }
+        .left-panel-hidden, .preview-hidden { display:none !important; }
+        .auto-split-panel { min-height:420px;margin-bottom:24px;padding:16px;border:1px solid var(--primary-border);border-radius:var(--radius-sm);background:var(--primary-light);box-sizing:border-box; }
+        .auto-split-title { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:.9rem;font-weight:800;color:var(--primary); }
+        .split-surface-picker { display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;padding:9px;background:rgba(255,255,255,.65);border:1px solid #dbeafe;border-radius:6px; }
+        .split-surface-btn { height:32px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#64748b;font-family:inherit;font-size:.72rem;font-weight:800;cursor:pointer; }
+        .split-surface-btn:hover { border-color:#93c5fd;color:#2563eb; }
+        .split-surface-btn.active { border-color:var(--primary);background:var(--primary);color:white; }
+        .auto-split-workspace { display:grid;grid-template-columns:minmax(260px,.9fr) minmax(340px,1.1fr);gap:14px;align-items:start; }
+        .auto-split-preview-column, .auto-split-settings-column { min-width:0; }
+        .split-presets { display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px; }
+        .split-preset { height:34px;border:1px solid var(--primary-border);background:white;border-radius:4px;color:#64748b;font-weight:700;cursor:pointer; }
+        .split-preset.active { background:var(--primary);color:white;border-color:var(--primary); }
+        .split-preview { display:grid;gap:0;width:100%;aspect-ratio:16/9;margin-bottom:12px;background:#cbd5e1;border:4px solid #cbd5e1;border-radius:5px;box-sizing:border-box;overflow:hidden; }
+        .split-cell { position:relative;display:flex;align-items:center;justify-content:center;min-width:0;background:white;border-radius:0;color:#94a3b8;font-size:.7rem;font-weight:800;cursor:pointer; }
+        .split-cell.assigned { background:#dbeafe;color:var(--primary); }
+        .split-settings { display:flex;flex-direction:column;gap:7px;max-height:330px;overflow:auto;padding-right:2px; }
+        .split-row { background:white;border:1px solid #dbeafe;border-radius:5px;padding:8px; }
+        .split-row-title { font-size:.68rem;font-weight:800;color:#475569;margin-bottom:6px; }
+        .split-fields { display:grid;grid-template-columns:1.05fr .95fr .8fr .8fr;gap:5px; }
+        .split-fields label { font-size:.58rem;margin-bottom:2px;padding:0;text-align:center; }
+        .split-fields input { height:29px;padding:0 4px;font-size:.74rem; }
+        .split-actions { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px; }
+        .split-action { height:36px;border-radius:4px;font-weight:800;cursor:pointer; }
+        .split-cancel { border:1px solid #cbd5e1;background:white;color:#64748b; }
+        .split-apply { border:1px solid var(--primary);background:var(--primary);color:white; }
+        .split-error { min-height:16px;margin-top:6px;color:#dc2626;font-size:.66rem;text-align:center; }
         
-        .scale-list { background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; flex-direction: column; justify-content: center; padding: 5px 0; }
+        .scale-list { background:#f8fafc;border:1px solid var(--border-color);border-radius:var(--radius-sm);display:flex;flex-direction:column;justify-content:center;padding:5px 0;min-width:0; }
         .scale-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; border-bottom: 1px dashed var(--border-color); cursor: pointer; } 
         .scale-item:last-child { border-bottom: none; }
         .scale-item:hover { background: var(--primary-light); }
@@ -287,7 +444,7 @@
     <div class="layer-panel">
         <div class="layer-panel-header">Layers</div>
         <div class="layer-list" id="layerList"></div>
-        <div class="layer-hint">💡 더블클릭하여 이름 변경</div>
+        <div class="layer-hint">Ctrl: 다중 선택 · Shift: 범위 선택<br>더블클릭하여 이름 변경</div>
     </div>
 
     <div class="controls-area">
@@ -298,12 +455,10 @@
                 <div class="inner-title">Preview <span id="previewLayerName" style="color:var(--primary); font-weight:800; margin-left:10px;">[Layer 1]</span></div>
                 
                 <div class="toolbar">
-                    <div class="lock-controls">
-                        <button id="moveXBtn" class="lock-btn active" title="수평(X축) 이동을 켜거나 끕니다">↔ 수평이동</button>
-                        <button id="moveYBtn" class="lock-btn active" title="수직(Y축) 이동을 켜거나 끕니다">↕ 수직이동</button>
-                    </div>
+                    <button id="openAutoSplitBtn" class="header-auto-split" type="button">▦ Auto-Split</button>
 
                     <div class="history-controls">
+                        <button class="history-btn reset-btn" id="resetBtn" title="선택한 모든 레이어의 위치, 크기, 회전을 기본값으로 되돌립니다">↺ 초기화</button>
                         <button class="history-btn" id="undoBtn" title="되돌리기 (Ctrl+Z)" disabled>↶</button>
                         <button class="history-btn" id="redoBtn" title="다시 실행 (Ctrl+Y)" disabled>↷</button>
                     </div>
@@ -311,10 +466,54 @@
             </div>
             
             <div class="visualizer-wrapper" id="visualizer">
+                <div class="led-wall-guide" id="ledWallGuide"></div>
+                <div class="surface-guide ceiling-guide" id="ceilingGuide"><span>CEILING · 1920×1080</span></div>
+                <div class="surface-guide floor-guide" id="floorGuide"><span>FLOOR · 1920×1080</span></div>
                 <div class="visualizer-source" id="sourceBox">
+                    <div class="edge-blur-preview" id="edgeBlurPreview"></div>
+                    <span class="rotate-stem"></span>
+                    <button class="source-handle rotate-handle" data-handle="rotate" type="button" aria-label="회전"></button>
+                    <button class="source-handle" data-handle="nw" type="button" aria-label="왼쪽 위 크기 조절"></button>
+                    <button class="source-handle" data-handle="n" type="button" aria-label="위쪽 크기 조절"></button>
+                    <button class="source-handle" data-handle="ne" type="button" aria-label="오른쪽 위 크기 조절"></button>
+                    <button class="source-handle" data-handle="e" type="button" aria-label="오른쪽 크기 조절"></button>
+                    <button class="source-handle" data-handle="se" type="button" aria-label="오른쪽 아래 크기 조절"></button>
+                    <button class="source-handle" data-handle="s" type="button" aria-label="아래쪽 크기 조절"></button>
+                    <button class="source-handle" data-handle="sw" type="button" aria-label="왼쪽 아래 크기 조절"></button>
+                    <button class="source-handle" data-handle="w" type="button" aria-label="왼쪽 크기 조절"></button>
                     <div class="res-text-wrapper">
+                        <span id="sourceLayerName" class="source-layer-name">Layer 1</span>
                         <span id="sourceResLabel">3840 X 2160</span>
                         <span id="calcResLabel">(3840 X 2160)</span>
+                    </div>
+                </div>
+            </div>
+            <div id="autoSplitPanel" class="auto-split-panel preview-hidden">
+                <div class="auto-split-title"><span>▦ Auto-Split</span><span id="autoSplitLayerLabel"></span></div>
+                <div class="split-surface-picker" aria-label="분할 대상 영역">
+                    <button class="split-surface-btn active" type="button" data-surface="main">메인</button>
+                    <button class="split-surface-btn" type="button" data-surface="floor">바닥</button>
+                    <button class="split-surface-btn" type="button" data-surface="ceiling">천장</button>
+                </div>
+                <div class="auto-split-workspace">
+                    <div class="auto-split-preview-column">
+                        <div class="split-presets" id="splitPresets">
+                            <button class="split-preset active" type="button" data-split="2">2분할</button>
+                            <button class="split-preset" type="button" data-split="3">3분할</button>
+                            <button class="split-preset" type="button" data-split="4">4분할</button>
+                            <button class="split-preset" type="button" data-split="6">6분할</button>
+                            <button class="split-preset" type="button" data-split="8">8분할</button>
+                            <button class="split-preset" type="button" data-split="9">9분할</button>
+                        </div>
+                        <div id="splitPreview" class="split-preview"></div>
+                    </div>
+                    <div class="auto-split-settings-column">
+                        <div id="splitSettings" class="split-settings"></div>
+                        <div id="splitError" class="split-error"></div>
+                        <div class="split-actions">
+                            <button id="cancelAutoSplitBtn" class="split-action split-cancel" type="button">취소</button>
+                            <button id="applyAutoSplitBtn" class="split-action split-apply" type="button">완료</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -322,6 +521,7 @@
 
         <div class="bottom-grid">
             <div class="col-left">
+                <div id="normalLeftPanel" class="col-left">
                 <div>
                     <div class="inner-title">해상도</div>
                     
@@ -350,17 +550,17 @@
                     <div class="ratio-info">비율 <div style="width:4px;height:4px;background:#ccc;border-radius:50%"></div> <span class="value" id="ratioValue">16:9</span></div>
                     
                     <div class="preset-btn-row">
-                        <button class="preset-btn" onclick="applySourcePreset(2048, 1024)">2048 X 1024</button>
-                        <button class="preset-btn" onclick="applySourcePreset(2944, 1920)">2944 X 1920</button>
-                        <button class="preset-btn" onclick="applySourcePreset(3840, 2160)">3840 X 2160</button>
-                        <button class="preset-btn" onclick="applySourcePreset(9216, 3672)">9216 X 3672</button>
+                        <button class="preset-btn" onclick="applySourcePreset(2048, 1024)" title="2048 × 1024">2:1</button>
+                        <button class="preset-btn" onclick="applySourcePreset(2944, 1920)" title="2944 × 1920">23:15</button>
+                        <button class="preset-btn" onclick="applySourcePreset(3840, 2160)" title="3840 × 2160">16:9</button>
+                        <button class="preset-btn" onclick="applySourcePreset(9216, 3672)" title="9216 × 3672">128:51</button>
                     </div>
                 </div>
 
                 <hr class="dashed-divider">
 
-                <div>
-                    <div class="inner-title">스냅</div>
+                <div class="left-feature-section snap-section">
+                    <div class="inner-title" id="snapTitle">스냅 · 메인</div>
                     <div class="snap-grid" id="buttonGrid">
                         <button class="snap-btn" data-x="left" data-y="top">↖</button>
                         <button class="snap-btn" data-x="center" data-y="top">↑</button>
@@ -373,30 +573,67 @@
                         <button class="snap-btn" data-x="right" data-y="bottom">↘</button>
                     </div>
                 </div>
+
+                <div class="edge-blur-box">
+                    <div class="edge-blur-head">
+                        <strong>Edge Blur</strong>
+                        <label class="edge-switch"><input id="edgeBlurEnabled" type="checkbox"> 적용</label>
+                    </div>
+                    <div class="edge-strength-row">
+                        <input id="edgeBlurStrength" type="range" min="0" max="100" step="1" value="20" disabled>
+                        <div class="edge-value"><span id="edgeBlurValue">20</span>%</div>
+                    </div>
+                </div>
+                </div>
+
             </div>
 
             <div class="col-right">
-                <div class="scale-list" id="baseScaleResult"></div>
+                <div class="quick-tools-row">
+                    <div class="scale-list" id="baseScaleResult"></div>
+                    <div class="rotation-panel transform-field" data-transform="rotationValue" data-label="Rotation">
+                        <label>Rotation (°)</label>
+                        <div class="rotation-control">
+                            <input id="rotationValue" type="number" value="0" step="0.1">
+                            <div class="rotation-presets">
+                                <button class="rotation-preset active" type="button" data-rotation="0"><span class="rotation-arrow">↑</span><span>0°</span></button>
+                                <button class="rotation-preset" type="button" data-rotation="90"><span class="rotation-arrow">→</span><span>90°</span></button>
+                                <button class="rotation-preset" type="button" data-rotation="180"><span class="rotation-arrow">↓</span><span>180°</span></button>
+                                <button class="rotation-preset" type="button" data-rotation="270"><span class="rotation-arrow">←</span><span>270°</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="control-box-blue">
                     <div class="form-row">
-                        <div class="form-group"><label>Scale</label><input id="scaleValue" type="text" value="1.000000" onclick="copyInput('scaleValue', 'Scale')"></div>
-                        <div class="form-group"><label>Scale height</label><input id="scaleHeight" type="text" value="1.000000" onclick="copyInput('scaleHeight', 'Scale height')"></div>
+                        <div class="form-group transform-field" data-transform="scaleValue" data-label="Scale"><label>Scale</label><input id="scaleValue" type="text" value="1.000000" onclick="copyInput('scaleValue', 'Scale')"></div>
+                        <div id="scaleHeightField" class="form-group locked-transform" data-transform="scaleHeight" data-label="Scale height">
+                            <label id="scaleHeightLabel" class="scale-height-label">
+                                <span>Scale height</span>
+                                <span id="scaleHeightLockIcon" class="scale-height-lock-icon" role="img" tabindex="0" aria-label="잠김">
+                                    <svg class="lock-closed" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"></rect><path d="M5 7V5a3 3 0 0 1 6 0v2"></path></svg>
+                                    <svg class="lock-open" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"></rect><path d="M11 7V5a3 3 0 0 0-5.8-1"></path></svg>
+                                    <span id="scaleHeightLockTooltip" class="lock-tooltip">우클릭 하여 잠금해제</span>
+                                </span>
+                            </label>
+                            <input id="scaleHeight" type="text" value="1.000000" disabled title="우클릭하여 잠금을 해제할 수 있습니다">
+                        </div>
                     </div>
-                    
+
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group transform-field" data-transform="posX" data-label="Pos X">
                             <label>Pos X</label>
                             <div class="readonly-box" id="posX_wrapper" onclick="copyValue(this.innerText, this)"><span id="posX_result">0.000000</span></div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group transform-field" data-transform="posY" data-label="Pos Y">
                             <label>Pos Y</label>
                             <div class="readonly-box" id="posY_wrapper" onclick="copyValue(this.innerText, this)"><span id="posY_result">0.000000</span></div>
                         </div>
                     </div>
                     
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group transform-field" data-transform="pixelX" data-label="중앙 Px">
                             <label>중앙 Px (가로)</label>
                             <div class="stepper-wrapper">
                                 <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', -1)">−</button>
@@ -404,7 +641,7 @@
                                 <button type="button" tabindex="-1" onclick="adjustPixel('pixelX', 1)">+</button>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group transform-field" data-transform="pixelY" data-label="중앙 Py">
                             <label>중앙 Py (세로)</label>
                             <div class="stepper-wrapper">
                                 <button type="button" tabindex="-1" onclick="adjustPixel('pixelY', -1)">−</button>
@@ -437,7 +674,35 @@
 
 <script>
     const BASE_WIDTH = 11520;
-    let currentSelectedLayer = 1; 
+    const MAX_LAYERS = 50;
+    const EDITOR_SCALE_X = 1.5;
+    const EDITOR_SCALE_Y = 2.5;
+    const EDITOR_MARGIN_X = (EDITOR_SCALE_X - 1) / 2;
+    const EDITOR_MARGIN_Y = (EDITOR_SCALE_Y - 1) / 2;
+    const SURFACE_PRESETS = Object.freeze({
+        ceiling: { iw: 1920, ih: 1080, x: 0.01000, y: 0.34437, scale: 0.34000 },
+        floor: { iw: 1920, ih: 1080, x: 0.00000, y: -0.39779, scale: 0.33000 }
+    });
+    const DEFAULT_LAYER_STATE = Object.freeze({
+        iw: "3840", ih: "2160", scaleValue: "0.333333", scaleHeight: "1.000000", scaleHeightLocked: true, rotationValue: "0",
+        pixelX: "4608", pixelY: "1836", ledPreset: "9216,3672", lw: "9216", lh: "3672",
+        scanName: "", scanExt: "", scanW: 0, scanH: 0, edgeBlurEnabled: false, edgeBlurStrength: "20", surfaceRole: "main"
+    });
+    function getMainTransformSnapshot(state) {
+        return {
+            iw: state.iw, ih: state.ih, scaleValue: state.scaleValue, scaleHeight: state.scaleHeight,
+            scaleHeightLocked: state.scaleHeightLocked, rotationValue: state.rotationValue,
+            pixelX: state.pixelX, pixelY: state.pixelY
+        };
+    }
+    function createDefaultLayerState() {
+        const state = { ...DEFAULT_LAYER_STATE };
+        state.mainTransform = getMainTransformSnapshot(state);
+        return state;
+    }
+    let currentSelectedLayer = 1;
+    let selectedLayers = new Set([1]);
+    let selectionAnchorLayer = 1;
 
     const layerStates = {}; 
 
@@ -446,26 +711,56 @@
     let isHistoryAction = false;
     let isGlobalScrubbing = false; 
     
-    let allowMoveX = true; 
-    let allowMoveY = true; 
-
     const UNDO_LIMIT = 30;
-    const inputsToTrack = ["iw", "ih", "scaleValue", "scaleHeight", "pixelX", "pixelY", "ledPreset", "lw", "lh"];
+    const inputsToTrack = ["iw", "ih", "scaleValue", "scaleHeight", "rotationValue", "pixelX", "pixelY", "ledPreset", "lw", "lh", "edgeBlurStrength"];
     
     const iwInput = document.getElementById("iw"), ihInput = document.getElementById("ih");
     const lwInput = document.getElementById("lw"), lhInput = document.getElementById("lh");
     const scaleInput = document.getElementById("scaleValue"), scaleHeightInput = document.getElementById("scaleHeight");
+    const rotationInput = document.getElementById("rotationValue");
     const pixelXInput = document.getElementById("pixelX"), pixelYInput = document.getElementById("pixelY");
     const presetSelect = document.getElementById("ledPreset");
+    const edgeBlurEnabledInput = document.getElementById("edgeBlurEnabled"), edgeBlurStrengthInput = document.getElementById("edgeBlurStrength");
+    const edgeBlurValue = document.getElementById("edgeBlurValue"), edgeBlurPreview = document.getElementById("edgeBlurPreview");
     const elSourceBox = document.getElementById("sourceBox"), elVisualizer = document.getElementById("visualizer");
-    const sourceResLabel = document.getElementById("sourceResLabel"), calcResLabel = document.getElementById("calcResLabel");
+    const sourceResLabel = document.getElementById("sourceResLabel"), calcResLabel = document.getElementById("calcResLabel"), sourceLayerName = document.getElementById("sourceLayerName");
     const layerList = document.getElementById("layerList");
     const previewLayerName = document.getElementById("previewLayerName");
+    const normalLeftPanel = document.getElementById("normalLeftPanel"), autoSplitPanel = document.getElementById("autoSplitPanel");
+    const splitPreview = document.getElementById("splitPreview"), splitSettings = document.getElementById("splitSettings"), splitError = document.getElementById("splitError");
     
-    const undoBtn = document.getElementById("undoBtn"), redoBtn = document.getElementById("redoBtn");
-    const moveXBtn = document.getElementById("moveXBtn"), moveYBtn = document.getElementById("moveYBtn");
+    const undoBtn = document.getElementById("undoBtn"), redoBtn = document.getElementById("redoBtn"), resetBtn = document.getElementById("resetBtn");
 
     const layerNames = {}; 
+
+    function getPreviewLayerLabel(layer) {
+        const rawName = String(layerNames[layer] || '').trim();
+        const withoutDefaultPrefix = rawName.replace(new RegExp(`^Layer\\s*${layer}(?:\\s+|$)`, 'i'), '').trim();
+        return withoutDefaultPrefix ? `${layer} ${withoutDefaultPrefix}` : String(layer);
+    }
+
+    function fitPreviewLayerLabel(element, layer, sourceElement) {
+        const fullLabel = getPreviewLayerLabel(layer);
+        const availableWidth = Math.max(0, sourceElement.clientWidth - 12);
+        element.classList.remove('number-only');
+        element.textContent = fullLabel;
+        element.title = fullLabel;
+        element.style.maxWidth = `${availableWidth}px`;
+        const fullWidth = element.scrollWidth;
+        if (availableWidth < 18 || fullWidth > availableWidth * 1.45) {
+            element.textContent = String(layer);
+            element.classList.add('number-only');
+            element.style.maxWidth = 'none';
+        }
+    }
+
+    function updatePrimarySourceTextVisibility() {
+        const width = elSourceBox.clientWidth, height = elSourceBox.clientHeight;
+        const hideResolution = width < 112 || height < 50;
+        sourceResLabel.classList.toggle('source-resolution-hidden', hideResolution);
+        calcResLabel.classList.toggle('source-resolution-hidden', hideResolution);
+        fitPreviewLayerLabel(sourceLayerName, currentSelectedLayer, elSourceBox);
+    }
 
     // ✅ 스마트 스캐너 전역 변수
     const dropZone = document.getElementById('mediaDropZone');
@@ -596,18 +891,29 @@
         if(tempScannedW === 0 || tempScannedH === 0) return;
         iwInput.value = tempScannedW;
         ihInput.value = tempScannedH;
-        handleResolutionChange(); 
+        handleResolutionChange();
         captureState();
         saveCurrentLayerState();
     });
 
     function saveCurrentLayerState() {
+        const scaleHeightLocked = scaleHeightInput.disabled;
+        if (scaleHeightLocked) scaleHeightInput.value = "1.000000";
+        const previous = layerStates[currentSelectedLayer] || DEFAULT_LAYER_STATE;
+        const surfaceRole = previous.surfaceRole || "main";
+        const currentTransform = {
+            iw: iwInput.value, ih: ihInput.value, scaleValue: scaleInput.value, scaleHeight: scaleHeightInput.value,
+            scaleHeightLocked, rotationValue: rotationInput.value, pixelX: pixelXInput.value, pixelY: pixelYInput.value
+        };
         layerStates[currentSelectedLayer] = {
             iw: iwInput.value, ih: ihInput.value,
-            scaleValue: scaleInput.value, scaleHeight: scaleHeightInput.value,
+            scaleValue: scaleInput.value, scaleHeight: scaleHeightInput.value, scaleHeightLocked, rotationValue: rotationInput.value,
             pixelX: pixelXInput.value, pixelY: pixelYInput.value,
             ledPreset: presetSelect.value, lw: lwInput.value, lh: lhInput.value,
-            scanName: tempScannedName, scanExt: tempScannedExt, scanW: tempScannedW, scanH: tempScannedH 
+            scanName: tempScannedName, scanExt: tempScannedExt, scanW: tempScannedW, scanH: tempScannedH,
+            edgeBlurEnabled: edgeBlurEnabledInput.checked, edgeBlurStrength: edgeBlurStrengthInput.value,
+            surfaceRole,
+            mainTransform: surfaceRole === "main" ? currentTransform : previous.mainTransform
         };
     }
 
@@ -615,9 +921,17 @@
         const state = layerStates[num];
         if (!state) return;
         iwInput.value = state.iw; ihInput.value = state.ih;
-        scaleInput.value = state.scaleValue; scaleHeightInput.value = state.scaleHeight;
+        scaleInput.value = state.scaleValue;
+        scaleHeightInput.value = state.scaleHeightLocked === false ? (state.scaleHeight || "1.000000") : "1.000000";
+        updateScaleHeightLockUI(state.scaleHeightLocked !== false);
+        rotationInput.value = state.rotationValue ?? "0";
         pixelXInput.value = state.pixelX; pixelYInput.value = state.pixelY;
         presetSelect.value = state.ledPreset; lwInput.value = state.lw; lhInput.value = state.lh;
+        edgeBlurEnabledInput.checked = Boolean(state.edgeBlurEnabled);
+        edgeBlurStrengthInput.value = state.edgeBlurStrength ?? "20";
+        updateEdgeBlurUI(false);
+        state.surfaceRole = state.surfaceRole || "main";
+        updateSurfaceButtonStates();
         if (presetSelect.value) { lwInput.disabled = true; lhInput.disabled = true; } 
         else { lwInput.disabled = false; lhInput.disabled = false; }
 
@@ -627,9 +941,6 @@
             resetScanUI();
         }
     }
-
-    moveXBtn.onclick = function() { allowMoveX = !allowMoveX; this.classList.toggle("active", allowMoveX); };
-    moveYBtn.onclick = function() { allowMoveY = !allowMoveY; this.classList.toggle("active", allowMoveY); };
 
     window.copyInput = function(inputId, labelText) {
         if (isGlobalScrubbing) return; 
@@ -683,7 +994,7 @@
 
     function captureState() {
         if (isHistoryAction) return;
-        const state = { layer: currentSelectedLayer, names: { ...layerNames }, values: {} };
+        const state = { layer: currentSelectedLayer, names: { ...layerNames }, values: {}, edgeBlurEnabled: edgeBlurEnabledInput.checked, scaleHeightLocked: scaleHeightInput.disabled };
         inputsToTrack.forEach(id => { const el = document.getElementById(id); if(el) state.values[id] = el.value; });
         const newStateStr = JSON.stringify(state);
         if (undoStack.length > 0 && undoStack[undoStack.length - 1] === newStateStr) return;
@@ -700,18 +1011,20 @@
             layerNames[k] = state.names[k];
         });
         inputsToTrack.forEach(id => { const el = document.getElementById(id); if(id !== 'iw' && id !== 'ih') el.value = state.values[id]; });
-        for(let i=1; i<=25; i++) {
+        updateScaleHeightLockUI(state.scaleHeightLocked !== false);
+        for(let i=1; i<=MAX_LAYERS; i++) {
             const nameEl = document.getElementById(`layer-name-${i}`);
-            if(nameEl) nameEl.innerText = layerNames[i];
+            if(nameEl) { nameEl.innerText = layerNames[i]; nameEl.title = layerNames[i]; }
         }
         if(state.layer) {
             currentSelectedLayer = state.layer;
-            document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
-            const target = document.getElementById(`layer-item-${state.layer}`);
-            if(target) target.classList.add("active");
+            selectedLayers = new Set([state.layer]); selectionAnchorLayer = state.layer;
+            updateLayerSelectionUI();
             previewLayerName.innerText = `[${layerNames[state.layer]}]`;
         }
         iwInput.value = state.values.iw; ihInput.value = state.values.ih;
+        edgeBlurEnabledInput.checked = Boolean(state.edgeBlurEnabled);
+        updateEdgeBlurUI(false);
         saveCurrentLayerState(); 
         applyPreset(false); 
         isHistoryAction = false;
@@ -722,6 +1035,22 @@
     function redo() { if (redoStack.length === 0) return; const state = redoStack.pop(); undoStack.push(state); applyState(state); }
     function updateHistoryButtons() { undoBtn.disabled = undoStack.length <= 1; redoBtn.disabled = redoStack.length === 0; }
     undoBtn.onclick = undo; redoBtn.onclick = redo;
+    resetBtn.onclick = () => {
+        const targets = [...selectedLayers];
+        targets.forEach(layer => {
+            const defaults = createDefaultLayerState();
+            layerStates[layer] = defaults;
+            sendToPicturall(makeLayerTransformPayload(layer, defaults));
+        });
+        loadLayerState(currentSelectedLayer);
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
+        handleResolutionChange(false, false);
+        saveCurrentLayerState();
+        updateSurfaceButtonStates();
+        renderMultiLayerPreview();
+        captureState();
+    };
 
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') { if (e.key === 'Enter') e.target.blur(); return; }
@@ -732,50 +1061,258 @@
         else if (e.key === '0') { selectLayer(10); }
     });
 
-    for (let i = 1; i <= 25; i++) {
-        layerNames[i] = `Layer ${i}`; 
-        layerStates[i] = {
-            iw: "3840", ih: "2160", scaleValue: "0.333333", scaleHeight: "1.000000",
-            pixelX: "4608", pixelY: "1836", ledPreset: "9216,3672", lw: "9216", lh: "3672",
-            scanName: "", scanExt: "", scanW: 0, scanH: 0
-        };
-        const item = document.createElement("div");
-        item.className = "layer-item" + (i === 1 ? " active" : "");
-        item.id = `layer-item-${i}`;
-        item.innerHTML = `<div class="layer-number">${i}</div><div class="layer-name" id="layer-name-${i}">${layerNames[i]}</div>`;
-        item.onclick = () => { selectLayer(i); };
-        item.ondblclick = () => {
-            const newName = prompt(`${i}번 레이어의 새 이름을 입력하세요:`, layerNames[i]);
-            if (newName && newName.trim() !== "") {
-                layerNames[i] = newName.trim();
-                document.getElementById(`layer-name-${i}`).innerText = layerNames[i];
-                if(currentSelectedLayer === i) previewLayerName.innerText = `[${layerNames[i]}]`;
-                captureState(); renameLayerInPicturall(i, layerNames[i]);
+    function beginLayerRename(layer) {
+        const nameEl = document.getElementById(`layer-name-${layer}`);
+        if (!nameEl || nameEl.querySelector('input')) return;
+        const input = document.createElement('input');
+        input.className = 'layer-name-input';
+        input.type = 'text';
+        input.value = layerNames[layer];
+        input.maxLength = 80;
+        input.setAttribute('aria-label', `${layer}번 레이어 이름`);
+        nameEl.textContent = '';
+        nameEl.appendChild(input);
+        let finished = false;
+        const finish = shouldSave => {
+            if (finished) return;
+            finished = true;
+            const nextName = input.value.trim() || `Layer ${layer}`;
+            const changed = shouldSave && nextName !== layerNames[layer];
+            if (changed) layerNames[layer] = nextName;
+            nameEl.textContent = layerNames[layer];
+            nameEl.title = layerNames[layer];
+            if (changed) {
+                updateLayerSelectionUI();
+                updateAll(false);
+                captureState();
+                renameLayerInPicturall(layer, layerNames[layer]);
             }
+        };
+        input.addEventListener('click', event => event.stopPropagation());
+        input.addEventListener('dblclick', event => event.stopPropagation());
+        input.addEventListener('keydown', event => {
+            event.stopPropagation();
+            if (event.key === 'Enter') { event.preventDefault(); finish(true); }
+            else if (event.key === 'Escape') { event.preventDefault(); finish(false); }
+        });
+        input.addEventListener('blur', () => finish(true));
+        input.focus();
+        input.select();
+    }
+
+    for (let i = 1; i <= MAX_LAYERS; i++) {
+        layerNames[i] = `Layer ${i}`; 
+        layerStates[i] = createDefaultLayerState();
+        const item = document.createElement("div");
+        item.className = "layer-item" + (i === 1 ? " active primary" : "");
+        item.id = `layer-item-${i}`;
+        item.innerHTML = `<div class="layer-number">${i}</div><div class="layer-name" id="layer-name-${i}" title="${layerNames[i]}">${layerNames[i]}</div><div class="surface-buttons"><button class="surface-btn" type="button" data-role="main" title="메인으로 지정">메인</button><button class="surface-btn" type="button" data-role="floor" title="바닥 프리셋 적용">바닥</button><button class="surface-btn" type="button" data-role="ceiling" title="천장 프리셋 적용">천장</button></div>`;
+        item.onclick = (event) => { selectLayer(i, true, event.ctrlKey || event.metaKey, event.shiftKey); };
+        item.querySelectorAll('.surface-btn').forEach(button => button.addEventListener('click', event => {
+            event.stopPropagation();
+            const targets = selectedLayers.size > 1 && selectedLayers.has(i) ? [...selectedLayers] : [i];
+            targets.forEach(layer => applySurfacePresetToLayer(layer, button.dataset.role));
+        }));
+        item.querySelectorAll('.surface-btn').forEach(button => button.addEventListener('dblclick', event => event.stopPropagation()));
+        item.ondblclick = event => {
+            if (event.target.closest('.surface-buttons')) return;
+            event.preventDefault();
+            beginLayerRename(i);
         };
         layerList.appendChild(item);
     }
 
-    function selectLayer(num, shouldCapture = true) {
-        if (currentSelectedLayer === num && document.querySelector(`.layer-item.active`)) return;
-        saveCurrentLayerState(); 
-        document.querySelectorAll(".layer-item").forEach(b => b.classList.remove("active"));
-        const target = document.getElementById(`layer-item-${num}`);
-        if(target) {
-            target.classList.add("active");
-            currentSelectedLayer = num;
-            previewLayerName.innerText = `[${layerNames[num]}]`;
-            loadLayerState(num);
-            handleResolutionChange(); updateAll();
-            if(shouldCapture) captureState();
-            triggerSend(); 
+    function updateLayerSelectionUI() {
+        document.querySelectorAll('.layer-item').forEach(item => {
+            const num = Number(item.id.replace('layer-item-', ''));
+            item.classList.toggle('active', selectedLayers.has(num));
+            item.classList.toggle('primary', num === currentSelectedLayer);
+        });
+        const extra = selectedLayers.size > 1 ? ` +${selectedLayers.size - 1}` : '';
+        previewLayerName.innerText = `[${layerNames[currentSelectedLayer]}]${extra}`;
+        updatePrimarySourceTextVisibility();
+        updateSurfaceButtonStates();
+    }
+
+    function updateSurfaceButtonStates() {
+        document.querySelectorAll('.layer-item').forEach(item => {
+            const layer = Number(item.id.replace('layer-item-', ''));
+            const role = layerStates[layer]?.surfaceRole || 'main';
+            item.querySelectorAll('.surface-btn').forEach(button => button.classList.toggle('active', button.dataset.role === role));
+        });
+        const role = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
+        const labels = { main: '메인', floor: '바닥', ceiling: '천장' };
+        document.getElementById('snapTitle').textContent = `스냅 · ${labels[role]}`;
+    }
+
+    function applySurfacePresetToLayer(layer, role) {
+        const currentRole = layerStates[layer]?.surfaceRole || 'main';
+        // 이미 메인인 레이어에서는 오래된 웹 좌표를 서버로 재전송하지 않는다.
+        if (currentRole === role && role === 'main') {
+            updateSurfaceButtonStates();
+            return;
         }
+        if (layer === currentSelectedLayer) saveCurrentLayerState();
+        const state = { ...layerStates[layer] };
+        if (role === 'main') {
+            const main = state.mainTransform;
+            Object.assign(state, main || getMainTransformSnapshot(createDefaultLayerState()));
+            state.surfaceRole = 'main';
+        } else {
+            const preset = SURFACE_PRESETS[role];
+            if (!preset) return;
+            if ((state.surfaceRole || 'main') === 'main') {
+                state.mainTransform = getMainTransformSnapshot(state);
+            }
+            const wallW = Number(state.lw) || Number(lwInput.value), wallH = Number(state.lh) || Number(lhInput.value);
+            state.iw = String(preset.iw); state.ih = String(preset.ih);
+            state.scaleValue = preset.scale.toFixed(6); state.scaleHeight = '1.000000'; state.scaleHeightLocked = true;
+            state.rotationValue = '0';
+            state.pixelX = String(Number((wallW / 2 + preset.x * BASE_WIDTH).toFixed(3)));
+            state.pixelY = String(Number((wallH / 2 - preset.y * BASE_WIDTH).toFixed(3)));
+            state.surfaceRole = role;
+        }
+        layerStates[layer] = state;
+        if (layer === currentSelectedLayer) document.querySelectorAll('.snap-btn').forEach(button => button.classList.remove('active'));
+        const wallW = Number(state.lw), wallH = Number(state.lh);
+        sendToPicturall({
+            layer,
+            x: role === 'main' ? ((Number(state.pixelX) - wallW / 2) / BASE_WIDTH).toFixed(6) : SURFACE_PRESETS[role].x.toFixed(6),
+            y: role === 'main' ? ((wallH / 2 - Number(state.pixelY)) / BASE_WIDTH).toFixed(6) : SURFACE_PRESETS[role].y.toFixed(6),
+            scale: state.scaleValue, scale_h: state.scaleHeight, rotation: state.rotationValue,
+            edge_blur: Boolean(state.edgeBlurEnabled), edge_blur_strength: state.edgeBlurStrength || '20', surface: role
+        });
+        if (layer === currentSelectedLayer) { loadLayerState(layer); handleResolutionChange(false, false); captureState(); }
+        updateSurfaceButtonStates(); renderMultiLayerPreview();
+    }
+
+    function selectLayer(num, shouldCapture = true, additive = false, range = false) {
+        if (!additive && !range && currentSelectedLayer === num && selectedLayers.size === 1) return;
+        saveCurrentLayerState();
+        if (range) {
+            const start = Math.min(selectionAnchorLayer, num), end = Math.max(selectionAnchorLayer, num);
+            selectedLayers = new Set(Array.from({ length: end - start + 1 }, (_, index) => start + index));
+            currentSelectedLayer = num;
+        } else if (additive) {
+            if (selectedLayers.has(num)) {
+                if (selectedLayers.size > 1) {
+                    selectedLayers.delete(num);
+                    if (currentSelectedLayer === num) currentSelectedLayer = [...selectedLayers][0];
+                }
+            } else {
+                selectedLayers.add(num); currentSelectedLayer = num;
+            }
+            selectionAnchorLayer = num;
+        } else {
+            selectedLayers = new Set([num]); currentSelectedLayer = num; selectionAnchorLayer = num;
+        }
+        updateLayerSelectionUI();
+        loadLayerState(currentSelectedLayer);
+        // 선택 및 다중 선택은 UI만 바꾸고 서버에는 값을 보내지 않는다.
+        handleResolutionChange(false, false);
+        if(shouldCapture) captureState();
     }
 
     let sendTimeout = null;
+    let multiSendTimeout = null;
     function triggerSend() {
         if(sendTimeout) clearTimeout(sendTimeout);
-        sendTimeout = setTimeout(sendToPicturall, 50); 
+        const payload = {
+            layer: currentSelectedLayer,
+            x: document.getElementById("posX_result").innerText,
+            y: document.getElementById("posY_result").innerText,
+            scale: document.getElementById("scaleValue").value,
+            scale_h: scaleHeightInput.disabled ? "1.000000" : scaleHeightInput.value,
+            rotation: document.getElementById("rotationValue").value,
+            edge_blur: edgeBlurEnabledInput.checked,
+            edge_blur_strength: edgeBlurStrengthInput.value,
+            surface: layerStates[currentSelectedLayer]?.surfaceRole || 'main'
+        };
+        sendTimeout = setTimeout(() => sendToPicturall(payload), 50); 
+    }
+
+    function makeLayerTransformPayload(layer, state) {
+        const wallW = Number(state.lw) || Number(lwInput.value), wallH = Number(state.lh) || Number(lhInput.value);
+        return {
+            layer,
+            x: ((Number(state.pixelX) - wallW / 2) / BASE_WIDTH).toFixed(6),
+            y: ((wallH / 2 - Number(state.pixelY)) / BASE_WIDTH).toFixed(6),
+            scale: state.scaleValue,
+            scale_h: state.scaleHeightLocked === false ? state.scaleHeight : '1.000000',
+            rotation: state.rotationValue || '0',
+            edge_blur: Boolean(state.edgeBlurEnabled),
+            edge_blur_strength: state.edgeBlurStrength || '20',
+            surface: state.surfaceRole || 'main'
+        };
+    }
+
+    function syncSelectedTransformsFromPrimary() {
+        if (selectedLayers.size <= 1) return;
+        const before = layerStates[currentSelectedLayer] || createDefaultLayerState();
+        const requested = {
+            ...before,
+            iw: iwInput.value,
+            ih: ihInput.value,
+            lw: lwInput.value,
+            lh: lhInput.value,
+            ledPreset: presetSelect.value,
+            scaleValue: scaleInput.value,
+            scaleHeight: scaleHeightInput.disabled ? '1.000000' : scaleHeightInput.value,
+            scaleHeightLocked: scaleHeightInput.disabled,
+            rotationValue: rotationInput.value,
+            pixelX: pixelXInput.value,
+            pixelY: pixelYInput.value,
+            edgeBlurEnabled: edgeBlurEnabledInput.checked,
+            edgeBlurStrength: edgeBlurStrengthInput.value
+        };
+        const rawScaleRatio = (Number(before.scaleValue) > 0) ? Number(requested.scaleValue) / Number(before.scaleValue) : 1;
+        const scaleRatio = Number.isFinite(rawScaleRatio) && rawScaleRatio > 0 ? rawScaleRatio : 1;
+        const rawHeightRatio = (Number(before.scaleHeight) > 0) ? Number(requested.scaleHeight) / Number(before.scaleHeight) : 1;
+        const heightRatio = Number.isFinite(rawHeightRatio) && rawHeightRatio > 0 ? rawHeightRatio : 1;
+        const rotationDelta = Number(requested.rotationValue) - Number(before.rotationValue);
+        const radians = rotationDelta * Math.PI / 180;
+        const cos = Math.cos(radians), sin = Math.sin(radians);
+        const primaryWallH = Number(before.lh) || Number(lhInput.value);
+        const beforePrimaryPreview = getPreviewCenter(before, primaryWallH);
+        const requestedPrimaryPreview = getPreviewCenter({ ...before, pixelX: requested.pixelX, pixelY: requested.pixelY }, primaryWallH);
+        const groupResize = transformGesture?.type === 'resize';
+        const translateX = groupResize ? 0 : requestedPrimaryPreview.x - beforePrimaryPreview.x;
+        const translateY = groupResize ? 0 : requestedPrimaryPreview.y - beforePrimaryPreview.y;
+        const payloads = [];
+        selectedLayers.forEach(layer => {
+            const original = layer === currentSelectedLayer ? before : layerStates[layer];
+            const state = { ...original };
+            const wallW = Number(state.lw) || Number(lwInput.value), wallH = Number(state.lh) || Number(lhInput.value);
+            const role = state.surfaceRole || 'main';
+            const bounds = getSurfaceBoundsForRole(role, wallW, wallH);
+            const pivotX = (bounds.left + bounds.right) / 2, pivotY = (bounds.top + bounds.bottom) / 2;
+            const preview = getPreviewCenter(state, wallH);
+            const localX = (preview.x - pivotX) * scaleRatio, localY = (preview.y - pivotY) * scaleRatio;
+            const transformedX = pivotX + localX * cos - localY * sin + translateX;
+            const transformedY = pivotY + localX * sin + localY * cos + translateY;
+            state.pixelX = String(Number(transformedX.toFixed(3)));
+            state.pixelY = String(Number(previewYToServerY(transformedY, state, wallH).toFixed(3)));
+            state.iw = requested.iw;
+            state.ih = requested.ih;
+            state.lw = requested.lw;
+            state.lh = requested.lh;
+            state.ledPreset = requested.ledPreset;
+            state.scaleValue = layer === currentSelectedLayer ? requested.scaleValue : (Number(state.scaleValue) * scaleRatio).toFixed(6);
+            state.scaleHeight = scaleHeightInput.disabled ? '1.000000' : (layer === currentSelectedLayer ? requested.scaleHeight : (Number(state.scaleHeight) * heightRatio).toFixed(6));
+            state.scaleHeightLocked = scaleHeightInput.disabled;
+            const nextRotation = layer === currentSelectedLayer ? Number(requested.rotationValue) : Number(state.rotationValue) + rotationDelta;
+            state.rotationValue = ((((nextRotation % 360) + 360) % 360)).toFixed(3);
+            state.edgeBlurEnabled = edgeBlurEnabledInput.checked;
+            state.edgeBlurStrength = edgeBlurStrengthInput.value;
+            if ((state.surfaceRole || 'main') === 'main') state.mainTransform = getMainTransformSnapshot(state);
+            layerStates[layer] = state;
+            if (layer === currentSelectedLayer) {
+                pixelXInput.value = state.pixelX;
+                pixelYInput.value = state.pixelY;
+            } else payloads.push(makeLayerTransformPayload(layer, state));
+        });
+        if (multiSendTimeout) clearTimeout(multiSendTimeout);
+        multiSendTimeout = setTimeout(() => payloads.forEach(sendToPicturall), 50);
     }
 
     async function renameLayerInPicturall(layerNum, newName) {
@@ -783,14 +1320,192 @@
         try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ layer: layerNum, name: newName }) }); } catch (error) {}
     }
 
-    async function sendToPicturall() {
-        const posX = document.getElementById("posX_result").innerText;
-        const posY = document.getElementById("posY_result").innerText;
-        const scaleVal = document.getElementById("scaleValue").value;
-        const scaleHVal = document.getElementById("scaleHeight").value;
+    async function sendToPicturall(payload) {
         const bridgeIp = "127.0.0.1"; 
-        try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ layer: currentSelectedLayer, x: posX, y: posY, scale: scaleVal, scale_h: scaleHVal }) }); } catch (error) {}
+        try { await fetch(`http://${bridgeIp}:5000/snap`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); } catch (error) {}
     }
+
+    function updateEdgeBlurUI(shouldSend = true) {
+        edgeBlurStrengthInput.disabled = !edgeBlurEnabledInput.checked;
+        edgeBlurValue.textContent = edgeBlurStrengthInput.value;
+        updateAll(shouldSend);
+        if (shouldSend) { saveCurrentLayerState(); captureState(); }
+    }
+    edgeBlurEnabledInput.addEventListener('change', () => updateEdgeBlurUI(true));
+    edgeBlurStrengthInput.addEventListener('input', () => {
+        edgeBlurValue.textContent = edgeBlurStrengthInput.value;
+        updateAll(true); saveCurrentLayerState();
+    });
+    edgeBlurStrengthInput.addEventListener('change', captureState);
+
+    const SPLIT_LAYOUTS = {
+        2: { cols: 2, rows: 1 }, 3: { cols: 3, rows: 1 }, 4: { cols: 2, rows: 2 },
+        6: { cols: 3, rows: 2 }, 8: { cols: 4, rows: 2 }, 9: { cols: 3, rows: 3 }
+    };
+    let autoSplitCount = 2;
+    let autoSplitDraft = [];
+    let autoSplitSurface = 'main';
+
+    function makeSplitDraft(count) {
+        const old = autoSplitDraft;
+        autoSplitDraft = Array.from({ length: count }, (_, index) => old[index] || {
+            layer: index === 0 ? String(currentSelectedLayer) : '', scale: '1.000', offsetX: '0', offsetY: '0'
+        });
+    }
+
+    function syncSplitDraftFromUI() {
+        splitSettings.querySelectorAll('.split-row').forEach(row => {
+            const index = Number(row.dataset.index);
+            autoSplitDraft[index] = {
+                layer: row.querySelector('[data-field="layer"]').value.trim(),
+                scale: row.querySelector('[data-field="scale"]').value.trim(),
+                offsetX: row.querySelector('[data-field="offsetX"]').value.trim(),
+                offsetY: row.querySelector('[data-field="offsetY"]').value.trim()
+            };
+        });
+    }
+
+    function renderAutoSplit() {
+        const layout = SPLIT_LAYOUTS[autoSplitCount];
+        const surfaceLabels = { main: '메인', floor: '바닥', ceiling: '천장' };
+        const wallW = Number(lwInput.value) || 1, wallH = Number(lhInput.value) || 1;
+        const surfaceBounds = getSurfaceBoundsForRole(autoSplitSurface, wallW, wallH);
+        splitPreview.style.aspectRatio = `${surfaceBounds.right - surfaceBounds.left}/${surfaceBounds.bottom - surfaceBounds.top}`;
+        document.getElementById('autoSplitLayerLabel').textContent = `선택 ${selectedLayers.size}개 · ${surfaceLabels[autoSplitSurface]}`;
+        splitPreview.style.gridTemplateColumns = `repeat(${layout.cols}, 1fr)`;
+        splitPreview.style.gridTemplateRows = `repeat(${layout.rows}, 1fr)`;
+        splitPreview.innerHTML = autoSplitDraft.map((slot, index) => `<div class="split-cell${slot.layer ? ' assigned' : ''}" data-index="${index}">${slot.layer ? `L${slot.layer}` : '빈칸'}</div>`).join('');
+        splitSettings.innerHTML = autoSplitDraft.map((slot, index) => `
+            <div class="split-row" data-index="${index}">
+                <div class="split-row-title">영역 ${index + 1}</div>
+                <div class="split-fields">
+                    <div><label>레이어</label><input data-field="layer" type="number" min="1" max="${MAX_LAYERS}" placeholder="빈칸" value="${slot.layer}"></div>
+                    <div><label>배율</label><input data-field="scale" type="number" min="0.01" step="0.01" value="${slot.scale}"></div>
+                    <div><label>X 이동</label><input data-field="offsetX" type="number" step="1" value="${slot.offsetX}"></div>
+                    <div><label>Y 이동</label><input data-field="offsetY" type="number" step="1" value="${slot.offsetY}"></div>
+                </div>
+            </div>`).join('');
+        splitSettings.querySelectorAll('input').forEach(input => input.addEventListener('input', () => {
+            syncSplitDraftFromUI();
+            const cells = splitPreview.querySelectorAll('.split-cell');
+            autoSplitDraft.forEach((slot, index) => {
+                cells[index].textContent = slot.layer ? `L${slot.layer}` : '빈칸';
+                cells[index].classList.toggle('assigned', Boolean(slot.layer));
+            });
+            splitError.textContent = '';
+        }));
+        splitPreview.querySelectorAll('.split-cell').forEach(cell => cell.addEventListener('click', () => {
+            const row = splitSettings.querySelector(`.split-row[data-index="${cell.dataset.index}"]`);
+            row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            row.querySelector('[data-field="layer"]').focus();
+        }));
+    }
+
+    function syncLayerPanelHeight() {
+        const panel = document.querySelector('.layer-panel');
+        const edgeBlurBox = document.querySelector('.edge-blur-box');
+        if (!panel || !edgeBlurBox) return;
+        const panelTop = panel.getBoundingClientRect().top;
+        const edgeBottom = edgeBlurBox.getBoundingClientRect().bottom;
+        panel.style.height = `${Math.max(720, Math.ceil(edgeBottom - panelTop))}px`;
+    }
+
+    function openAutoSplit() {
+        saveCurrentLayerState();
+        const selected = [...selectedLayers].sort((a, b) => a - b);
+        const splitOptions = [2, 3, 4, 6, 8, 9];
+        autoSplitCount = splitOptions.find(count => count >= Math.min(selected.length, 9)) || 9;
+        autoSplitDraft = selected.slice(0, 9).map(layer => ({ layer: String(layer), scale: '1.000', offsetX: '0', offsetY: '0' }));
+        makeSplitDraft(autoSplitCount);
+        autoSplitSurface = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
+        document.querySelectorAll('.split-preset').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.split) === autoSplitCount));
+        document.querySelectorAll('.split-surface-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.surface === autoSplitSurface));
+        elVisualizer.classList.add('preview-hidden');
+        autoSplitPanel.classList.remove('preview-hidden');
+        document.getElementById('openAutoSplitBtn').classList.add('active');
+        splitError.textContent = selected.length > 9 ? 'Auto-Split은 한 번에 최대 9개 레이어까지 배치합니다.' : '';
+        renderAutoSplit();
+        requestAnimationFrame(syncLayerPanelHeight);
+    }
+
+    function closeAutoSplit() {
+        autoSplitPanel.classList.add('preview-hidden');
+        elVisualizer.classList.remove('preview-hidden');
+        document.getElementById('openAutoSplitBtn').classList.remove('active');
+        autoSplitDraft = [];
+        requestAnimationFrame(syncLayerPanelHeight);
+    }
+
+    function applyAutoSplit() {
+        syncSplitDraftFromUI();
+        const assigned = autoSplitDraft.map((slot, index) => ({ ...slot, index })).filter(slot => slot.layer !== '');
+        const layers = assigned.map(slot => Number(slot.layer));
+        if (!assigned.length) { splitError.textContent = '레이어 번호를 하나 이상 입력해주세요.'; return; }
+        if (layers.some(layer => !Number.isInteger(layer) || layer < 1 || layer > MAX_LAYERS)) { splitError.textContent = `레이어 번호는 1~${MAX_LAYERS}만 사용할 수 있습니다.`; return; }
+        if (new Set(layers).size !== layers.length) { splitError.textContent = '같은 레이어를 여러 영역에 넣을 수 없습니다.'; return; }
+        if (assigned.some(slot => !(Number(slot.scale) > 0) || !Number.isFinite(Number(slot.offsetX)) || !Number.isFinite(Number(slot.offsetY)))) {
+            splitError.textContent = '배율과 이동값을 확인해주세요.'; return;
+        }
+        const layout = SPLIT_LAYOUTS[autoSplitCount];
+        const wallW = Number(lwInput.value), wallH = Number(lhInput.value);
+        const bounds = getSurfaceBoundsForRole(autoSplitSurface, wallW, wallH);
+        const cellW = (bounds.right - bounds.left) / layout.cols, cellH = (bounds.bottom - bounds.top) / layout.rows;
+        const prepared = assigned.map(slot => {
+            const layer = Number(slot.layer), state = { ...layerStates[layer] };
+            const previousRole = state.surfaceRole || 'main';
+            if (autoSplitSurface === 'main' && previousRole !== 'main' && state.mainTransform) Object.assign(state, state.mainTransform);
+            if (autoSplitSurface !== 'main') {
+                if (previousRole === 'main') state.mainTransform = getMainTransformSnapshot(state);
+                state.iw = String(SURFACE_PRESETS[autoSplitSurface].iw);
+                state.ih = String(SURFACE_PRESETS[autoSplitSurface].ih);
+                state.rotationValue = '0';
+            }
+            return { slot, layer, state };
+        });
+        const referenceRatio = Number(prepared[0].state.ih) / Number(prepared[0].state.iw);
+        const baseScale = Math.min(cellW / BASE_WIDTH, cellH / (BASE_WIDTH * referenceRatio));
+        const tileW = baseScale * BASE_WIDTH, tileH = tileW * referenceRatio;
+        const groupLeft = bounds.left + ((bounds.right - bounds.left) - tileW * layout.cols) / 2;
+        const groupTop = bounds.top + ((bounds.bottom - bounds.top) - tileH * layout.rows) / 2;
+        prepared.forEach(({ slot, layer, state }) => {
+            const col = slot.index % layout.cols, row = Math.floor(slot.index / layout.cols);
+            const multiplier = Number(slot.scale), sourceRatio = Number(state.ih) / Number(state.iw);
+            const previewX = groupLeft + (col + .5) * tileW + Number(slot.offsetX);
+            const previewY = groupTop + (row + .5) * tileH + Number(slot.offsetY);
+            const sourceScale = Math.min(tileW / BASE_WIDTH, tileH / (BASE_WIDTH * sourceRatio));
+            state.scaleValue = (sourceScale * multiplier).toFixed(6);
+            state.scaleHeight = "1.000000";
+            state.scaleHeightLocked = true;
+            state.surfaceRole = autoSplitSurface;
+            state.pixelX = String(Number(previewX.toFixed(3)));
+            state.pixelY = String(Number(previewYToServerY(previewY, state, wallH).toFixed(3)));
+            state.ledPreset = presetSelect.value; state.lw = String(wallW); state.lh = String(wallH);
+            if (autoSplitSurface === 'main') state.mainTransform = getMainTransformSnapshot(state);
+            layerStates[layer] = state;
+            sendToPicturall({
+                layer, x: ((Number(state.pixelX) - wallW / 2) / BASE_WIDTH).toFixed(6), y: ((wallH / 2 - Number(state.pixelY)) / BASE_WIDTH).toFixed(6),
+                scale: state.scaleValue, scale_h: state.scaleHeight, rotation: state.rotationValue || '0',
+                edge_blur: Boolean(state.edgeBlurEnabled), edge_blur_strength: state.edgeBlurStrength || '20', surface: autoSplitSurface
+            });
+        });
+        document.querySelectorAll(".snap-btn").forEach(btn => btn.classList.remove("active"));
+        loadLayerState(currentSelectedLayer); handleResolutionChange(false, false); captureState(); closeAutoSplit();
+    }
+
+    document.getElementById('openAutoSplitBtn').addEventListener('click', openAutoSplit);
+    document.getElementById('cancelAutoSplitBtn').addEventListener('click', closeAutoSplit);
+    document.getElementById('applyAutoSplitBtn').addEventListener('click', applyAutoSplit);
+    document.querySelectorAll('.split-surface-btn').forEach(btn => btn.addEventListener('click', () => {
+        autoSplitSurface = btn.dataset.surface;
+        document.querySelectorAll('.split-surface-btn').forEach(item => item.classList.toggle('active', item === btn));
+        splitError.textContent = '';
+        renderAutoSplit();
+    }));
+    document.querySelectorAll('.split-preset').forEach(btn => btn.addEventListener('click', () => {
+        syncSplitDraftFromUI(); autoSplitCount = Number(btn.dataset.split); makeSplitDraft(autoSplitCount);
+        document.querySelectorAll('.split-preset').forEach(item => item.classList.toggle('active', item === btn));
+        splitError.textContent = ''; renderAutoSplit();
+    }));
 
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     
@@ -802,7 +1517,7 @@
         } else {
             lwInput.disabled = false; lhInput.disabled = false;
         }
-        handleResolutionChange();
+        handleResolutionChange(shouldCapture, shouldCapture);
         if(shouldCapture) captureState();
         saveCurrentLayerState();
     }
@@ -835,7 +1550,99 @@
         setTimeout(() => { target.classList.remove("copied"); target.innerText = orig; }, 800);
     };
 
-    function handleResolutionChange() {
+    function getSurfaceBoundsForRole(role, wallW, wallH) {
+        if (role === 'main') return { left: 0, top: 0, right: wallW, bottom: wallH };
+        const preset = SURFACE_PRESETS[role];
+        const width = preset.scale * BASE_WIDTH;
+        const height = width * preset.ih / preset.iw;
+        const centerX = wallW / 2 + preset.x * BASE_WIDTH;
+        if (role === 'ceiling') return { left: centerX - width / 2, top: -height, right: centerX + width / 2, bottom: 0 };
+        return { left: centerX - width / 2, top: wallH, right: centerX + width / 2, bottom: wallH + height };
+    }
+
+    function getSurfaceSnapBounds() {
+        const wallW = Number(lwInput.value), wallH = Number(lhInput.value);
+        const role = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
+        return getSurfaceBoundsForRole(role, wallW, wallH);
+    }
+
+    // 서버의 실제 좌표는 유지하고, 프리뷰에서만 천장/바닥 가이드를 메인에 붙여 보이게 한다.
+    function getSurfacePreviewOffsetY(state, wallH) {
+        const role = state?.surfaceRole || 'main';
+        const preset = SURFACE_PRESETS[role];
+        if (!preset) return 0;
+        const guideH = preset.scale * BASE_WIDTH * preset.ih / preset.iw;
+        const serverPresetY = wallH / 2 - preset.y * BASE_WIDTH;
+        const attachedGuideY = role === 'ceiling' ? -guideH / 2 : wallH + guideH / 2;
+        return attachedGuideY - serverPresetY;
+    }
+
+    function getPreviewCenter(state, wallH) {
+        return {
+            x: Number(state.pixelX),
+            y: Number(state.pixelY) + getSurfacePreviewOffsetY(state, wallH)
+        };
+    }
+
+    function previewYToServerY(previewY, state, wallH) {
+        return previewY - getSurfacePreviewOffsetY(state, wallH);
+    }
+
+    function getSelectedGroupPreviewBounds() {
+        if (selectedLayers.size <= 1) return null;
+        const wallH = Number(lhInput.value) || 1;
+        const primaryRole = layerStates[currentSelectedLayer]?.surfaceRole || 'main';
+        const states = [...selectedLayers].map(layer => {
+            const saved = layerStates[layer];
+            if (!saved || (saved.surfaceRole || 'main') !== primaryRole) return null;
+            return layer === currentSelectedLayer ? {
+                ...saved,
+                iw: iwInput.value, ih: ihInput.value,
+                scaleValue: scaleInput.value, scaleHeight: scaleHeightInput.value,
+                rotationValue: rotationInput.value, pixelX: pixelXInput.value, pixelY: pixelYInput.value
+            } : saved;
+        });
+        if (states.some(state => !state)) return null;
+        let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+        states.forEach(state => {
+            const center = getPreviewCenter(state, wallH);
+            const width = Number(state.scaleValue) * BASE_WIDTH;
+            const height = width * Number(state.scaleHeight || 1) * (Number(state.ih) / Number(state.iw));
+            const radians = Number(state.rotationValue || 0) * Math.PI / 180;
+            const halfW = Math.abs(Math.cos(radians)) * width / 2 + Math.abs(Math.sin(radians)) * height / 2;
+            const halfH = Math.abs(Math.sin(radians)) * width / 2 + Math.abs(Math.cos(radians)) * height / 2;
+            left = Math.min(left, center.x - halfW); right = Math.max(right, center.x + halfW);
+            top = Math.min(top, center.y - halfH); bottom = Math.max(bottom, center.y + halfH);
+        });
+        return { left, top, right, bottom };
+    }
+
+    function setSnapPosition(btn) {
+        const S = parseFloat(scaleInput.value) || 1, Sh = parseFloat(scaleHeightInput.value) || 1;
+        const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (Number(ihInput.value)/Number(iwInput.value));
+        const bounds = getSurfaceSnapBounds();
+        const state = { ...layerStates[currentSelectedLayer], pixelX: pixelXInput.value, pixelY: pixelYInput.value };
+        const groupBounds = getSelectedGroupPreviewBounds();
+        let tx, ty;
+        if (groupBounds) {
+            const currentCenter = getPreviewCenter(state, Number(lhInput.value));
+            let dx = (bounds.left + bounds.right) / 2 - (groupBounds.left + groupBounds.right) / 2;
+            let dy = (bounds.top + bounds.bottom) / 2 - (groupBounds.top + groupBounds.bottom) / 2;
+            if (btn.dataset.x === 'left') dx = bounds.left - groupBounds.left;
+            else if (btn.dataset.x === 'right') dx = bounds.right - groupBounds.right;
+            if (btn.dataset.y === 'top') dy = bounds.top - groupBounds.top;
+            else if (btn.dataset.y === 'bottom') dy = bounds.bottom - groupBounds.bottom;
+            tx = currentCenter.x + dx; ty = currentCenter.y + dy;
+        } else {
+            tx = (bounds.left + bounds.right) / 2; ty = (bounds.top + bounds.bottom) / 2;
+            if(btn.dataset.x === 'left') tx = bounds.left + bW/2; else if(btn.dataset.x === 'right') tx = bounds.right - bW/2;
+            if(btn.dataset.y === 'top') ty = bounds.top + bH/2; else if(btn.dataset.y === 'bottom') ty = bounds.bottom - bH/2;
+        }
+        pixelXInput.value = Number(tx.toFixed(3));
+        pixelYInput.value = Number(previewYToServerY(ty, state, Number(lhInput.value)).toFixed(3));
+    }
+
+    function handleResolutionChange(shouldSend = true, shouldApplySnap = true) {
         const iw = Number(iwInput.value) || 1, ih = Number(ihInput.value) || 1;
         const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
         const g = gcd(iw, ih); document.getElementById("ratioValue").innerText = `${iw/g}:${ih/g}`;
@@ -847,22 +1654,38 @@
             <div class="scale-item" onclick="applyScale('${sW}', this)"><span class="scale-label">가로 채우기</span><span class="val">${sW}</span></div>
             <div class="scale-item" onclick="applyScale('${sH}', this)"><span class="scale-label">세로 채우기</span><span class="val">${sH}</span></div>
             <div class="scale-item" onclick="applyScale('${sO}', this)"><span class="scale-label">정사이즈 (1:1)</span><span class="val">${sO}</span></div>`;
-        elVisualizer.style.aspectRatio = `${lw}/${lh}`;
+        elVisualizer.style.aspectRatio = `${lw * EDITOR_SCALE_X}/${lh * EDITOR_SCALE_Y}`;
         sourceResLabel.innerText = `${iw}x${ih}`;
         if (!scaleInput.value) {
             scaleInput.value = sO;
             pixelXInput.value = Math.round(lw / 2); pixelYInput.value = Math.round(lh / 2);
             document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
             document.querySelector('.snap-btn[data-x="center"][data-y="center"]').classList.add("active");
-            updateAll();
+            updateAll(shouldSend);
         } else {
             const activeSnap = document.querySelector(".snap-btn.active");
-            if (activeSnap) { activeSnap.click(); } else { updateAll(); }
+            if (activeSnap && shouldApplySnap) setSnapPosition(activeSnap);
+            updateAll(shouldSend);
         }
     }
 
-    function updateAll() {
+    function updateScaleHeightLockUI(locked) {
+        const field = document.getElementById('scaleHeightField');
+        const lockIcon = document.getElementById('scaleHeightLockIcon');
+        const lockTooltip = document.getElementById('scaleHeightLockTooltip');
+        scaleHeightInput.disabled = locked;
+        field.classList.toggle('locked-transform', locked);
+        field.classList.toggle('unlocked', !locked);
+        lockIcon.classList.toggle('is-unlocked', !locked);
+        lockIcon.setAttribute('aria-label', locked ? '잠김' : '잠금 해제됨');
+        lockTooltip.textContent = locked ? '우클릭 하여 잠금해제' : '우클릭 하여 다시 잠금';
+        scaleHeightInput.title = locked ? '우클릭하여 잠금을 해제할 수 있습니다' : '우클릭하여 다시 잠글 수 있습니다';
+        if (locked) scaleHeightInput.value = "1.000000";
+    }
+
+    function updateAll(shouldSend = true) {
         const lw = Number(lwInput.value), lh = Number(lhInput.value), iw = Number(iwInput.value), ih = Number(ihInput.value);
+        if (shouldSend) syncSelectedTransformsFromPrimary();
         const px = Number(pixelXInput.value), py = Number(pixelYInput.value);
         const S = parseFloat(scaleInput.value) || 1, Sh = parseFloat(scaleHeightInput.value) || 1;
         const nX = (px - lw / 2) / BASE_WIDTH;
@@ -870,47 +1693,342 @@
         document.getElementById("posX_result").innerText = nX.toFixed(6);
         document.getElementById("posY_result").innerText = nY.toFixed(6);
         const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (ih / iw);
-        const wP = (bW / lw) * 100, hP = (bH / lh) * 100;
+        const editorW = lw * EDITOR_SCALE_X, editorH = lh * EDITOR_SCALE_Y;
+        const previewCenter = getPreviewCenter({ ...layerStates[currentSelectedLayer], pixelX: px, pixelY: py }, lh);
+        const wP = (bW / editorW) * 100, hP = (bH / editorH) * 100;
         elSourceBox.style.width = `${wP}%`; elSourceBox.style.height = `${hP}%`;
-        elSourceBox.style.left = `${(px/lw)*100 - wP/2}%`; elSourceBox.style.top = `${(py/lh)*100 - hP/2}%`;
+        elSourceBox.style.left = `${((previewCenter.x + lw * EDITOR_MARGIN_X)/editorW)*100 - wP/2}%`;
+        elSourceBox.style.top = `${((previewCenter.y + lh * EDITOR_MARGIN_Y)/editorH)*100 - hP/2}%`;
+        const rotation = Number(rotationInput.value) || 0;
+        elSourceBox.style.transform = `rotate(${rotation}deg)`;
+        const blurStrength = edgeBlurEnabledInput.checked ? Number(edgeBlurStrengthInput.value) || 0 : 0;
+        edgeBlurPreview.style.boxShadow = blurStrength ? `inset 0 0 ${Math.max(3, blurStrength * 0.22)}px ${Math.max(1, blurStrength * 0.05)}px rgba(241,245,249,.88)` : 'none';
+        document.querySelectorAll('.rotation-preset').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.rotation) === rotation));
         sourceResLabel.innerText = `${iw} X ${ih}`; calcResLabel.innerText = `(${Math.round(bW)} X ${Math.round(bH)})`;
-        triggerSend();
+        updatePrimarySourceTextVisibility();
+        updateSurfaceGuides(lw, lh, editorW, editorH);
+        renderMultiLayerPreview();
+        if (shouldSend) triggerSend();
+    }
+
+    function positionGuide(element, centerX, centerY, boxW, boxH, wallW, wallH, editorW, editorH) {
+        element.style.width = `${boxW / editorW * 100}%`;
+        element.style.height = `${boxH / editorH * 100}%`;
+        element.style.left = `${(centerX + wallW * EDITOR_MARGIN_X) / editorW * 100 - boxW / editorW * 50}%`;
+        element.style.top = `${(centerY + wallH * EDITOR_MARGIN_Y) / editorH * 100 - boxH / editorH * 50}%`;
+    }
+
+    function updateSurfaceGuides(wallW, wallH, editorW, editorH) {
+        positionGuide(document.getElementById('ledWallGuide'), wallW / 2, wallH / 2, wallW, wallH, wallW, wallH, editorW, editorH);
+        for (const role of ['ceiling', 'floor']) {
+            const preset = SURFACE_PRESETS[role];
+            const centerX = wallW / 2 + preset.x * BASE_WIDTH;
+            const boxW = preset.scale * BASE_WIDTH;
+            const boxH = boxW * preset.ih / preset.iw;
+            const centerY = role === 'ceiling' ? -boxH / 2 : wallH + boxH / 2;
+            positionGuide(document.getElementById(`${role}Guide`), centerX, centerY, boxW, boxH, wallW, wallH, editorW, editorH);
+        }
+    }
+
+    function renderMultiLayerPreview() {
+        elVisualizer.querySelectorAll('.multi-preview-source').forEach(el => el.remove());
+        if (selectedLayers.size <= 1) return;
+        const wallW = Number(lwInput.value) || 1, wallH = Number(lhInput.value) || 1;
+        const editorW = wallW * EDITOR_SCALE_X, editorH = wallH * EDITOR_SCALE_Y;
+        selectedLayers.forEach(layer => {
+            if (layer === currentSelectedLayer) return;
+            const state = layerStates[layer];
+            if (!state) return;
+            const sourceW = Number(state.iw) || 1, sourceH = Number(state.ih) || 1;
+            const scale = Number(state.scaleValue) || 1, scaleH = Number(state.scaleHeight) || 1;
+            const boxW = scale * BASE_WIDTH, boxH = scale * scaleH * BASE_WIDTH * (sourceH / sourceW);
+            const previewCenter = getPreviewCenter(state, wallH);
+            const box = document.createElement('div');
+            box.className = 'multi-preview-source';
+            box.style.width = `${boxW / editorW * 100}%`;
+            box.style.height = `${boxH / editorH * 100}%`;
+            box.style.left = `${(previewCenter.x + wallW * EDITOR_MARGIN_X) / editorW * 100 - boxW / editorW * 50}%`;
+            box.style.top = `${(previewCenter.y + wallH * EDITOR_MARGIN_Y) / editorH * 100 - boxH / editorH * 50}%`;
+            box.style.transform = `rotate(${Number(state.rotationValue) || 0}deg)`;
+            const blur = state.edgeBlurEnabled ? Number(state.edgeBlurStrength) || 0 : 0;
+            if (blur) box.style.boxShadow = `inset 0 0 ${Math.max(3, blur * .22)}px rgba(241,245,249,.75)`;
+            const name = document.createElement('span');
+            name.className = 'source-layer-name'; name.textContent = getPreviewLayerLabel(layer);
+            box.appendChild(name);
+            elVisualizer.appendChild(box);
+            fitPreviewLayerLabel(name, layer, box);
+        });
     }
 
     document.querySelectorAll(".snap-btn").forEach(btn => btn.addEventListener("click", function() {
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
         this.classList.add("active");
-        const S = parseFloat(scaleInput.value) || 1, Sh = parseFloat(scaleHeightInput.value) || 1;
-        const bW = S * BASE_WIDTH, bH = S * Sh * BASE_WIDTH * (Number(ihInput.value)/Number(iwInput.value));
-        const lw = Number(lwInput.value), lh = Number(lhInput.value);
-        let tx = lw/2, ty = lh/2;
-        if(this.dataset.x === 'left') tx = bW/2; else if(this.dataset.x === 'right') tx = lw - bW/2;
-        if(this.dataset.y === 'top') ty = bH/2; else if(this.dataset.y === 'bottom') ty = lh - bH/2;
-        pixelXInput.value = Math.round(tx); pixelYInput.value = Math.round(ty); 
+        setSnapPosition(this);
         updateAll(); captureState(); saveCurrentLayerState(); 
     }));
 
-    let isDrag = false, dragStartX = 0, dragStartY = 0, initPixelX = 0, initPixelY = 0, hasMovedDuringDrag = false;
-    elSourceBox.addEventListener("mousedown", (e) => { 
-        isDrag = true; hasMovedDuringDrag = false; 
-        dragStartX = e.clientX; dragStartY = e.clientY;
-        initPixelX = Number(pixelXInput.value); initPixelY = Number(pixelYInput.value);
-        e.preventDefault(); 
+    let transformGesture = null;
+
+    function pointerToWall(e, rect, lw, lh) {
+        return {
+            x: (e.clientX - rect.left) * (lw * EDITOR_SCALE_X) / rect.width - lw * EDITOR_MARGIN_X,
+            y: (e.clientY - rect.top) * (lh * EDITOR_SCALE_Y) / rect.height - lh * EDITOR_MARGIN_Y
+        };
+    }
+
+    function finishTransformGesture(e) {
+        if (!transformGesture || (e.pointerId !== undefined && e.pointerId !== transformGesture.pointerId)) return;
+        if (transformGesture.moved) {
+            updateAll(true);
+            saveCurrentLayerState();
+            captureState();
+        }
+        elSourceBox.classList.remove("is-transforming");
+        transformGesture = null;
+    }
+
+    elSourceBox.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0 || e.target.closest('.source-handle')) return;
+        transformGesture = {
+            type: 'move', pointerId: e.pointerId, startClientX: e.clientX, startClientY: e.clientY,
+            startX: Number(pixelXInput.value), startY: Number(pixelYInput.value), moved: false
+        };
+        elSourceBox.setPointerCapture(e.pointerId);
+        elSourceBox.classList.add("is-transforming");
+        e.preventDefault();
     });
-    window.addEventListener("mouseup", () => {
-        if(isDrag && hasMovedDuringDrag) { captureState(); saveCurrentLayerState(); }
-        isDrag = false; hasMovedDuringDrag = false;
+
+    document.querySelectorAll('.source-handle').forEach(handle => {
+        handle.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0) return;
+            e.stopPropagation(); e.preventDefault();
+            const rect = elVisualizer.getBoundingClientRect();
+            const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
+            const serverCenterX = Number(pixelXInput.value), serverCenterY = Number(pixelYInput.value);
+            const previewCenter = getPreviewCenter({ ...layerStates[currentSelectedLayer], pixelX: serverCenterX, pixelY: serverCenterY }, lh);
+            const centerX = previewCenter.x, centerY = previewCenter.y;
+            const rotation = Number(rotationInput.value) || 0;
+            const startPoint = pointerToWall(e, rect, lw, lh);
+            const handleName = handle.dataset.handle;
+            transformGesture = {
+                type: handleName === 'rotate' ? 'rotate' : 'resize', handle: handleName,
+                pointerId: e.pointerId, rect, lw, lh, centerX, centerY, rotation,
+                serverCenterX, serverCenterY,
+                startPointerAngle: Math.atan2(startPoint.y - centerY, startPoint.x - centerX),
+                startW: (parseFloat(scaleInput.value) || 1) * BASE_WIDTH,
+                startH: (parseFloat(scaleInput.value) || 1) * (parseFloat(scaleHeightInput.value) || 1) * BASE_WIDTH * (Number(ihInput.value) / Number(iwInput.value)),
+                moved: false
+            };
+            handle.setPointerCapture(e.pointerId);
+            elSourceBox.classList.add("is-transforming");
+        });
     });
-    window.addEventListener("mousemove", (e) => {
-        if(!isDrag) return;
-        hasMovedDuringDrag = true; 
-        const rect = elVisualizer.getBoundingClientRect();
-        const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
-        const scaleX = lw / rect.width, scaleY = lh / rect.height;
-        if (allowMoveX) pixelXInput.value = Math.round(initPixelX + ((e.clientX - dragStartX) * scaleX));
-        if (allowMoveY) pixelYInput.value = Math.round(initPixelY + ((e.clientY - dragStartY) * scaleY));
+
+    window.addEventListener("pointermove", (e) => {
+        const g = transformGesture;
+        if (!g || e.pointerId !== g.pointerId) return;
+        g.moved = true;
         document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
-        updateAll();
+
+        if (g.type === 'move') {
+            const rect = elVisualizer.getBoundingClientRect();
+            const lw = Number(lwInput.value) || 1, lh = Number(lhInput.value) || 1;
+            pixelXInput.value = Math.round(g.startX + (e.clientX - g.startClientX) * lw * EDITOR_SCALE_X / rect.width);
+            pixelYInput.value = Math.round(g.startY + (e.clientY - g.startClientY) * lh * EDITOR_SCALE_Y / rect.height);
+        } else if (g.type === 'rotate') {
+            const point = pointerToWall(e, g.rect, g.lw, g.lh);
+            const angle = Math.atan2(point.y - g.centerY, point.x - g.centerX);
+            let degrees = g.rotation + (angle - g.startPointerAngle) * 180 / Math.PI;
+            if (e.shiftKey) degrees = Math.round(degrees / 15) * 15;
+            rotationInput.value = ((degrees % 360) + 360) % 360 < 0.05 ? 0 : (((degrees % 360) + 360) % 360).toFixed(1);
+        } else {
+            const point = pointerToWall(e, g.rect, g.lw, g.lh);
+            const theta = -g.rotation * Math.PI / 180;
+            const dx = point.x - g.centerX, dy = point.y - g.centerY;
+            const localX = dx * Math.cos(theta) - dy * Math.sin(theta);
+            const localY = dx * Math.sin(theta) + dy * Math.cos(theta);
+            const map = { nw:[-1,-1], n:[0,-1], ne:[1,-1], e:[1,0], se:[1,1], s:[0,1], sw:[-1,1], w:[-1,0] };
+            const [sx, sy] = map[g.handle];
+            const minSize = 24;
+            let newW = g.startW, newH = g.startH, shiftX = 0, shiftY = 0;
+            if (sx) {
+                const oppositeX = -sx * g.startW / 2;
+                newW = Math.max(minSize, sx * (localX - oppositeX));
+                shiftX = (oppositeX + oppositeX + sx * newW) / 2;
+            }
+            if (sy) {
+                const oppositeY = -sy * g.startH / 2;
+                newH = Math.max(minSize, sy * (localY - oppositeY));
+                shiftY = (oppositeY + oppositeY + sy * newH) / 2;
+            }
+            if (scaleHeightInput.disabled && sx && sy) {
+                const factor = Math.max(newW / g.startW, newH / g.startH);
+                newW = g.startW * factor; newH = g.startH * factor;
+            } else if (scaleHeightInput.disabled && sx) newH = newW * (g.startH / g.startW);
+            else if (scaleHeightInput.disabled && sy) newW = newH * (g.startW / g.startH);
+            else if (e.shiftKey && sx && sy) {
+                const factor = Math.max(newW / g.startW, newH / g.startH);
+                newW = g.startW * factor; newH = g.startH * factor;
+            }
+            shiftX = sx ? sx * (newW - g.startW) / 2 : 0;
+            shiftY = sy ? sy * (newH - g.startH) / 2 : 0;
+            const forward = g.rotation * Math.PI / 180;
+            const worldShiftX = shiftX * Math.cos(forward) - shiftY * Math.sin(forward);
+            const worldShiftY = shiftX * Math.sin(forward) + shiftY * Math.cos(forward);
+            pixelXInput.value = Math.round(g.serverCenterX + worldShiftX);
+            pixelYInput.value = Math.round(g.serverCenterY + worldShiftY);
+            scaleInput.value = (newW / BASE_WIDTH).toFixed(6);
+            scaleHeightInput.value = scaleHeightInput.disabled ? "1.000000" : (newH / (newW * (Number(ihInput.value) / Number(iwInput.value)))).toFixed(6);
+        }
+        updateAll(true);
+    });
+
+    window.addEventListener("pointerup", finishTransformGesture);
+    window.addEventListener("pointercancel", finishTransformGesture);
+
+    document.querySelectorAll('.rotation-preset').forEach(btn => btn.addEventListener('click', () => {
+        rotationInput.value = btn.dataset.rotation;
+        updateAll(); saveCurrentLayerState(); captureState();
+    }));
+
+    function evaluateArithmetic(expression) {
+        const source = expression.replace(/,/g, '').replace(/\s+/g, '');
+        let index = 0;
+        function parseNumber() {
+            const start = index;
+            while (index < source.length && /[0-9.]/.test(source[index])) index++;
+            if (start === index) throw new Error('숫자가 필요합니다.');
+            const value = Number(source.slice(start, index));
+            if (!Number.isFinite(value)) throw new Error('올바른 숫자가 아닙니다.');
+            return value;
+        }
+        function parseFactor() {
+            if (source[index] === '+') { index++; return parseFactor(); }
+            if (source[index] === '-') { index++; return -parseFactor(); }
+            if (source[index] === '(') {
+                index++; const value = parseExpression();
+                if (source[index] !== ')') throw new Error('괄호를 닫아주세요.');
+                index++; return value;
+            }
+            return parseNumber();
+        }
+        function parseTerm() {
+            let value = parseFactor();
+            while (source[index] === '*' || source[index] === '/') {
+                const operator = source[index++], right = parseFactor();
+                if (operator === '/' && right === 0) throw new Error('0으로 나눌 수 없습니다.');
+                value = operator === '*' ? value * right : value / right;
+            }
+            return value;
+        }
+        function parseExpression() {
+            let value = parseTerm();
+            while (source[index] === '+' || source[index] === '-') {
+                const operator = source[index++], right = parseTerm();
+                value = operator === '+' ? value + right : value - right;
+            }
+            return value;
+        }
+        if (!source) throw new Error('값이나 수식을 입력하세요.');
+        const value = parseExpression();
+        if (index !== source.length || !Number.isFinite(value)) throw new Error('수식을 확인해주세요.');
+        return value;
+    }
+
+    function getTransformValue(key) {
+        if (key === 'posX') return Number(document.getElementById('posX_result').innerText);
+        if (key === 'posY') return Number(document.getElementById('posY_result').innerText);
+        return Number(document.getElementById(key).value) || 0;
+    }
+
+    function applyTransformValue(key, value) {
+        if (!Number.isFinite(value)) return;
+        if (key === 'posX') pixelXInput.value = Math.round(value * BASE_WIDTH + Number(lwInput.value) / 2);
+        else if (key === 'posY') pixelYInput.value = Math.round(Number(lhInput.value) / 2 - value * BASE_WIDTH);
+        else if (key === 'rotationValue') rotationInput.value = Number((((value % 360) + 360) % 360).toFixed(3));
+        else document.getElementById(key).value = ['pixelX','pixelY'].includes(key) ? Math.round(value) : value.toFixed(6);
+        document.querySelectorAll(".snap-btn").forEach(b => b.classList.remove("active"));
+        updateAll(); saveCurrentLayerState(); captureState();
+    }
+
+    let expressionPopover = null;
+    function closeExpressionPopover() {
+        if (expressionPopover) expressionPopover.remove();
+        expressionPopover = null;
+    }
+
+    function openExpressionPopover(e, field) {
+        closeExpressionPopover();
+        const key = field.dataset.transform, current = getTransformValue(key);
+        const popover = document.createElement('div');
+        popover.className = 'expression-popover';
+        popover.innerHTML = `<div class="expression-title">${field.dataset.label} · 숫자/수식 입력</div><input type="text" aria-label="${field.dataset.label} 수식" value="${current}"><div class="expression-hint">직접값: 100 &nbsp; 상대계산: +10, -10, *2, /2<br>일반수식: 100+20*2 &nbsp; 음수 직접값: =-10</div>`;
+        document.body.appendChild(popover);
+        const left = Math.min(e.clientX, window.innerWidth - 255), top = Math.min(e.clientY, window.innerHeight - 125);
+        popover.style.left = `${Math.max(8, left)}px`; popover.style.top = `${Math.max(8, top)}px`;
+        expressionPopover = popover;
+        const input = popover.querySelector('input');
+        input.focus(); input.select();
+        const submit = () => {
+            try {
+                let raw = input.value.trim(), value;
+                if (/^[+\-*/]/.test(raw) && !raw.startsWith('=')) value = evaluateArithmetic(`${current}${raw}`);
+                else value = evaluateArithmetic(raw.startsWith('=') ? raw.slice(1) : raw);
+                applyTransformValue(key, value); closeExpressionPopover();
+            } catch (error) {
+                const hint = popover.querySelector('.expression-hint');
+                hint.classList.add('expression-error'); hint.textContent = error.message;
+                input.focus(); input.select();
+            }
+        };
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') { event.preventDefault(); submit(); }
+            if (event.key === 'Escape') closeExpressionPopover();
+        });
+        input.addEventListener('blur', () => setTimeout(() => { if (expressionPopover === popover) closeExpressionPopover(); }, 120));
+    }
+
+    document.querySelectorAll('.transform-field').forEach(field => field.addEventListener('contextmenu', e => {
+        if (e.target.closest('.rotation-preset')) { e.preventDefault(); e.stopPropagation(); return; }
+        e.preventDefault(); e.stopPropagation(); openExpressionPopover(e, field);
+    }));
+    document.querySelectorAll('.rotation-preset').forEach(button => button.addEventListener('contextmenu', e => {
+        e.preventDefault(); e.stopPropagation();
+    }));
+
+    let lockContextMenu = null;
+    function closeLockContextMenu() {
+        if (lockContextMenu) lockContextMenu.remove();
+        lockContextMenu = null;
+    }
+    document.getElementById('scaleHeightField').addEventListener('contextmenu', e => {
+        e.preventDefault(); e.stopPropagation(); closeExpressionPopover(); closeLockContextMenu();
+        const menu = document.createElement('div');
+        menu.className = 'lock-context-menu';
+        if (scaleHeightInput.disabled) {
+            const unlock = document.createElement('button');
+            unlock.textContent = '🔓 잠금 해제';
+            unlock.onclick = () => {
+                updateScaleHeightLockUI(false); saveCurrentLayerState(); captureState(); closeLockContextMenu(); scaleHeightInput.focus();
+            };
+            menu.appendChild(unlock);
+        } else {
+            const edit = document.createElement('button'); edit.textContent = '⌨ 숫자·수식 입력';
+            edit.onclick = () => { closeLockContextMenu(); openExpressionPopover(e, document.getElementById('scaleHeightField')); };
+            const lock = document.createElement('button'); lock.textContent = '🔒 1로 재설정 후 잠금';
+            lock.onclick = () => {
+                scaleHeightInput.value = '1.000000'; updateScaleHeightLockUI(true); updateAll(); saveCurrentLayerState(); captureState(); closeLockContextMenu();
+            };
+            menu.append(edit, lock);
+        }
+        document.body.appendChild(menu);
+        menu.style.left = `${Math.min(e.clientX, window.innerWidth - 200)}px`;
+        menu.style.top = `${Math.min(e.clientY, window.innerHeight - menu.offsetHeight - 8)}px`;
+        lockContextMenu = menu;
+    });
+    document.addEventListener('pointerdown', e => {
+        if (expressionPopover && !expressionPopover.contains(e.target)) closeExpressionPopover();
+        if (lockContextMenu && !lockContextMenu.contains(e.target)) closeLockContextMenu();
     });
 
     inputsToTrack.forEach(id => {
@@ -925,18 +2043,28 @@
     });
 
     document.getElementById("scaleValue").addEventListener("blur", function() { forceDecimalFormat(this.id); });
-    document.getElementById("scaleHeight").addEventListener("blur", function() { forceDecimalFormat(this.id); });
+    document.getElementById("scaleHeight").addEventListener("blur", function() { if (!this.disabled) forceDecimalFormat(this.id); });
+    document.getElementById("rotationValue").addEventListener("blur", function() {
+        let value = Number(this.value) || 0;
+        value = ((value % 360) + 360) % 360;
+        this.value = Number(value.toFixed(1));
+        updateAll(); saveCurrentLayerState();
+    });
     presetSelect.addEventListener("change", () => applyPreset(true));
 
     window.onload = () => {
         loadLayerState(1); applyPreset(false); captureState();
         makeScrubbable('scaleValue', 'scaleValue', 0.002, false);
-        makeScrubbable('scaleHeight', 'scaleHeight', 0.002, false);
         makeScrubbable('pixelX', 'pixelX', 10, true);
         makeScrubbable('pixelY', 'pixelY', 10, true);
         makeScrubbable('posX_wrapper', 'pixelX', 10, true);
         makeScrubbable('posY_wrapper', 'pixelY', 10, true);
+        requestAnimationFrame(syncLayerPanelHeight);
     };
+    window.addEventListener('resize', () => {
+        syncLayerPanelHeight();
+        updateAll(false);
+    });
 </script>
 </body>
 </html>
